@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class SmsOrder extends Model
 {
+    const SMS_READY = 1;
+
     use HasFactory;
 
     protected $guarded = false;

@@ -24,8 +24,6 @@ class OrderService extends MainService
     public function createOrder($service, $country_id, $user_id, $bot, $user_secret_key)
     {
         try {
-            //API с бота
-//            $smsActivate = new SmsActivateApi(config('services.key_activate.key'));
             $smsActivate = new SmsActivateApi($bot->api_key);
 
             $serviceResult = $smsActivate->getNumberV2(
@@ -89,7 +87,6 @@ class OrderService extends MainService
 
             //списание баланса
             $this->changeBalance($order, $bot, 'subtract-balance', $user_secret_key);
-//            $this->createBotOrder($order, $bot, 'order-create', $user_secret_key);
 
             return $result;
         } catch (\Exception $e) {
@@ -107,8 +104,6 @@ class OrderService extends MainService
      */
     public function setStatus($order, $status, $bot)
     {
-        //API с бота
-//        $smsActivate = new SmsActivateApi(config('services.key_activate.key'));
         $smsActivate = new SmsActivateApi($bot->api_key);
 
         $serviceResult = $smsActivate->setStatus($order->org_id, $status);
@@ -132,14 +127,15 @@ class OrderService extends MainService
      */
     public function getActive($order, $bot, $user_secret_key)
     {
-        //API с бота
-//        $smsActivate = new SmsActivateApi(config('services.key_activate.key'));
         $smsActivate = new SmsActivateApi($bot->api_key);
 
         $serviceResults = $smsActivate->getActiveActivations();
 
         if ($order->status == 6) {
             $order->status = 6;
+            $order->save();
+        } elseif ($order->status == 8) {
+            $order->status = 8;
             $order->save();
         } else {
             switch ($this->getStatus($order->org_id, $bot)) {
@@ -212,8 +208,6 @@ class OrderService extends MainService
      */
     public function getStatus($id, $bot)
     {
-        //API с бота
-//        $smsActivate = new SmsActivateApi(config('services.key_activate.key'));
         $smsActivate = new SmsActivateApi($bot->api_key);
 
         $serviceResult = $smsActivate->getStatus($id);
