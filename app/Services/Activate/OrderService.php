@@ -140,41 +140,65 @@ class OrderService extends MainService
 
         $serviceResults = $smsActivate->getActiveActivations();
 
-        if ($order->status == 6) {
-            $order->status = 6;
+        //Если мы до этого подтвердили успешное получение смс, то для нашего заказа нужен статус ACCESS_ACTIVATION
+        if ($order->status == SmsOrder::ACCESS_ACTIVATION) {
+            $order->status = SmsOrder::ACCESS_ACTIVATION;
             $order->save();
-        } elseif ($order->status == 8) {
-            $order->status = 8;
+            //Если отменили заказ, то нужен статус ACCESS_CANCEL
+        } elseif ($order->status == SmsOrder::ACCESS_CANCEL) {
+            $order->status = SmsOrder::ACCESS_CANCEL;
             $order->save();
+            //Если мы никаких действий с заказом не производили, то надо пробежаться по кейсам и посмтореть что с
+            //заказом на Sms-activate
         } else {
+            //Получаем статус заказа по его ID в Sms-activate
+            //Объясню почему тут присутстствуют такие статусы:
+            //Когда проверял через запрос, когда-то в ответ приходил, когда-то другой, но по своей сути они сводятся
+            // к небольшому количеству конечных результатов и установка статусов для заказа который находится
+            // у НАС в БД, по сути является флагом для фронта
             switch ($this->getStatus($order->org_id, $bot)) {
-                case 5:
-                    $order->status = 3;
+                //Вернулся статус STATUS_WAIT_RETRY, значит устанавливаем доступ ACCESS_READY
+                case SmsOrder::STATUS_WAIT_RETRY:
+                    $order->status = SmsOrder::ACCESS_READY;
                     $order->save();
                     break;
-                case 7:
-                case 4:
-                    $order->status = 4;
+                    //Бывает что при запросе по API может вернуть статус ОК, он по сути промежуточный, но конкретно
+                //в этот раз мы сделали запрос и получили статсус ОК, что бы не было ошибки и конфликта с фронтом,
+                //его тоже включил
+                case SmsOrder::STATUS_OK:
+                    //Вернулся статус STATUS_WAIT_CODE, значит устанавливаем доступ STATUS_WAIT_CODE
+                case SmsOrder::STATUS_WAIT_CODE:
+                    $order->status = SmsOrder::STATUS_WAIT_CODE;
                     $order->save();
                     break;
             }
         }
 
+        //Условие если мы вызвали метод, а время заказа закончилось (думаю часто кто-то будет забывать закрыть заказ
+        //так что вызов этого метода продолжается всё время существоания заказа и еще несколько запросов после его окончания
         if (time() >= $order->end_time) {
+            //Здесь мы уже пробежимся по статусам которые у нас остались записанными после окночания заказа
             switch ($order->status) {
-                case 3:
-                case 4:
+                //Записаны статусы ACCESS_READY, STATUS_WAIT_CODE значит нужно решить с каким окончательным статусом
+                //закрыть заказ (их два: отменён и сумма вернулась на баланс и успешно получил СМС и зарезервированная сумма
+                //не возвращается
+                case SmsOrder::ACCESS_READY:
+                case SmsOrder::STATUS_WAIT_CODE:
+                    //проверяем наличие полученных кодов (это единственный флаг который можно отработать от Sms-activate)
                     if (is_null($order->codes)) {
-                        $order->status = 8;
+                        //Если ничего не было - закрываем заказ отменой ACCESS_CANCEL и возвращаем баланс
+                        $order->status = SmsOrder::ACCESS_CANCEL;
                         $order->save();
                         $this->changeBalance($order, $bot, 'add-balance', $user_secret_key);
                     } else {
-                        $order->status = 6;
+                        //коды были полусены - успешно завершаем активацию и ничего не возвращаем
+                        $order->status = SmsOrder::ACCESS_ACTIVATION;
                         $order->save();
                     }
                     break;
-                case 6:
-                case 8:
+                    //И последнее, если метод был вызван, а заказ уже закрыт, то пропуск
+                case SmsOrder::ACCESS_ACTIVATION:
+                case SmsOrder::ACCESS_CANCEL:
                     break;
             }
         }
