@@ -39,6 +39,7 @@ class BotController extends Controller
             $bot->percent = 5;
             $bot->api_key = '';
             $bot->category_id = 0;
+            $bot->resource_link = '';
             if ($bot->save())
                 return ApiHelpers::success($bot->toArray());
             return ApiHelpers::error('Bot not create.');
@@ -81,6 +82,7 @@ class BotController extends Controller
             $bot->percent = $request->percent;
             $bot->api_key = $request->api_key;
             $bot->category_id = $request->category_id;
+            $bot->resource_link = $request->resource_link;
             if ($bot->save())
                 return ApiHelpers::success($bot->toArray());
             return ApiHelpers::error('Bot not create.');
