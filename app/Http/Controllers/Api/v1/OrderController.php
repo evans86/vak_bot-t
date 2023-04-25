@@ -38,6 +38,9 @@ class OrderController extends Controller
      *
      * Request[
      *  'user_id'
+     *  'user_secret_key'
+     *  'public_key'
+     *
      * ]
      *
      * @param Request $request
@@ -48,8 +51,16 @@ class OrderController extends Controller
         if (is_null($request->user_id))
             return ApiHelpers::error('Not found params: user_id');
         $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
+        if (is_null($request->user_secret_key))
+            return ApiHelpers::error('Not found params: user_secret_key');
+        if (is_null($request->public_key))
+            return ApiHelpers::error('Not found params: public_key');
+        $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
+        if (empty($bot))
+            return ApiHelpers::error('Not found module.');
 
-        $result = OrderResource::collection(SmsOrder::query()->where(['user_id' => $user->id])->get());
+        $result = OrderResource::collection(SmsOrder::query()->where(['user_id' => $user->id])->
+            where(['bot_id' => $bot->id])->get());
 
         return ApiHelpers::success($result);
     }
