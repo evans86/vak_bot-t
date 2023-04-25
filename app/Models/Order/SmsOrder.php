@@ -9,7 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class SmsOrder extends Model
 {
-    const SMS_READY = 1;
+    const ACCESS_RETRY_GET = 1; //Готовность номера подтверждена
+    const NO_NUMBERS = 2; //Нет свободных номеров для текущего сервиса
+    const ACCESS_READY = 3; //Ожидание нового смс
+    const STATUS_WAIT_CODE = 4; //Ожидание первой смс
+    const STATUS_WAIT_RETRY = 5; //Ожидание уточнения кода
+    const ACCESS_ACTIVATION = 6; //Сервис успешно активирован
+    const STATUS_OK = 7; //Статус ОК
+    const ACCESS_CANCEL = 8; //Активация отменена
+    const STATUS_CANCEL = 9; //Активация/аренда отменена
+    const NO_BALANCE = 10; //Закончился баланс
 
     use HasFactory;
 

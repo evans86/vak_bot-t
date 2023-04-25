@@ -49,6 +49,8 @@ class ProductController extends Controller
             return ApiHelpers::error('Not found params: user_id');
         if (is_null($request->service))
             return ApiHelpers::error('Not found params: service');
+        if (is_null($request->user_secret_key))
+            return ApiHelpers::error('Not found params: user_secret_key');
         $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
         if (is_null($user))
             return ApiHelpers::error('Not found: user');

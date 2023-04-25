@@ -69,6 +69,7 @@ class UserController extends Controller
      * Request[
      *  'user_id'
      *  'language'
+     *  'user_secret_key'
      * ]
      *
      * @param Request $request
@@ -80,6 +81,8 @@ class UserController extends Controller
             return ApiHelpers::error('Not found params: user_id');
         if (is_null($request->language))
             return ApiHelpers::error('Not found params: language');
+        if (is_null($request->user_secret_key))
+            return ApiHelpers::error('Not found params: user_secret_key');
         $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
         if (is_null($user))
             return ApiHelpers::error('Not found: user');
