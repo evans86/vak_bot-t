@@ -198,7 +198,7 @@ class OrderController extends Controller
         if (empty($bot))
             return ApiHelpers::error('Not found module.');
 
-        if (time() >= $order->end_time)
+        if (time() >= $order->end_time || $order->status == SmsOrder::ACCESS_ACTIVATION)
             return ApiHelpers::success('Activation is suspended');
 
         $result = $this->orderService->setStatus($order, 3, $bot);
