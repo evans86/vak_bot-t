@@ -72,6 +72,8 @@ class OrderService extends MainService
 
             $order = SmsOrder::create($data);
 
+            $this->setStatus($order, 1, $bot);
+
             //списание баланса
 
             $change_balance = $this->changeBalance($order, $bot, 'subtract-balance', $user_secret_key);

@@ -162,6 +162,9 @@ class OrderController extends Controller
         if (empty($bot))
             return ApiHelpers::error('Not found module.');
 
+        if (time() >= $order->end_time)
+            return ApiHelpers::success('Activation is suspended');
+
         $result = $this->orderService->setStatus($order, 1, $bot);
 
         return ApiHelpers::success($result);
@@ -195,6 +198,9 @@ class OrderController extends Controller
         if (empty($bot))
             return ApiHelpers::error('Not found module.');
 
+        if (time() >= $order->end_time)
+            return ApiHelpers::success('Activation is suspended');
+
         $result = $this->orderService->setStatus($order, 3, $bot);
 
         return ApiHelpers::success($result);
@@ -227,6 +233,9 @@ class OrderController extends Controller
         $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
         if (empty($bot))
             return ApiHelpers::error('Not found module.');
+
+        if (time() >= $order->end_time)
+            return ApiHelpers::success('Activation is suspended');
 
         $result = $this->orderService->setStatus($order, 6, $bot);
 
