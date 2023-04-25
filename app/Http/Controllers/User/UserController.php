@@ -25,7 +25,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = SmsUser::paginate(10);
+        $users = SmsUser::paginate(15)->sortBy('id','DESC');
 
         return view('user.index', compact(
             'users',
