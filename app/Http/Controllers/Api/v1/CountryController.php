@@ -58,6 +58,7 @@ class CountryController extends Controller
      *  'user_id'
      *  'operator'
      *  'country'
+     *  'user_secret_key'
      * ]
      *
      * @param Request $request
@@ -69,6 +70,8 @@ class CountryController extends Controller
             return ApiHelpers::error('Not found params: user_id');
         if (is_null($request->operator))
             return ApiHelpers::error('Not found params: operator');
+        if (is_null($request->user_secret_key))
+            return ApiHelpers::error('Not found params: user_secret_key');
         $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
         if (is_null($user))
             return ApiHelpers::error('Not found: user');
