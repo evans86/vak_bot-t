@@ -12,7 +12,7 @@ class BotController
      */
     public function index()
     {
-        $bots = SmsBot::paginate(10)->sortBy('Key','DESC');
+        $bots = SmsBot::paginate(10);
 
         return view('activate.bot.index', compact(
             'bots',
