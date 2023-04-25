@@ -174,7 +174,7 @@ class OrderController extends Controller
             return ApiHelpers::error('Not found module.');
 
         if ($order->status == SmsOrder::ACCESS_ACTIVATION || $order->status == SmsOrder::ACCESS_CANCEL)
-            return ApiHelpers::success('Activation is suspended');
+            return ApiHelpers::error('Activation is suspended');
 
         $result = $this->orderService->setStatus($order, 1, $bot);
 
@@ -210,7 +210,7 @@ class OrderController extends Controller
             return ApiHelpers::error('Not found module.');
 
         if ($order->status == SmsOrder::ACCESS_ACTIVATION || $order->status == SmsOrder::ACCESS_CANCEL)
-            return ApiHelpers::success('Activation is suspended');
+            return ApiHelpers::error('Activation is suspended');
 
         $result = $this->orderService->setStatus($order, 3, $bot);
 
@@ -246,7 +246,7 @@ class OrderController extends Controller
             return ApiHelpers::error('Not found module.');
 
         if (time() >= $order->end_time)
-            return ApiHelpers::success('Activation is suspended');
+            return ApiHelpers::error('Activation is suspended');
 
         $result = $this->orderService->setStatus($order, 6, $bot);
 
@@ -281,6 +281,9 @@ class OrderController extends Controller
         $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
         if (empty($bot))
             return ApiHelpers::error('Not found module.');
+
+        if($order->status == SmsOrder::ACCESS_ACTIVATION)
+            return ApiHelpers::error('Activation is suspended');
 
         if ($order->status == 4 && $order->codes == null)
             $this->orderService->changeBalance($order, $bot, 'add-balance', $request->user_secret_key);
