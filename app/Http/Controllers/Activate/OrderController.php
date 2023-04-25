@@ -11,7 +11,7 @@ class OrderController
      */
     public function index()
     {
-        $orders = SmsOrder::paginate(15);
+        $orders = SmsOrder::paginate(15)->sortBy('Key','DESC');
 
         return view('activate.order.index', compact(
             'orders',
