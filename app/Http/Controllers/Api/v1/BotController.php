@@ -12,6 +12,11 @@ use Illuminate\Http\Request;
 
 class BotController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('api');
+    }
+
     /**
      * Запрос проверки доступности сервиса
      *

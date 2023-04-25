@@ -1,12 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\v1\BotController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\v1\CountryController;
-use App\Http\Controllers\Api\v1\OperatorController;
 use App\Http\Controllers\Api\v1\UserController;
 use App\Http\Controllers\Api\v1\ProductController;
-use App\Http\Controllers\Api\v1\BotController;
 use App\Http\Controllers\Api\v1\OrderController;
 
 /*
