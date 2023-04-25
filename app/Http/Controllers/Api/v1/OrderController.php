@@ -23,6 +23,15 @@ class OrderController extends Controller
     {
         $this->orderService = new OrderService();
     }
+    /**
+     * Запрос проверки доступности сервиса
+     *
+     * @return array
+     */
+    public function ping()
+    {
+        return ApiHelpers::successStr('OK');
+    }
 
     /**
      * Передача значений заказаов для пользователя
