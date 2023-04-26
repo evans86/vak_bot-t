@@ -14,7 +14,7 @@
                 <th scope="col">Статус</th>
                 <th scope="col">Коды</th>
                 <th scope="col">Бот</th>
-                <th scope="col">Создан</th>
+                <th scope="col">Создан в сервисе </th>
             </tr>
             </thead>
             <tbody>
