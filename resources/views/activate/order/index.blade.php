@@ -13,8 +13,8 @@
                 <th scope="col">Сервис</th>
                 <th scope="col">Статус</th>
                 <th scope="col">Коды</th>
+                <th scope="col">Бот</th>
                 <th scope="col">Создан</th>
-                <th scope="col">Создан в сервисе</th>
             </tr>
             </thead>
             <tbody>
@@ -32,7 +32,7 @@
                              width="24"></td>
                     <td>{!!\App\Helpers\OrdersHelper::statusLabel($order->status)!!}</td>
                     <td>{{ $order->codes }}</td>
-                    <td>{{ $order->created_at }}</td>
+                    <td>{{ $order->bot_id }}</td>
                     <td>{{\Carbon\Carbon::createFromTimestamp($order->start_time)->toDateTimeString()}}</td>
                 </tr>
             @endforeach
