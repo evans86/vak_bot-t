@@ -28,7 +28,8 @@ class OrderService extends MainService
 
             $serviceResult = $smsActivate->getNumberV2(
                 $service,
-                $country_id
+                0
+                //$country_id
             );
 
             $dateTime = new \DateTime($serviceResult['activationTime']);
