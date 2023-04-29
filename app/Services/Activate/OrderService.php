@@ -142,6 +142,35 @@ class OrderService extends MainService
 
         $serviceResults = $smsActivate->getActiveActivations();
 
+        //Условие если мы вызвали метод, а время заказа закончилось (думаю часто кто-то будет забывать закрыть заказ
+        //так что вызов этого метода продолжается всё время существоания заказа и еще несколько запросов после его окончания
+        if (time() >= $order->end_time) {
+            //Здесь мы уже пробежимся по статусам которые у нас остались записанными после окночания заказа
+            switch ($order->status) {
+                //Записаны статусы ACCESS_READY, STATUS_WAIT_CODE значит нужно решить с каким окончательным статусом
+                //закрыть заказ (их два: отменён и сумма вернулась на баланс и успешно получил СМС и зарезервированная сумма
+                //не возвращается
+                case SmsOrder::ACCESS_READY:
+                case SmsOrder::STATUS_WAIT_CODE:
+                    //проверяем наличие полученных кодов (это единственный флаг который можно отработать от Sms-activate)
+                    if (is_null($order->codes)) {
+                        //Если ничего не было - закрываем заказ отменой ACCESS_CANCEL и возвращаем баланс
+                        $order->status = SmsOrder::ACCESS_CANCEL;
+                        $order->save();
+                        $this->changeBalance($order, $bot, 'add-balance', $user_secret_key);
+                    } else {
+                        //коды были полусены - успешно завершаем активацию и ничего не возвращаем
+                        $order->status = SmsOrder::ACCESS_ACTIVATION;
+                        $order->save();
+                    }
+                    break;
+                //И последнее, если метод был вызван, а заказ уже закрыт, то пропуск
+                case SmsOrder::ACCESS_ACTIVATION:
+                case SmsOrder::ACCESS_CANCEL:
+                    break;
+            }
+        }
+
         //Если мы до этого подтвердили успешное получение смс, то для нашего заказа нужен статус ACCESS_ACTIVATION
         if ($order->status == SmsOrder::ACCESS_ACTIVATION) {
             $order->status = SmsOrder::ACCESS_ACTIVATION;
@@ -172,35 +201,6 @@ class OrderService extends MainService
                 case SmsOrder::STATUS_WAIT_CODE:
                     $order->status = SmsOrder::STATUS_WAIT_CODE;
                     $order->save();
-                    break;
-            }
-        }
-
-        //Условие если мы вызвали метод, а время заказа закончилось (думаю часто кто-то будет забывать закрыть заказ
-        //так что вызов этого метода продолжается всё время существоания заказа и еще несколько запросов после его окончания
-        if (time() >= $order->end_time) {
-            //Здесь мы уже пробежимся по статусам которые у нас остались записанными после окночания заказа
-            switch ($order->status) {
-                //Записаны статусы ACCESS_READY, STATUS_WAIT_CODE значит нужно решить с каким окончательным статусом
-                //закрыть заказ (их два: отменён и сумма вернулась на баланс и успешно получил СМС и зарезервированная сумма
-                //не возвращается
-                case SmsOrder::ACCESS_READY:
-                case SmsOrder::STATUS_WAIT_CODE:
-                    //проверяем наличие полученных кодов (это единственный флаг который можно отработать от Sms-activate)
-                    if (is_null($order->codes)) {
-                        //Если ничего не было - закрываем заказ отменой ACCESS_CANCEL и возвращаем баланс
-                        $order->status = SmsOrder::ACCESS_CANCEL;
-                        $order->save();
-                        $this->changeBalance($order, $bot, 'add-balance', $user_secret_key);
-                    } else {
-                        //коды были полусены - успешно завершаем активацию и ничего не возвращаем
-                        $order->status = SmsOrder::ACCESS_ACTIVATION;
-                        $order->save();
-                    }
-                    break;
-                    //И последнее, если метод был вызван, а заказ уже закрыт, то пропуск
-                case SmsOrder::ACCESS_ACTIVATION:
-                case SmsOrder::ACCESS_CANCEL:
                     break;
             }
         }
