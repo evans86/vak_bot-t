@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Dto\BotFactory;
 use App\Helpers\ApiHelpers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\api\OrderResource;
@@ -10,7 +11,9 @@ use App\Models\Bot\SmsBot;
 use App\Models\Order\SmsOrder;
 use App\Models\User\SmsUser;
 use App\Services\Activate\OrderService;
+use App\Services\External\BottApi;
 use Illuminate\Http\Request;
+use RuntimeException;
 
 class OrderController extends Controller
 {
@@ -93,16 +96,26 @@ class OrderController extends Controller
             $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
             if (empty($bot))
                 return ApiHelpers::error('Not found module.');
-
+            $botDto = BotFactory::fromEntity($bot);
+            $result = BottApi::checkUser(
+                $request->user_id,
+                $request->user_secret_key,
+                $botDto->public_key,
+                $botDto->private_key
+            );
+            if(!$result['result']) {
+                throw new RuntimeException($result['message']);
+            }
+            if($result['data']['money'] == 0) {
+                throw new RuntimeException('Пополните баланс в боте');
+            }
             $country = SmsCountry::query()->where(['org_id' => $request->country])->first();
             $service = $user->service;
 
-            $result = $this->orderService->createOrder(
-                $service,
+            $result = $this->orderService->create(
+                $result['data'],
+                $botDto,
                 $country->org_id,
-                $user->id,
-                $bot,
-                $request->user_secret_key
             );
 
             return ApiHelpers::success($result);
@@ -140,6 +153,19 @@ class OrderController extends Controller
         if (empty($bot))
             return ApiHelpers::error('Not found module.');
 
+        $botDto = BotFactory::fromEntity($bot);
+        $result = BottApi::checkUser(
+            $request->user_id,
+            $request->user_secret_key,
+            $botDto->public_key,
+            $botDto->private_key
+        );
+        if(!$result['result']) {
+            throw new RuntimeException($result['message']);
+        }
+
+//        $result = orderService->
+
         $this->orderService->getActive($order, $bot, $request->user_secret_key);
 
         return ApiHelpers::success(OrderResource::generateOrderArray($order));
@@ -176,7 +202,7 @@ class OrderController extends Controller
         if ($order->status == SmsOrder::ACCESS_ACTIVATION || $order->status == SmsOrder::ACCESS_CANCEL)
             return ApiHelpers::error('Activation is suspended');
 
-        $result = $this->orderService->setStatus($order, 1, $bot);
+        $result = $this->orderService->setStatus($order, 1, $bot->api_key);
 
         return ApiHelpers::success($result);
     }
@@ -209,10 +235,18 @@ class OrderController extends Controller
         if (empty($bot))
             return ApiHelpers::error('Not found module.');
 
-        if ($order->status == SmsOrder::ACCESS_ACTIVATION || $order->status == SmsOrder::ACCESS_CANCEL)
-            return ApiHelpers::error('Activation is suspended');
+        $botDto = BotFactory::fromEntity($bot);
+        $result = BottApi::checkUser(
+            $request->user_id,
+            $request->user_secret_key,
+            $botDto->public_key,
+            $botDto->private_key
+        );
+        if(!$result['result']) {
+            throw new RuntimeException($result['message']);
+        }
 
-        $result = $this->orderService->setStatus($order, 3, $bot);
+        $result = $this->orderService->second($result, $botDto, $order);
 
         return ApiHelpers::success($result);
     }
@@ -245,10 +279,18 @@ class OrderController extends Controller
         if (empty($bot))
             return ApiHelpers::error('Not found module.');
 
-        if (time() >= $order->end_time)
-            return ApiHelpers::error('Activation is suspended');
+        $botDto = BotFactory::fromEntity($bot);
+        $result = BottApi::checkUser(
+            $request->user_id,
+            $request->user_secret_key,
+            $botDto->public_key,
+            $botDto->private_key
+        );
+        if(!$result['result']) {
+            throw new RuntimeException($result['message']);
+        }
 
-        $result = $this->orderService->setStatus($order, 6, $bot);
+        $result = $this->orderService->confirm($result, $botDto, $order);
 
         return ApiHelpers::success($result);
     }
@@ -282,13 +324,18 @@ class OrderController extends Controller
         if (empty($bot))
             return ApiHelpers::error('Not found module.');
 
-        if($order->status == SmsOrder::ACCESS_ACTIVATION)
-            return ApiHelpers::error('Activation is suspended');
+        $botDto = BotFactory::fromEntity($bot);
+        $result = BottApi::checkUser(
+            $request->user_id,
+            $request->user_secret_key,
+            $botDto->public_key,
+            $botDto->private_key
+        );
+        if(!$result['result']) {
+            throw new RuntimeException($result['message']);
+        }
 
-        if ($order->status == 4 && $order->codes == null)
-            $this->orderService->changeBalance($order, $bot, 'add-balance', $request->user_secret_key);
-
-        $result = $this->orderService->setStatus($order, 8, $bot);
+        $result = $this->orderService->cancel($result, $botDto, $order);
 
         return ApiHelpers::success($result);
     }
@@ -350,7 +397,7 @@ class OrderController extends Controller
         if (empty($bot))
             return ApiHelpers::error('Not found module.');
 
-        $result = $this->orderService->getStatus($request->id, $bot);
+        $result = $this->orderService->getStatus($request->id, $bot->api_key);
 
         return ApiHelpers::success($result);
     }

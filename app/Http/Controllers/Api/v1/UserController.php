@@ -23,18 +23,6 @@ class UserController extends Controller
     }
 
     /**
-     * Вспомогательный метод получения баланса (без кэшбэка)
-     *
-     * @return mixed
-     */
-    public function balance()
-    {
-        $result = $this->userService->balance();
-
-        return $result;
-    }
-
-    /**
      * Полусение значений пользователя
      *
      * Request[
@@ -48,19 +36,8 @@ class UserController extends Controller
     {
         if (is_null($request->user_id))
             return ApiHelpers::error('Not found params: user_id');
-        $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
-        if (is_null($user)) {
-            $user = new SmsUser();
-            $country = SmsCountry::query()->first();
-            $user->telegram_id = $request->user_id;
-            $user->country_id = $country->id;
-            $user->language = SmsUser::LANGUAGE_RU;
-            $user->service = null;
-            $user->save();
-        } else {
-            $country = SmsCountry::query()->where(['id' => $user->country_id])->first();
-        }
-        return ApiHelpers::success(UserResource::generateUserArray($user, $country));
+        $user = $this->userService->getOrCreate($request->user_id);
+        return ApiHelpers::success(UserResource::generateUserArray($user));
     }
 
     /**
@@ -83,14 +60,7 @@ class UserController extends Controller
             return ApiHelpers::error('Not found params: language');
         if (is_null($request->user_secret_key))
             return ApiHelpers::error('Not found params: user_secret_key');
-        $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
-        if (is_null($user))
-            return ApiHelpers::error('Not found: user');
-        if ($request->language != 'ru' && $request->language != 'eng')
-            return ApiHelpers::error('Not found: language');
-        $user->language = $request->language;
-        $user->save();
-        $country = SmsCountry::query()->where(['id' => $user->country_id])->first();
-        return ApiHelpers::success(UserResource::generateUserArray($user, $country));
+        $user = $this->userService->updateLanguage($request->user_id, $request->language);
+        return ApiHelpers::success(UserResource::generateUserArray($user));
     }
 }

@@ -8,17 +8,17 @@ use App\Http\Resources\api\ProductResource;
 use App\Models\Bot\SmsBot;
 use App\Models\User\SmsUser;
 use App\Services\Activate\ProductService;
+use App\Services\Activate\UserService;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    /**
-     * @var ProductService
-     */
     private ProductService $productService;
+    private UserService $userService;
 
     public function __construct()
     {
+        $this->userService = new UserService();
         $this->productService = new ProductService();
     }
 
@@ -51,11 +51,7 @@ class ProductController extends Controller
             return ApiHelpers::error('Not found params: service');
         if (is_null($request->user_secret_key))
             return ApiHelpers::error('Not found params: user_secret_key');
-        $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
-        if (is_null($user))
-            return ApiHelpers::error('Not found: user');
-        $user->service = $request->service;
-        $user->save();
+        $user = $this->userService->updateService($request->user_id, $request->service);
         return ApiHelpers::success(ProductResource::generateUserArray($user));
     }
 }

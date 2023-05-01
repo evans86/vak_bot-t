@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Bot;
 
+use App\Dto\BotDto;
 use App\Helpers\ApiHelpers;
+use App\Services\Activate\BotService;
 use Illuminate\Foundation\Http\FormRequest;
 use \Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\ValidationException;
@@ -22,8 +24,25 @@ class BotUpdateRequest extends FormRequest
             'category_id' => 'required|integer|min:1',
             'percent' => 'required|integer|min:0',
             'api_key' => 'required|string',
-            'resource_link' => 'string',
+            'resource_link' => 'string|nullable',
         ];
+    }
+
+    public function getDto(): BotDto
+    {
+        $dto = new BotDto();
+        $dto->public_key = $this->public_key;
+        $dto->private_key = $this->private_key;
+        $dto->bot_id = $this->bot_id;
+        $dto->api_key = $this->api_key;
+        $dto->category_id = $this->category_id;
+        $dto->percent = $this->percent;
+        $dto->version = $this->version;
+        if(filter_var($this->resource_link, FILTER_VALIDATE_URL) === false)
+            $dto->resource_link = BotService::DEFAULT_HOST;
+        else
+            $dto->resource_link = $this->resource_link;
+        return $dto;
     }
 
     /**

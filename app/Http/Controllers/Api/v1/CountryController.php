@@ -51,35 +51,4 @@ class CountryController extends Controller
         return ApiHelpers::success($countries);
     }
 
-    /**
-     * Задать значение страны
-     *
-     * Request[
-     *  'user_id'
-     *  'operator'
-     *  'country'
-     *  'user_secret_key'
-     * ]
-     *
-     * @param Request $request
-     * @return array|string
-     */
-    public function setCountry(Request $request)
-    {
-        if (is_null($request->user_id))
-            return ApiHelpers::error('Not found params: user_id');
-        if (is_null($request->operator))
-            return ApiHelpers::error('Not found params: operator');
-        if (is_null($request->user_secret_key))
-            return ApiHelpers::error('Not found params: user_secret_key');
-        $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
-        if (is_null($user))
-            return ApiHelpers::error('Not found: user');
-        $country = SmsCountry::query()->where(['org_id' => $request->country])->first();
-        if (is_null($country))
-            return ApiHelpers::error('Not found: country');
-        $user->country_id = $country->id;
-        $user->save();
-        return ApiHelpers::success(CountryResource::generateUserArray($user, $country));
-    }
 }

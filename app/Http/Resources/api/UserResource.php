@@ -2,22 +2,18 @@
 
 namespace App\Http\Resources\api;
 
-use App\Models\Activate\SmsCountry;
-use App\Models\Activate\SmsOperator;
 use App\Models\User\SmsUser;
 
 class UserResource
 {
     /**
      * @param SmsUser $user
-     * @param SmsCountry $country
      * @return array
      */
-    public static function generateUserArray(SmsUser $user, SmsCountry $country): array
+    public static function generateUserArray(SmsUser $user): array
     {
         return [
             'id' => (integer)$user->telegram_id,
-            'country' => $country->org_id,
             'language' => $user->language,
             'service' => $user->service
         ];

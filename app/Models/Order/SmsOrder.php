@@ -16,9 +16,9 @@ class SmsOrder extends Model
     const STATUS_WAIT_RETRY = 5; //Ожидание уточнения кода
     const ACCESS_ACTIVATION = 6; //Сервис успешно активирован
     const STATUS_OK = 7; //Статус ОК
-    const ACCESS_CANCEL = 8; //Активация отменена
+    const ACCESS_CANCEL = 8; //Отмена активации
     const STATUS_CANCEL = 9; //Активация/аренда отменена
-    const NO_BALANCE = 10; //Закончился баланс
+    const STATUS_FINISH = 10; //Активация/аренда успешно завершена
 
     use HasFactory;
 
