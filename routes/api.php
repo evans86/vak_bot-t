@@ -39,6 +39,7 @@ Route::get('setService', [ProductController::class, 'setService']);
 Route::get('setLanguage', [UserController::class, 'setLanguage']);
 Route::get('getUser', [UserController::class, 'getUser']);
 Route::get('balance', [UserController::class, 'balance']);
+//Route::get('test', [UserController::class, 'test']);
 
 /**
  * Роуты API (боты)
