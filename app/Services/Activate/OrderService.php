@@ -11,7 +11,6 @@ use App\Models\User\SmsUser;
 use App\Services\External\BottApi;
 use App\Services\External\SmsActivateApi;
 use App\Services\MainService;
-use GuzzleHttp\Client;
 use RuntimeException;
 
 class OrderService extends MainService
@@ -26,7 +25,7 @@ class OrderService extends MainService
     public function create(array $userData, BotDto $botDto, string $country_id): array
     {
         // Создать заказ по апи
-        $smsActivate = new SmsActivateApi($botDto->api_key);
+        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
         $user = SmsUser::query()->where(['telegram_id' => $userData['user']['telegram_id']])->first();
         if (is_null($user)) {
             throw new RuntimeException('not found user');
@@ -80,7 +79,7 @@ class OrderService extends MainService
 
         $order = SmsOrder::create($data);
         $result = $smsActivate->setStatus($order, SmsOrder::ACCESS_RETRY_GET);
-        $result = $this->getStatus($order->org_id, $botDto->api_key);
+        $result = $this->getStatus($order->org_id, $botDto);
 
         $result = [
             'id' => $order->org_id,
@@ -104,7 +103,7 @@ class OrderService extends MainService
      */
     public function cancel(array $userData, BotDto $botDto, SmsOrder $order)
     {
-        $smsActivate = new SmsActivateApi($botDto->api_key);
+        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
         // Проверить уже отменёный
         if ($order->status == SmsOrder::STATUS_CANCEL)
             throw new RuntimeException('The order has already been canceled');
@@ -117,7 +116,7 @@ class OrderService extends MainService
         // Обновить статус setStatus()
         $result = $smsActivate->setStatus($order->org_id, SmsOrder::ACCESS_CANCEL);
         // Проверить статус getStatus()
-        $result = $this->getStatus($order->org_id, $botDto->api_key);
+        $result = $this->getStatus($order->org_id, $botDto);
         if ($result != SmsOrder::STATUS_CANCEL)
             //надо писать лог
             throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result);
@@ -140,7 +139,7 @@ class OrderService extends MainService
      */
     public function confirm(BotDto $botDto, SmsOrder $order)
     {
-        $smsActivate = new SmsActivateApi($botDto->api_key);
+        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
         if ($order->status == SmsOrder::STATUS_CANCEL)
             throw new RuntimeException('The order has already been canceled');
@@ -151,11 +150,11 @@ class OrderService extends MainService
 
         $result = $smsActivate->setStatus($order->org_id, SmsOrder::ACCESS_ACTIVATION);
 
-        $result = $this->getStatus($order->org_id, $botDto->api_key);
+        $result = $this->getStatus($order->org_id, $botDto);
 
-//        if ($result != SmsOrder::STATUS_FINISH)
-//            //надо писать лог
-//            throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result);
+        if ($result != SmsOrder::STATUS_FINISH)
+            //надо писать лог
+            throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result);
 
         $resultSet = $order->status = SmsOrder::STATUS_FINISH;
 
@@ -171,7 +170,7 @@ class OrderService extends MainService
      */
     public function second(BotDto $botDto, SmsOrder $order)
     {
-        $smsActivate = new SmsActivateApi($botDto->api_key);
+        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
         if ($order->status == SmsOrder::STATUS_CANCEL)
             throw new RuntimeException('The order has already been canceled');
@@ -182,7 +181,7 @@ class OrderService extends MainService
 
         $result = $smsActivate->setStatus($order->org_id, SmsOrder::ACCESS_READY);
 
-        $result = $this->getStatus($order->org_id, $botDto->api_key);
+        $result = $this->getStatus($order->org_id, $botDto);
 
         if ($result != SmsOrder::STATUS_WAIT_RETRY)
             throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result);
@@ -207,7 +206,7 @@ class OrderService extends MainService
                 break;
             case SmsOrder::STATUS_WAIT_CODE:
             case SmsOrder::STATUS_WAIT_RETRY:
-                $resultStatus = $this->getStatus($order->org_id, $botDto->api_key);
+                $resultStatus = $this->getStatus($order->org_id, $botDto);
                 switch ($resultStatus) {
                     case SmsOrder::STATUS_FINISH:
                     case SmsOrder::STATUS_CANCEL:
@@ -215,7 +214,7 @@ class OrderService extends MainService
                     case SmsOrder::STATUS_OK:
                     case SmsOrder::STATUS_WAIT_CODE:
                     case SmsOrder::STATUS_WAIT_RETRY:
-                        $smsActivate = new SmsActivateApi($botDto->api_key);
+                        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
                         $activateActiveOrders = $smsActivate->getActiveActivations();
                         if (key_exists('activeActivations', $activateActiveOrders)) {
                             $activateActiveOrders = $activateActiveOrders['activeActivations'];
@@ -297,123 +296,18 @@ class OrderService extends MainService
     }
 
     /**
-     * Установка статуса заказа на сервисе
-     *
-     * @param $order
-     * @param $status
-     * @param string $api_key
-     * @return mixed
-     */
-    public
-    function setStatus($order, $status, string $api_key)
-    {
-        $smsActivate = new SmsActivateApi($api_key);
-
-        $serviceResult = $smsActivate->setStatus($order->org_id, $status);
-
-        $data = [
-            'status' => $status
-        ];
-
-        $order->update($data);
-        $order->save();
-
-        return $serviceResult;
-    }
-
-    /**
      * Статус заказа с сервиса
      *
      * @param $id
-     * @param string $api_key
+     * @param BotDto $botDto
      * @return mixed
      */
     public
-    function getStatus($id, string $api_key)
+    function getStatus($id, BotDto $botDto)
     {
-        $smsActivate = new SmsActivateApi($api_key);
+        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
         $serviceResult = $smsActivate->getStatus($id);
         return $serviceResult;
-    }
-
-    /**
-     * Создание заказа bot-t
-     * @param $order
-     * @param $bot
-     * @param $user_key
-     * @param $uri
-     * @return \Psr\Http\Message\StreamInterface
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public
-    function createBotOrder($order, $bot, $uri, $user_key)
-    {
-        $link = 'https://api.bot-t.com/v1/module/shop/';
-        $public_key = $bot->public_key; //062d7c679ca22cf88b01b13c0b24b057
-        $private_key = $bot->private_key; //d75bee5e605d87bf6ebd432a2b25eb0e
-        $user_id = $order->user->telegram_id; //1028741753
-        $secret_key = $user_key; //'2997ec12c0c4e2df3e316d943e3da6e72997ec123e3d4d9429971695e4d5e4d5';
-        $amount = $order->price_final; //1050
-        $count = 1;
-        $category_id = $bot->category_id;
-        $product = 'СМС Активация';
-
-        $requestParam = [
-            'public_key' => $public_key,
-            'private_key' => $private_key,
-            'user_id' => $user_id,
-            'secret_key' => $secret_key,
-            'amount' => $amount,
-            'count' => $count,
-            'category_id' => $category_id,
-            'product' => $product,
-        ];
-
-        $client = new Client(['base_uri' => $link]);
-        $response = $client->request('POST', $uri, [
-            'form_params' => $requestParam,
-        ]);
-
-        return $response->getBody();
-    }
-
-    /**
-     * Списание баланса на Bot-t
-     *
-     * @param $order
-     * @param $bot
-     * @param $uri
-     * @param $user_key
-     * @return \Psr\Http\Message\StreamInterface
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public
-    function changeBalance($order, $bot, $uri, $user_key)
-    {
-        $link = 'https://api.bot-t.com/v1/module/user/';
-        $public_key = $bot->public_key; //062d7c679ca22cf88b01b13c0b24b057
-        $private_key = $bot->private_key; //d75bee5e605d87bf6ebd432a2b25eb0e
-        $user_id = $order->user->telegram_id; //1028741753
-        $secret_key = $user_key; //'2997ec12c0c4e2df3e316d943e3da6e72997ec123e3d4d9429971695e4d5e4d5';
-        $amount = $order->price_final; //1050
-        $comment = 'Списание за активацию СМС';
-
-        $requestParam = [
-            'public_key' => $public_key,
-            'private_key' => $private_key,
-            'user_id' => $user_id,
-            'secret_key' => $secret_key,
-            'amount' => $amount,
-            'comment' => $comment,
-        ];
-
-        $client = new Client(['base_uri' => $link]);
-        $response = $client->request('POST', $uri, [
-            'form_params' => $requestParam,
-        ]);
-
-        $result = $response->getBody()->getContents();
-        return json_decode($result, true);
     }
 }

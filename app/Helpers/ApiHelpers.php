@@ -83,5 +83,4 @@ class ApiHelpers
         unset($gets['notification_id']);
         return self::generateSignature($gets, $token) === $signature;
     }
-
 }

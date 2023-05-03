@@ -7,13 +7,15 @@ use http\Exception\InvalidArgumentException;
 
 class SmsActivateApi
 {
-    private $url = 'https://api.sms-activate.org/stubs/handler_api.php';
+//    private $url = 'https://api.sms-activate.org/stubs/handler_api.php';
+    private $url;
 
     private $apiKey;
 
-    public function __construct($apiKey)
+    public function __construct($apiKey, $url)
     {
         $this->apiKey = $apiKey;
+        $this->url = $url;
     }
 
     public function getBalance()

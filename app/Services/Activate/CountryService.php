@@ -15,7 +15,7 @@ class CountryService extends MainService
     public function getApiCountries()
     {
         //оставить свой API
-        $smsActivate = new SmsActivateApi(config('services.key_activate.key'));
+        $smsActivate = new SmsActivateApi(config('services.key_activate.key'), BotService::DEFAULT_HOST);
 
         $countries = $smsActivate->getCountries();
 
@@ -32,7 +32,7 @@ class CountryService extends MainService
      */
     public function getPricesService($bot, $service = null)
     {
-        $smsActivate = new SmsActivateApi($bot->api_key);
+        $smsActivate = new SmsActivateApi($bot->api_key, $bot->resource_link);
 
         $countries = $smsActivate->getTopCountriesByService($service);
 

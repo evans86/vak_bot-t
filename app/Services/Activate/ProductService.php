@@ -16,7 +16,7 @@ class ProductService extends MainService
     public function getAllProducts($country = null)
     {
         //оставить свой API
-        $smsActivate = new SmsActivateApi(config('services.key_activate.key'));
+        $smsActivate = new SmsActivateApi(config('services.key_activate.key'), BotService::DEFAULT_HOST);
 
         return $smsActivate->getNumbersStatus($country);
     }
@@ -28,9 +28,7 @@ class ProductService extends MainService
      */
     public function getPricesCountry($bot)
     {
-        //оставить свой API
-//        $smsActivate = new SmsActivateApi(config('services.key_activate.key'));
-        $smsActivate = new SmsActivateApi($bot->api_key);
+        $smsActivate = new SmsActivateApi($bot->api_key, $bot->resource_link);
 
         $services = $smsActivate->getTopCountriesByService();
 
@@ -49,8 +47,6 @@ class ProductService extends MainService
             array_push($result, [
                 'name' => $key,
                 'image' => 'https://smsactivate.s3.eu-central-1.amazonaws.com/assets/ico/' . $key . '0.webp',
-//                'count' => $firstPrice["count"],
-//                'cost' => $firstPrice["price"],
             ]);
         }
 
