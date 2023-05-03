@@ -225,10 +225,8 @@ class OrderService extends MainService
                                 // Есть ли совпадение
                                 if ($order_id == $order->org_id) {
                                     // Есть ли смс
-                                    if (key_exists('smsCode', $activateActiveOrder)) {
-                                        $sms = $activateActiveOrder['smsCode'];
-                                        if(empty($sms))
-                                            break;
+                                    if (!is_null($activateActiveOrder['smsCode'])) {
+                                        $sms = strval($activateActiveOrder['smsCode']);
                                         if (is_null($order->codes)) {
                                             BottApi::createOrder($botDto, $userData, $order->price_final,
                                                 'Заказ активации для номера ' . $order->phone .
