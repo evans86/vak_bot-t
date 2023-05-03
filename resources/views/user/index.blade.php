@@ -18,7 +18,7 @@
                 <tr>
                     <td>{{ $user->id }}</td>
                     <td>{{ $user->telegram_id }}</td>
-                    <td>{{ $user->country->name_ru }}<img src={{ $user->country->image }} width="24"></td>
+                    <td>{{ $user->country->name_en }}<img src={{ $user->country->image }} width="24"></td>
                     <td><img class="service_img"
                              src="https://smsactivate.s3.eu-central-1.amazonaws.com/assets/ico/{{ $user->service }}0.webp"
                              width="24"></td>
