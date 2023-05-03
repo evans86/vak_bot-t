@@ -228,7 +228,7 @@ class OrderService extends MainService
                                     $sms = $activateActiveOrder['smsCode'];
                                     if(is_null($sms))
                                         break;
-                                    $sms = json_encode($sms);
+                                    $sms = json_decode($sms);
                                     if (is_null($order->codes)) {
                                         BottApi::createOrder($botDto, $userData, $order->price_final,
                                             'Заказ активации для номера ' . $order->phone .
@@ -255,7 +255,7 @@ class OrderService extends MainService
     public
     function cronUpdateStatus(): void
     {
-        $statuses = [SmsOrder::STATUS_WAIT_CODE, SmsOrder::STATUS_WAIT_RETRY];
+        $statuses = [SmsOrder::STATUS_WAIT_CODE, SmsOrder::STATUS_WAIT_RETRY, SmsOrder::STATUS_OK];
 
         $orders = SmsOrder::query()->where(['status' => $statuses])
             ->where('end_time', '>=', time())->get();
