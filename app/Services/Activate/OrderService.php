@@ -269,15 +269,15 @@ class OrderService extends MainService
                 $botDto->private_key
             );
 
-            $resultStatus = $this->getStatus($order->org_id, $botDto->api_key);
-            if($resultStatus == SmsOrder::STATUS_FINISH) {
-                $order->status = $resultStatus;
-                $order->save();
-            }
-            if($resultStatus == SmsOrder::STATUS_CANCEL) {
-                $order->status = $resultStatus;
-                $order->save();
-            }
+            // $resultStatus = $this->getStatus($order->org_id, $botDto->api_key);
+            // if($resultStatus == SmsOrder::STATUS_FINISH) {
+            //     $order->status = $resultStatus;
+            //     $order->save();
+            // }
+            // if($resultStatus == SmsOrder::STATUS_CANCEL) {
+            //     $order->status = $resultStatus;
+            //     $order->save();
+            // }
 
             if (is_null($order->codes)) {
                 $this->cancel(
