@@ -3,7 +3,6 @@
 namespace App\Http\Resources\api;
 
 use App\Models\Activate\SmsCountry;
-use App\Models\Activate\SmsOperator;
 use App\Models\User\SmsUser;
 use Illuminate\Http\Resources\Json\JsonResource;
 

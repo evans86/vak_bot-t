@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Helpers\ApiHelpers;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\api\CountryResource;
-use App\Models\Activate\SmsCountry;
 use App\Models\Bot\SmsBot;
 use App\Models\User\SmsUser;
 use App\Services\Activate\CountryService;

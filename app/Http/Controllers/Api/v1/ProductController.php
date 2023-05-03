@@ -6,14 +6,19 @@ use App\Helpers\ApiHelpers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\api\ProductResource;
 use App\Models\Bot\SmsBot;
-use App\Models\User\SmsUser;
 use App\Services\Activate\ProductService;
 use App\Services\Activate\UserService;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    /**
+     * @var ProductService
+     */
     private ProductService $productService;
+    /**
+     * @var UserService
+     */
     private UserService $userService;
 
     public function __construct()

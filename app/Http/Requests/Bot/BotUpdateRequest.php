@@ -29,6 +29,9 @@ class BotUpdateRequest extends FormRequest
         ];
     }
 
+    /**
+     * @return BotDto
+     */
     public function getDto(): BotDto
     {
         $dto = new BotDto();

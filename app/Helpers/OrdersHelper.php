@@ -72,20 +72,19 @@ class OrdersHelper
         switch ($status) {
             case 1:
             case 2:
-            case 7:
-                $class = 'badge bg-info';
-                break;
             case 3:
-                $class = 'badge bg-warning';
+            case 7:
+            case 6:
+            case 8:
+                $class = 'badge bg-info';
                 break;
             case 4:
             case 5:
-                $class = 'badge bg-primary';
+                $class = 'badge bg-warning';
                 break;
             case 10:
                 $class = 'badge bg-success';
                 break;
-            case 8:
             case 9:
                 $class = 'badge bg-danger';
                 break;

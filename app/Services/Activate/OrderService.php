@@ -16,6 +16,8 @@ use RuntimeException;
 class OrderService extends MainService
 {
     /**
+     * Создание заказа
+     *
      * @param array $userData Сущность DTO from bott
      * @param BotDto $botDto
      * @param string $country_id
@@ -54,7 +56,6 @@ class OrderService extends MainService
             $serviceResult = $smsActivate->setStatus($org_id, SmsOrder::ACCESS_CANCEL);
             throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
         }
-
 
         // Удача создание заказа в бд
         $country = SmsCountry::query()->where(['org_id' => $country_id])->first();
@@ -96,6 +97,8 @@ class OrderService extends MainService
     }
 
     /**
+     * Отмена заказа со статусом 9
+     *
      * @param array $userData
      * @param BotDto $botDto
      * @param SmsOrder $order
@@ -133,6 +136,8 @@ class OrderService extends MainService
     }
 
     /**
+     * Успешное завершение заказа со статусом 10
+     *
      * @param BotDto $botDto
      * @param SmsOrder $order
      * @return int
@@ -164,6 +169,8 @@ class OrderService extends MainService
     }
 
     /**
+     * Повторное получение СМС
+     *
      * @param BotDto $botDto
      * @param SmsOrder $order
      * @return int
@@ -186,13 +193,15 @@ class OrderService extends MainService
         if ($result != SmsOrder::STATUS_WAIT_RETRY)
             throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result);
 
-        $resultSet = $order->status = SmsOrder::STATUS_WAIT_RETRY; //проверить что приходит с сервиса и поменять на STATUS_WAIT_RETRY
+        $resultSet = $order->status = SmsOrder::STATUS_WAIT_RETRY;
 
         $order->save();
         return $resultSet;
     }
 
     /**
+     * Получение активного заказа и обновление кодов
+     *
      * @param array $userData
      * @param BotDto $botDto
      * @param SmsOrder $order
@@ -225,7 +234,7 @@ class OrderService extends MainService
                                 if ($order_id == $order->org_id) {
                                     // Есть ли смс
                                     $sms = $activateActiveOrder['smsCode'];
-                                    if(is_null($sms))
+                                    if (is_null($sms))
                                         break;
                                     $sms = json_encode($sms);
                                     if (is_null($order->codes)) {
@@ -245,14 +254,14 @@ class OrderService extends MainService
                         throw new RuntimeException('неизвестный статус: ' . $resultStatus);
                 }
         }
-
     }
 
     /**
+     * Крон обновление статусов
+     *
      * @return void
      */
-    public
-    function cronUpdateStatus(): void
+    public function cronUpdateStatus(): void
     {
         $statuses = [SmsOrder::STATUS_WAIT_CODE, SmsOrder::STATUS_WAIT_RETRY, SmsOrder::STATUS_OK];
 

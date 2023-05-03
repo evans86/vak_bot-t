@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Api\v1;
 use App\Helpers\ApiHelpers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\api\UserResource;
-use App\Models\Activate\SmsCountry;
-use App\Models\User\SmsUser;
 use App\Services\Activate\UserService;
 use Illuminate\Http\Request;
 
@@ -23,7 +21,7 @@ class UserController extends Controller
     }
 
     /**
-     * Полусение значений пользователя
+     * Получение значений пользователя
      *
      * Request[
      *  'user_id'

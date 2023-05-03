@@ -11,6 +11,14 @@ class BotService extends MainService
 {
     const DEFAULT_HOST = 'https://api.sms-activate.org/stubs/handler_api.php';
 
+    /**
+     * Создание модуля
+     *
+     * @param string $public_key
+     * @param string $private_key
+     * @param int $bot_id
+     * @return SmsBot
+     */
     public function create(string $public_key, string $private_key, int $bot_id): SmsBot
     {
         $bot = new SmsBot();
@@ -27,6 +35,12 @@ class BotService extends MainService
         return $bot;
     }
 
+    /**
+     * Обновление настроек модуля
+     *
+     * @param BotDto $dto
+     * @return SmsBot
+     */
     public function update(BotDto $dto): SmsBot
     {
         $bot = SmsBot::query()->where('public_key', $dto->public_key)->where('private_key', $dto->private_key)->first();
@@ -42,6 +56,13 @@ class BotService extends MainService
         return $bot;
     }
 
+    /**
+     * Удаление модуля
+     *
+     * @param string $public_key
+     * @param string $private_key
+     * @return void
+     */
     public function delete(string $public_key, string $private_key): void
     {
         $bot = SmsBot::query()->where('public_key', $public_key)->where('private_key', $private_key)->first();

@@ -78,7 +78,7 @@ class OrderController extends Controller
     }
 
     /**
-     * Создание заказа +
+     * Создание заказа
      *
      * Request[
      *  'user_id'

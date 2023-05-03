@@ -2,8 +2,6 @@
 
 namespace App\Services\Activate;
 
-use App\Helpers\ApiHelpers;
-use App\Models\Activate\SmsCountry;
 use App\Models\User\SmsUser;
 use App\Services\MainService;
 use App\Services\External\SmsActivateApi;
@@ -28,6 +26,12 @@ class UserService extends MainService
         return $balance;
     }
 
+    /**
+     * Добавление пользователя
+     *
+     * @param int $telegram_id
+     * @return SmsUser
+     */
     public function getOrCreate(int $telegram_id): SmsUser
     {
         $user = SmsUser::query()->where(['telegram_id' => $telegram_id])->first();
@@ -41,6 +45,13 @@ class UserService extends MainService
         return $user;
     }
 
+    /**
+     * Обновление языка у пользователя
+     *
+     * @param int $telegram_id
+     * @param string $language
+     * @return SmsUser
+     */
     public function updateLanguage(int $telegram_id, string $language): SmsUser
     {
         $user = SmsUser::query()->where(['telegram_id' => $telegram_id])->first();
@@ -57,6 +68,11 @@ class UserService extends MainService
         return $user;
     }
 
+    /**
+     * @param int $telegram_id
+     * @param string $service
+     * @return SmsUser
+     */
     public function updateService(int $telegram_id, string $service): SmsUser
     {
         $user = SmsUser::query()->where(['telegram_id' => $telegram_id])->first();
