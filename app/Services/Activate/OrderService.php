@@ -220,16 +220,18 @@ class OrderService extends MainService
                         if (key_exists('activeActivations', $activateActiveOrders)) {
                             $activateActiveOrders = $activateActiveOrders['activeActivations'];
 
-                            $results = [];
                             foreach ($activateActiveOrders as $activateActiveOrder) {
                                 $order_id = $activateActiveOrder['activationId'];
+                                // Есть ли совпадение
                                 if ($order_id == $order->org_id) {
+                                    // Есть ли смс
                                     if (key_exists('smsCode', $activateActiveOrder)) {
-                                        if (!empty($results['smsCode']) && is_null($order->codes)) {
+                                        $sms = $activateActiveOrder['smsCode'];
+                                        if (!empty($activateActiveOrder['smsCode']) && is_null($order->codes)) {
                                             BottApi::createOrder($botDto, $userData, $order->price_final,
-                                                'Заказ активации для номера ' . $order->phone . ' с смс: ' . $results['smsCode']);
+                                                'Заказ активации для номера ' . $order->phone . ' с смс: ' . $sms);
                                         }
-                                        $order->codes = $results['smsCode'];
+                                        $order->codes = $sms;
                                         $order->status = $resultStatus;
                                         $order->save();
                                         break;
