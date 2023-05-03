@@ -18,6 +18,7 @@ class BotUpdateRequest extends FormRequest
     public function rules()
     {
         return [
+            'id' => 'required|integer',
             'public_key' => 'required|string',
             'private_key' => 'required|string',
             'version' => 'required|string|min:1|max:1',
@@ -31,6 +32,7 @@ class BotUpdateRequest extends FormRequest
     public function getDto(): BotDto
     {
         $dto = new BotDto();
+        $dto->id = intval($this->id);
         $dto->public_key = $this->public_key;
         $dto->private_key = $this->private_key;
         $dto->bot_id = intval($this->bot_id);
