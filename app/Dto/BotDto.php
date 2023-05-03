@@ -17,6 +17,7 @@ class BotDto
     public function getArray(): array
     {
         return [
+            'id' => $this->id,
             'public_key' => $this->public_key,
             'private_key' => $this->private_key,
             'bot_id' => $this->bot_id,
