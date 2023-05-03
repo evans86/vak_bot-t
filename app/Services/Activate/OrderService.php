@@ -227,9 +227,12 @@ class OrderService extends MainService
                                     // Есть ли смс
                                     if (key_exists('smsCode', $activateActiveOrder)) {
                                         $sms = $activateActiveOrder['smsCode'];
-                                        if (!empty($activateActiveOrder['smsCode']) && is_null($order->codes)) {
+                                        if(empty($sms))
+                                            break;
+                                        if (is_null($order->codes)) {
                                             BottApi::createOrder($botDto, $userData, $order->price_final,
-                                                'Заказ активации для номера ' . $order->phone . ' с смс: ' . $sms);
+                                                'Заказ активации для номера ' . $order->phone .
+                                                ' с смс: ' . $sms);
                                         }
                                         $order->codes = $sms;
                                         $order->status = $resultStatus;
