@@ -170,7 +170,7 @@ class OrderController extends Controller
             }
 
 
-            $this->orderService->order($result['data'], $bot, $order);
+            $this->orderService->order($result['data'], $botDto, $order);
 
             $order = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
             return ApiHelpers::success(OrderResource::generateOrderArray($order));
