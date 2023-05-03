@@ -228,13 +228,13 @@ class OrderService extends MainService
                                 }
                             }
 
-                            if (key_exists('smsCode', $results)) {
-                                if (is_null($order->codes)) {
-                                    BottApi::createOrder($botDto, $userData, $order->price_final,
-                                        'Заказ активации для номера ' . $order->phone . ' с смс: ' . $results['smsCode']);
-                                }
-                                $order->codes = $results['smsCode'];
-                            }
+                            // if (key_exists('smsCode', $results)) {
+                            //     if (is_null($order->codes)) {
+                            //         BottApi::createOrder($botDto, $userData, $order->price_final,
+                            //             'Заказ активации для номера ' . $order->phone . ' с смс: ' . $results['smsCode']);
+                            //     }
+                            //     $order->codes = $results['smsCode'];
+                            // }
                         }
 
                         $order->status = $resultStatus;
