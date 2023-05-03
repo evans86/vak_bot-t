@@ -209,10 +209,10 @@ class OrderService extends MainService
             case SmsOrder::STATUS_WAIT_RETRY:
                 $resultStatus = $this->getStatus($order->org_id, $botDto->api_key);
                 switch ($resultStatus) {
-                    case SmsOrder::STATUS_OK:
                     case SmsOrder::STATUS_FINISH:
                     case SmsOrder::STATUS_CANCEL:
                         break;
+                    case SmsOrder::STATUS_OK:
                     case SmsOrder::STATUS_WAIT_CODE:
                     case SmsOrder::STATUS_WAIT_RETRY:
                         $smsActivate = new SmsActivateApi($botDto->api_key);
@@ -226,11 +226,13 @@ class OrderService extends MainService
                                 if ($order_id == $order->org_id) {
                                     // Есть ли смс
                                     $sms = strval($activateActiveOrder['smsCode']);
-                                    // if (is_null($order->codes)) {
-                                    //     BottApi::createOrder($botDto, $userData, $order->price_final,
-                                    //         'Заказ активации для номера ' . $order->phone .
-                                    //         ' с смс: ' . $sms);
-                                    // }
+                                    if(is_null($sms))
+                                        break;
+                                    if (is_null($order->codes)) {
+                                        BottApi::createOrder($botDto, $userData, $order->price_final,
+                                            'Заказ активации для номера ' . $order->phone .
+                                            ' с смс: ' . $sms);
+                                    }
                                     $order->codes = $sms;
                                     $order->status = $resultStatus;
                                     $order->save();
