@@ -220,7 +220,8 @@ class OrderController extends Controller
 
         $result = $this->orderService->second($botDto, $order);
 
-        return ApiHelpers::success($result);
+        $order = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
+        return ApiHelpers::success(OrderResource::generateOrderArray($order));
     }
 
     /**
@@ -264,7 +265,8 @@ class OrderController extends Controller
 
         $result = $this->orderService->confirm($botDto, $order);
 
-        return ApiHelpers::success($result);
+        $order = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
+        return ApiHelpers::success(OrderResource::generateOrderArray($order));
     }
 
     /**
@@ -309,6 +311,7 @@ class OrderController extends Controller
 
         $result = $this->orderService->cancel($result['data'], $botDto, $order);
 
-        return ApiHelpers::success($result);
+        $order = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
+        return ApiHelpers::success(OrderResource::generateOrderArray($order));
     }
 }
