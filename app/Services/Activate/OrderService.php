@@ -223,8 +223,9 @@ class OrderService extends MainService
                             $results = [];
                             foreach ($activateActiveOrders as $activateActiveOrder) {
                                 $order_id = $activateActiveOrder['activationId'];
-                                if ($order_id == $order->org_id)
+                                if ($order_id == $order->org_id) {
                                     $results = $activateActiveOrder;
+                                }
                             }
 
                             if (key_exists('smsCode', $results)) {

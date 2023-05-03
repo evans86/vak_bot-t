@@ -92,7 +92,7 @@ class BottApi
         return json_decode($result, true);
     }
 
-    public function createOrder(BotDto $botDto, array $userData, int $amount, string $product)
+    public static function createOrder(BotDto $botDto, array $userData, int $amount, string $product)
     {
         $link = 'https://api.bot-t.com/v1/module/shop/';
         $public_key = $botDto->public_key;
