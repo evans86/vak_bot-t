@@ -243,7 +243,6 @@ class OrderServiceTest extends \Tests\TestCase
 
         try {
             $orderData = $this->orderService->confirm(
-                $result['data'],
                 BotFactory::fromEntity($bot),
                 $order,
             );
@@ -256,7 +255,6 @@ class OrderServiceTest extends \Tests\TestCase
 
         try {
             $orderData = $this->orderService->confirm(
-                $result['data'],
                 BotFactory::fromEntity($bot),
                 $order,
             );
@@ -270,7 +268,6 @@ class OrderServiceTest extends \Tests\TestCase
 
         try {
             $orderData = $this->orderService->confirm(
-                $result['data'],
                 BotFactory::fromEntity($bot),
                 $order,
             );

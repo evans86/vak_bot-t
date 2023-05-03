@@ -12,6 +12,7 @@ use App\Models\Order\SmsOrder;
 use App\Models\User\SmsUser;
 use App\Services\Activate\OrderService;
 use App\Services\External\BottApi;
+use Exception;
 use Illuminate\Http\Request;
 use RuntimeException;
 
@@ -25,15 +26,6 @@ class OrderController extends Controller
     public function __construct()
     {
         $this->orderService = new OrderService();
-    }
-    /**
-     * Запрос проверки доступности сервиса
-     *
-     * @return array
-     */
-    public function ping()
-    {
-        return ApiHelpers::successStr('OK');
     }
 
     /**
@@ -54,13 +46,25 @@ class OrderController extends Controller
         if (is_null($request->user_id))
             return ApiHelpers::error('Not found params: user_id');
         $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
-        if (is_null($request->user_secret_key))
-            return ApiHelpers::error('Not found params: user_secret_key');
         if (is_null($request->public_key))
             return ApiHelpers::error('Not found params: public_key');
         $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
         if (empty($bot))
             return ApiHelpers::error('Not found module.');
+
+        if (is_null($request->user_secret_key))
+            return ApiHelpers::error('Not found params: user_secret_key');
+
+        $botDto = BotFactory::fromEntity($bot);
+        $result = BottApi::checkUser(
+            $request->user_id,
+            $request->user_secret_key,
+            $botDto->public_key,
+            $botDto->private_key
+        );
+        if(!$result['result']) {
+            throw new RuntimeException($result['message']);
+        }
 
         $result = OrderResource::collection(SmsOrder::query()->where(['user_id' => $user->id])->
             where(['bot_id' => $bot->id])->get());
@@ -119,7 +123,7 @@ class OrderController extends Controller
             );
 
             return ApiHelpers::success($result);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return ApiHelpers::error($e->getMessage());
         }
     }
@@ -164,47 +168,11 @@ class OrderController extends Controller
             throw new RuntimeException($result['message']);
         }
 
-//        $result = orderService->
 
-        $this->orderService->getActive($order, $bot, $request->user_secret_key);
+        $this->orderService->order($result['data'], $bot, $order);
 
-        return ApiHelpers::success(OrderResource::generateOrderArray($order));
-    }
-
-    /**
-     * Установить статус 1 (Сообщить, что SMS отправлен (не обязательно))
-     *
-     * Request[
-     *  'user_id'
-     *  'order_id'
-     *  'public_key'
-     * ]
-     *
-     * @param Request $request
-     * @return array|string
-     */
-    public function reportOrderSms(Request $request)
-    {
-        if (is_null($request->user_id))
-            return ApiHelpers::error('Not found params: user_id');
-        $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
-        if (is_null($request->order_id))
-            return ApiHelpers::error('Not found params: order_id');
         $order = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
-        if(is_null($request->user_secret_key))
-            return ApiHelpers::error('Not found params: user_secret_key');
-        if (is_null($request->public_key))
-            return ApiHelpers::error('Not found params: public_key');
-        $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
-        if (empty($bot))
-            return ApiHelpers::error('Not found module.');
-
-        if ($order->status == SmsOrder::ACCESS_ACTIVATION || $order->status == SmsOrder::ACCESS_CANCEL)
-            return ApiHelpers::error('Activation is suspended');
-
-        $result = $this->orderService->setStatus($order, 1, $bot->api_key);
-
-        return ApiHelpers::success($result);
+        return ApiHelpers::success(OrderResource::generateOrderArray($order));
     }
 
     /**
@@ -246,7 +214,7 @@ class OrderController extends Controller
             throw new RuntimeException($result['message']);
         }
 
-        $result = $this->orderService->second($result, $botDto, $order);
+        $result = $this->orderService->second($botDto, $order);
 
         return ApiHelpers::success($result);
     }
@@ -290,7 +258,7 @@ class OrderController extends Controller
             throw new RuntimeException($result['message']);
         }
 
-        $result = $this->orderService->confirm($result, $botDto, $order);
+        $result = $this->orderService->confirm($botDto, $order);
 
         return ApiHelpers::success($result);
     }
@@ -335,69 +303,7 @@ class OrderController extends Controller
             throw new RuntimeException($result['message']);
         }
 
-        $result = $this->orderService->cancel($result, $botDto, $order);
-
-        return ApiHelpers::success($result);
-    }
-
-    /**
-     * Вспомогательный метод получения активного заказа
-     *
-     * Request[
-     *  'user_id'
-     *  'order_id'
-     *  'public_key'
-     * ]
-     *
-     * @param Request $request
-     * @return array|string
-     */
-    public function getActive(Request $request)
-    {
-        if (is_null($request->user_id))
-            return ApiHelpers::error('Not found params: user_id');
-        $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
-        if (is_null($request->order_id))
-            return ApiHelpers::error('Not found params: order_id');
-        $order = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
-        if (is_null($request->user_secret_key))
-            return ApiHelpers::error('Not found params: user_secret_key');
-        if (is_null($request->public_key))
-            return ApiHelpers::error('Not found params: public_key');
-        $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
-        if (empty($bot))
-            return ApiHelpers::error('Not found module.');
-
-        $result = $this->orderService->getActive($order, $bot, $request->user_secret_key);
-
-        return ApiHelpers::success($result);
-    }
-
-    /**
-     * Вспомогательный метод получения статуса заказа
-     *
-     * Request[
-     *  'user_id'
-     *  'order_id'
-     *  'public_key'
-     * ]
-     *
-     * @param Request $request
-     * @return array|string
-     */
-    public function getStatus(Request $request)
-    {
-        if (is_null($request->id))
-            return ApiHelpers::error('Not found params: user_id');
-        if(is_null($request->user_secret_key))
-            return ApiHelpers::error('Not found params: user_secret_key');
-        if (is_null($request->public_key))
-            return ApiHelpers::error('Not found params: public_key');
-        $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
-        if (empty($bot))
-            return ApiHelpers::error('Not found module.');
-
-        $result = $this->orderService->getStatus($request->id, $bot->api_key);
+        $result = $this->orderService->cancel($result['data'], $botDto, $order);
 
         return ApiHelpers::success($result);
     }
