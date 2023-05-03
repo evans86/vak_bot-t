@@ -123,7 +123,7 @@ class OrderService extends MainService
             throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result);
 
         $order->status = SmsOrder::STATUS_CANCEL;
-        if($order->save()) {
+        if ($order->save()) {
             // Он же возвращает баланс
             $amountFinal = $order->price_final;
             $result = BottApi::addBalance($botDto, $userData, $amountFinal, 'Возврат баланса, активация отменена');
@@ -224,35 +224,36 @@ class OrderService extends MainService
                             foreach ($activateActiveOrders as $activateActiveOrder) {
                                 $order_id = $activateActiveOrder['activationId'];
                                 if ($order_id == $order->org_id) {
-                                    $results = $activateActiveOrder;
+                                    if (key_exists('smsCode', $activateActiveOrder)) {
+                                        if (!empty($results['smsCode']) && is_null($order->codes)) {
+                                            BottApi::createOrder($botDto, $userData, $order->price_final,
+                                                'Заказ активации для номера ' . $order->phone . ' с смс: ' . $results['smsCode']);
+                                        }
+                                        $order->codes = $results['smsCode'];
+                                        $order->status = $resultStatus;
+                                        $order->save();
+                                        break;
+                                    }
                                 }
-                            }
-
-                            if (key_exists('smsCode', $results)) {
-                                if (!empty($results['smsCode']) && is_null($order->codes)) {
-                                    BottApi::createOrder($botDto, $userData, $order->price_final,
-                                        'Заказ активации для номера ' . $order->phone . ' с смс: ' . $results['smsCode']);
-                                }
-                                $order->codes = $results['smsCode'];
                             }
                         }
-
-                        $order->status = $resultStatus;
-                        $order->save();
-                        break;
+                    default:
+                        throw new RuntimeException('неизвестный статус: ' . $resultStatus);
                 }
         }
+
     }
 
     /**
      * @return void
      */
-    public function cronUpdateStatus(): void
+    public
+    function cronUpdateStatus(): void
     {
         $statuses = [SmsOrder::STATUS_WAIT_CODE, SmsOrder::STATUS_WAIT_RETRY];
 
         $orders = SmsOrder::query()->where(['status' => $statuses])
-            ->where('end_time', '>=' , time())->get();
+            ->where('end_time', '>=', time())->get();
 
         foreach ($orders as $key => $order) {
             $bot = SmsBot::query()->where(['id' => $order->bot_id])->first();
@@ -288,7 +289,8 @@ class OrderService extends MainService
      * @param string $api_key
      * @return mixed
      */
-    public function setStatus($order, $status, string $api_key)
+    public
+    function setStatus($order, $status, string $api_key)
     {
         $smsActivate = new SmsActivateApi($api_key);
 
@@ -311,7 +313,8 @@ class OrderService extends MainService
      * @param string $api_key
      * @return mixed
      */
-    public function getStatus($id, string $api_key)
+    public
+    function getStatus($id, string $api_key)
     {
         $smsActivate = new SmsActivateApi($api_key);
 
@@ -328,7 +331,8 @@ class OrderService extends MainService
      * @return \Psr\Http\Message\StreamInterface
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function createBotOrder($order, $bot, $uri, $user_key)
+    public
+    function createBotOrder($order, $bot, $uri, $user_key)
     {
         $link = 'https://api.bot-t.com/v1/module/shop/';
         $public_key = $bot->public_key; //062d7c679ca22cf88b01b13c0b24b057
@@ -369,7 +373,8 @@ class OrderService extends MainService
      * @return \Psr\Http\Message\StreamInterface
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function changeBalance($order, $bot, $uri, $user_key)
+    public
+    function changeBalance($order, $bot, $uri, $user_key)
     {
         $link = 'https://api.bot-t.com/v1/module/user/';
         $public_key = $bot->public_key; //062d7c679ca22cf88b01b13c0b24b057
