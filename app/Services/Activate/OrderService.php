@@ -240,6 +240,7 @@ class OrderService extends MainService
                                 }
                             }
                         }
+                        break;
                     default:
                         throw new RuntimeException('неизвестный статус: ' . $resultStatus);
                 }
