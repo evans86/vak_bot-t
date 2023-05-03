@@ -6,7 +6,6 @@
             <tr>
                 <th scope="col">ID</th>
                 <th scope="col">Telegram ID</th>
-                <th scope="col">Страна</th>
                 <th scope="col">Сервис</th>
                 <th scope="col">Язык</th>
                 <th scope="col">Добален</th>
