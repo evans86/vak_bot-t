@@ -33,11 +33,11 @@ class BotUpdateRequest extends FormRequest
         $dto = new BotDto();
         $dto->public_key = $this->public_key;
         $dto->private_key = $this->private_key;
-        $dto->bot_id = $this->bot_id;
+        $dto->bot_id = intval($this->bot_id);
         $dto->api_key = $this->api_key;
-        $dto->category_id = $this->category_id;
-        $dto->percent = $this->percent;
-        $dto->version = $this->version;
+        $dto->category_id = intval($this->category_id);
+        $dto->percent = intval($this->percent);
+        $dto->version = intval($this->version);
         if(filter_var($this->resource_link, FILTER_VALIDATE_URL) === false)
             $dto->resource_link = BotService::DEFAULT_HOST;
         else
