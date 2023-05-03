@@ -25,7 +25,7 @@ class BottApi
         return json_decode($result, true);
     }
 
-    public static function get(int $telegram_id, string $public_key, string $private_key): string
+    public static function get(int $telegram_id, string $public_key, string $private_key): array
     {
         $requestParam = [
             'public_key' => $public_key,
