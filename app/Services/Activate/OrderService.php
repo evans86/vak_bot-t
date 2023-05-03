@@ -153,9 +153,9 @@ class OrderService extends MainService
 
         $result = $this->getStatus($order->org_id, $botDto->api_key);
 
-        if ($result != SmsOrder::STATUS_FINISH)
-            //надо писать лог
-            throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result);
+//        if ($result != SmsOrder::STATUS_FINISH)
+//            //надо писать лог
+//            throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result);
 
         $resultSet = $order->status = SmsOrder::STATUS_FINISH;
 
