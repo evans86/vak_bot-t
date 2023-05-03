@@ -225,7 +225,7 @@ class OrderService extends MainService
                                 // Есть ли совпадение
                                 if ($order_id == $order->org_id) {
                                     // Есть ли смс
-                                    $sms = strval($activateActiveOrder['smsCode']);
+                                    $sms = $activateActiveOrder['smsCode'];
                                     if(is_null($sms))
                                         break;
                                     if (is_null($order->codes)) {
