@@ -157,15 +157,11 @@ class OrderService extends MainService
 
         $result = $this->getStatus($order->org_id, $botDto);
 
-//        if ($result != SmsOrder::STATUS_FINISH)
-//            //надо писать лог
-//            throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result);
-
-        $resultSet = $order->status = SmsOrder::STATUS_FINISH;
+        $order->status = SmsOrder::STATUS_FINISH;
 
         $order->save();
 
-        return $resultSet;
+        return SmsOrder::STATUS_FINISH;
     }
 
     /**
@@ -268,7 +264,9 @@ class OrderService extends MainService
         $orders = SmsOrder::query()->where(['status' => $statuses])
             ->where('end_time', '<=', time())->get();
 
+        echo "START" . PHP_EOL;
         foreach ($orders as $key => $order) {
+            echo $order->getId() . PHP_EOL;
             $bot = SmsBot::query()->where(['id' => $order->bot_id])->first();
 
             $botDto = BotFactory::fromEntity($bot);
@@ -277,29 +275,26 @@ class OrderService extends MainService
                 $botDto->public_key,
                 $botDto->private_key
             );
+            echo $order->getId() . PHP_EOL;
 
-            // $resultStatus = $this->getStatus($order->org_id, $botDto->api_key);
-            // if($resultStatus == SmsOrder::STATUS_FINISH) {
-            //     $order->status = $resultStatus;
-            //     $order->save();
-            // }
-            // if($resultStatus == SmsOrder::STATUS_CANCEL) {
-            //     $order->status = $resultStatus;
-            //     $order->save();
-            // }
 
             if (is_null($order->codes)) {
+                echo 'cancel_start' . PHP_EOL;
                 $this->cancel(
                     $result['data'],
                     $botDto,
                     $order
                 );
+                echo 'cancel_finish' . PHP_EOL;
             } else {
+                echo 'confirm_start' . PHP_EOL;
                 $this->confirm(
                     $botDto,
                     $order
                 );
+                echo 'confirm_finish' . PHP_EOL;
             }
+            echo "FINISH" . $order->getId() . PHP_EOL;
 
         }
     }
