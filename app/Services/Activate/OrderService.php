@@ -264,7 +264,7 @@ class OrderService extends MainService
         $orders = SmsOrder::query()->where(['status' => $statuses])
             ->where('end_time', '<=', time())->get();
 
-        echo "START" . PHP_EOL;
+        echo "START count:" . count($orders) . PHP_EOL;
         foreach ($orders as $key => $order) {
             echo $order->getId() . PHP_EOL;
             $bot = SmsBot::query()->where(['id' => $order->bot_id])->first();
