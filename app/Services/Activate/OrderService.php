@@ -35,7 +35,7 @@ class OrderService extends MainService
         if (empty($user->service))
             throw new RuntimeException('Choose service pls');
 
-        $serviceResult = $smsActivate->getNumberV2(
+        $serviceResult = $smsActivate->getNumber(
             $user->service,
             $country_id
         );
