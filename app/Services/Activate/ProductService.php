@@ -30,9 +30,13 @@ class ProductService extends MainService
     {
         $smsActivate = new SmsActivateApi($bot->api_key, $bot->resource_link);
 
-        $services = $smsActivate->getTopCountriesByService();
-
-        return $this->formingPricesArr($services);
+        if($bot->resource_link == BotService::DEFAULT_HOST) {
+            $services = $smsActivate->getTopCountriesByService();
+            return $this->formingPricesArr($services);
+        } else {
+            $services = $smsActivate->getPrices();
+            return $this->formingPricesArr($services);
+        }
     }
 
     /**
