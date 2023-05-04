@@ -259,12 +259,11 @@ class OrderService extends MainService
      */
     public function cronUpdateStatus(): void
     {
-        $statuses = [SmsOrder::STATUS_OK];
+        $statuses = [SmsOrder::STATUS_WAIT_CODE, SmsOrder::STATUS_WAIT_RETRY, SmsOrder::STATUS_OK];
 
         $orders = SmsOrder::query()->where(['status' => $statuses])
             ->where('end_time', '<=', time())->get();
 
-        echo "START count:" . count($orders) . PHP_EOL;
         foreach ($orders as $key => $order) {
             echo $order->id . PHP_EOL;
             $bot = SmsBot::query()->where(['id' => $order->bot_id])->first();
@@ -275,27 +274,20 @@ class OrderService extends MainService
                 $botDto->public_key,
                 $botDto->private_key
             );
-            echo $order->id . PHP_EOL;
 
 
             if (is_null($order->codes)) {
-                echo 'cancel_start' . PHP_EOL;
                 $this->cancel(
                     $result['data'],
                     $botDto,
                     $order
                 );
-                echo 'cancel_finish' . PHP_EOL;
             } else {
-                echo 'confirm_start' . PHP_EOL;
                 $this->confirm(
                     $botDto,
                     $order
                 );
-                echo 'confirm_finish' . PHP_EOL;
             }
-            echo "FINISH" . $order->id . PHP_EOL;
-
         }
     }
 
