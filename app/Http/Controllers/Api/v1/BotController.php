@@ -79,6 +79,7 @@ class BotController extends Controller
     public function update(BotUpdateRequest $request)
     {
         try {
+            throw new \RuntimeException(json_encode($_POST));
             $bot = $this->botService->update($request->getDto());
             $bot = SmsBot::query()->where('public_key', $bot->public_key)->where('private_key', $bot->private_key)->first();
             return ApiHelpers::success(BotFactory::fromEntity($bot)->getArray());
