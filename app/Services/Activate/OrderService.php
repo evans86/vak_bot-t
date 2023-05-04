@@ -119,10 +119,10 @@ class OrderService extends MainService
         // Обновить статус setStatus()
         $result = $smsActivate->setStatus($order->org_id, SmsOrder::ACCESS_CANCEL);
         // Проверить статус getStatus()
-        $result = $this->getStatus($order->org_id, $botDto);
-        if ($result != SmsOrder::STATUS_CANCEL)
-            //надо писать лог
-            throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result);
+//        $result = $this->getStatus($order->org_id, $botDto);
+//        if ($result != SmsOrder::STATUS_CANCEL)
+//            //надо писать лог
+//            throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result);
 
         $order->status = SmsOrder::STATUS_CANCEL;
         if ($order->save()) {
@@ -157,9 +157,9 @@ class OrderService extends MainService
 
         $result = $this->getStatus($order->org_id, $botDto);
 
-        if ($result != SmsOrder::STATUS_FINISH)
-            //надо писать лог
-            throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result);
+//        if ($result != SmsOrder::STATUS_FINISH)
+//            //надо писать лог
+//            throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result);
 
         $resultSet = $order->status = SmsOrder::STATUS_FINISH;
 
