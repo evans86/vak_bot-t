@@ -314,24 +314,4 @@ class OrderService extends MainService
         $serviceResult = $smsActivate->getStatus($id);
         return $serviceResult;
     }
-
-    public function changeStatus()
-    {
-        $statuses = [SmsOrder::ACCESS_ACTIVATION, SmsOrder::ACCESS_CANCEL];
-
-        $orders = SmsOrder::query()->whereIn('status', $statuses)->get();
-
-        foreach ($orders as $key => $order) {
-            echo $order->id . PHP_EOL;
-
-            if ($order->status == SmsOrder::ACCESS_ACTIVATION)
-                $order->status = SmsOrder::STATUS_FINISH;
-
-            if ($order->status == SmsOrder::ACCESS_CANCEL)
-                $order->status = SmsOrder::STATUS_CANCEL;
-
-            $order->save();
-            echo "FINISH" . $order->id . PHP_EOL;
-        }
-    }
 }
