@@ -266,7 +266,7 @@ class OrderService extends MainService
         $statuses = [SmsOrder::STATUS_WAIT_CODE, SmsOrder::STATUS_WAIT_RETRY, SmsOrder::STATUS_OK];
 
         $orders = SmsOrder::query()->where(['status' => $statuses])
-            ->where('end_time', '>=', time())->get();
+            ->where('end_time', '<=', time())->get();
 
         foreach ($orders as $key => $order) {
             $bot = SmsBot::query()->where(['id' => $order->bot_id])->first();
