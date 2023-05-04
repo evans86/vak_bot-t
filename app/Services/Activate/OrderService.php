@@ -261,7 +261,7 @@ class OrderService extends MainService
     {
         $statuses = [SmsOrder::STATUS_OK, SmsOrder::STATUS_WAIT_CODE, SmsOrder::STATUS_WAIT_RETRY];
 
-        $orders = SmsOrder::query()->where(['status' => $statuses])
+        $orders = SmsOrder::query()->where('status', $statuses)
             ->where('end_time', '<=', time())->get();
 
         echo "START count:" . count($orders) . PHP_EOL;
