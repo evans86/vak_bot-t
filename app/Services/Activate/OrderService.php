@@ -266,7 +266,7 @@ class OrderService extends MainService
 
         echo "START count:" . count($orders) . PHP_EOL;
         foreach ($orders as $key => $order) {
-            echo $order->getId() . PHP_EOL;
+            echo $order->id . PHP_EOL;
             $bot = SmsBot::query()->where(['id' => $order->bot_id])->first();
 
             $botDto = BotFactory::fromEntity($bot);
@@ -275,7 +275,7 @@ class OrderService extends MainService
                 $botDto->public_key,
                 $botDto->private_key
             );
-            echo $order->getId() . PHP_EOL;
+            echo $order->id . PHP_EOL;
 
 
             if (is_null($order->codes)) {
@@ -294,7 +294,7 @@ class OrderService extends MainService
                 );
                 echo 'confirm_finish' . PHP_EOL;
             }
-            echo "FINISH" . $order->getId() . PHP_EOL;
+            echo "FINISH" . $order->id . PHP_EOL;
 
         }
     }
