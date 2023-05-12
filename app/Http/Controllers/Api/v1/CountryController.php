@@ -49,4 +49,22 @@ class CountryController extends Controller
         return ApiHelpers::success($countries);
     }
 
+    /**
+     * Формирование списка стран для мультисервиса
+     *
+     * @param Request $request
+     * @return array|string
+     */
+    public function getCountries(Request $request)
+    {
+        if (is_null($request->public_key))
+            return ApiHelpers::error('Not found params: public_key');
+        $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
+        if (empty($bot))
+            return ApiHelpers::error('Not found module.');
+
+        $countries = $this->countryService->getCountries($bot);
+        return ApiHelpers::success($countries);
+    }
+
 }

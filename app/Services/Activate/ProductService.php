@@ -56,4 +56,36 @@ class ProductService extends MainService
 
         return $result;
     }
+
+    /**
+     * Формирование списка сервисов с ценой для выбранной страны
+     *
+     * @param $bot
+     * @param $country
+     * @return array
+     */
+    public function getServices($bot, $country = null)
+    {
+        $smsActivate = new SmsActivateApi($bot->api_key, $bot->resource_link);
+
+        $services = $smsActivate->getPrices($country);
+        $services = current($services);
+
+        $result = [];
+        foreach ($services as $key => $service) {
+
+            $price = $service["cost"];
+            $pricePercent = $price + ($price * ($bot->percent / 100));
+
+            array_push($result, [
+                'name' => $key,
+                'image' => 'https://smsactivate.s3.eu-central-1.amazonaws.com/assets/ico/' . $key . '0.webp',
+                'count' => $service["count"],
+                'cost' => $pricePercent,
+            ]);
+
+        }
+
+        return $result;
+    }
 }

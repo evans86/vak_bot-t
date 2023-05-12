@@ -59,4 +59,22 @@ class ProductController extends Controller
         $user = $this->userService->updateService($request->user_id, $request->service);
         return ApiHelpers::success(ProductResource::generateUserArray($user));
     }
+
+    /**
+     * @param Request $request
+     * @return array|string
+     */
+    public function getServices(Request $request)
+    {
+        if (is_null($request->country))
+            return ApiHelpers::error('Not found params: country');
+        if (is_null($request->public_key))
+            return ApiHelpers::error('Not found params: public_key');
+        $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
+        if (empty($bot))
+            return ApiHelpers::error('Not found module.');
+
+        $countries = $this->productService->getServices($bot, $request->country);
+        return ApiHelpers::success($countries);
+    }
 }

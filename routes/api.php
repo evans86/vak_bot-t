@@ -32,6 +32,12 @@ Route::resources([
 ]);
 
 /**
+ * Роуты API мультисервис
+ */
+Route::get('getCountries', [CountryController::class, 'getCountries']);
+Route::get('getServices', [ProductController::class, 'getServices']);
+
+/**
  * Роуты API (пользователи)
  */
 Route::get('setCountry', [CountryController::class, 'setCountry']);

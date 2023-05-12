@@ -20,7 +20,27 @@ class CountryService extends MainService
         $countries = $smsActivate->getCountries();
 
         $this->formingCountriesArr($countries);
+    }
 
+    public function getCountries($bot)
+    {
+        $smsActivate = new SmsActivateApi($bot->api_key, $bot->resource_link);
+
+        $countries = $smsActivate->getCountries();
+
+        $result = [];
+
+        foreach ($countries as $key => $country) {
+
+            array_push($result, [
+                'org_id' => $country['id'],
+                'name_ru' => $country['rus'],
+                'name_en' => $country['eng'],
+                'image' => 'https://sms-activate.org/assets/ico/country/' . $country['id'] . '.png'
+            ]);
+        }
+
+        return $result;
     }
 
     /**
@@ -60,6 +80,8 @@ class CountryService extends MainService
     }
 
     /**
+     * Формирование списка стран с ценой для выбранного сервиса
+     *
      * @param $countries
      * @param $bot
      * @return array
