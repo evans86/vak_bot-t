@@ -34,7 +34,7 @@ class CountryService extends MainService
     {
         $smsActivate = new SmsActivateApi($bot->api_key, $bot->resource_link);
 
-        $countries = $smsActivate->getTopCountriesByService($service);
+        $countries = $smsActivate->getPrices(null, $service);
 
         return $this->formingServicesArr($countries, $bot);
     }
@@ -69,9 +69,10 @@ class CountryService extends MainService
         $result = [];
         foreach ($countries as $key => $country) {
 
-            $smsCountry = SmsCountry::query()->where(['org_id' => $country['country']])->first();
+            $smsCountry = SmsCountry::query()->where(['org_id' => $key])->first();
 
-            $price = $country["retail_price"];
+            $country = current($country);
+            $price = $country["cost"];
 
             $pricePercent = $price + ($price * ($bot->percent / 100));
 
