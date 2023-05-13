@@ -42,7 +42,7 @@ class OrderResource extends JsonResource
             'country' => $order->country->org_id,
             'operator' => $order->operator,
             'service' => $order->service,
-            'cost' => $order->price_final / 100
+            'cost' => $order->price_final
         ];
     }
 }
