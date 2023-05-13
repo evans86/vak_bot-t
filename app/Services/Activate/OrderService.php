@@ -120,7 +120,7 @@ class OrderService extends MainService
             'country' => $country->org_id,
             'operator' => $serviceResult['activationOperator'],
             'service' => $user->service,
-            'cost' => $amountFinal / 100
+            'cost' => $amountFinal
         ];
         return $result;
     }
