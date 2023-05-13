@@ -16,6 +16,35 @@ use RuntimeException;
 class OrderService extends MainService
 {
     /**
+     * Создание заказа мультиактивации
+     *
+     * @param array $userData
+     * @param BotDto $botDto
+     * @param string $country_id
+     * @param string $services
+     * @return void
+     */
+    public function createMulti(BotDto $botDto, string $country_id, string $services, array $userData = null)
+    {
+        // Создать заказ по апи
+        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
+
+//        $user = SmsUser::query()->where(['telegram_id' => $userData['user']['telegram_id']])->first();
+//        if (is_null($user)) {
+//            throw new RuntimeException('not found user');
+//        }
+
+        $serviceResult = $smsActivate->getMultiServiceNumber(
+            $services,
+            $forward = 0,
+            $country_id,
+        );
+
+        dd($serviceResult);
+
+    }
+
+    /**
      * Создание заказа
      *
      * @param array $userData Сущность DTO from bott
@@ -91,7 +120,7 @@ class OrderService extends MainService
             'country' => $country->org_id,
             'operator' => $serviceResult['activationOperator'],
             'service' => $user->service,
-            'cost' => $amountFinal
+            'cost' => $amountFinal / 100
         ];
         return $result;
     }

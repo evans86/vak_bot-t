@@ -96,7 +96,7 @@ class SmsActivateApi
         if ($ref) {
             $requestParam['ref'] = $ref;
         }
-        return $this->request($requestParam, 'POST', true, 1);
+        return $this->request($requestParam, 'POST', true, 3);
     }
 
     public function setStatus($id, $status, $forward = 0)

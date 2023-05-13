@@ -36,6 +36,7 @@ Route::resources([
  */
 Route::get('getCountries', [CountryController::class, 'getCountries']);
 Route::get('getServices', [ProductController::class, 'getServices']);
+Route::get('createMulti', [OrderController::class, 'createMulti']);
 
 /**
  * Роуты API (пользователи)

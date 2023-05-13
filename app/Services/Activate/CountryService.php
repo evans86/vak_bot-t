@@ -104,7 +104,7 @@ class CountryService extends MainService
                 'title_eng' => $smsCountry->name_en,
                 'image' => $smsCountry->image,
                 'count' => $country["count"],
-                'cost' => $pricePercent,
+                'cost' => $pricePercent * 100,
             ]);
         }
 

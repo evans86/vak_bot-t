@@ -78,6 +78,58 @@ class OrderController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @return array|string
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function createMulti(Request $request)
+    {
+        try {
+//            if (is_null($request->user_id))
+//                return ApiHelpers::error('Not found params: user_id');
+//            $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
+            if (is_null($request->country))
+                return ApiHelpers::error('Not found params: country');
+            if (is_null($request->services))
+                return ApiHelpers::error('Not found params: services');
+//            if (is_null($request->user_secret_key))
+//                return ApiHelpers::error('Not found params: user_secret_key');
+            if (is_null($request->public_key))
+                return ApiHelpers::error('Not found params: public_key');
+            $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
+            if (empty($bot))
+                return ApiHelpers::error('Not found module.');
+
+            $botDto = BotFactory::fromEntity($bot);
+//            $result = BottApi::checkUser(
+//                $request->user_id,
+//                $request->user_secret_key,
+//                $botDto->public_key,
+//                $botDto->private_key
+//            );
+//            if (!$result['result']) {
+//                throw new RuntimeException($result['message']);
+//            }
+//            if ($result['data']['money'] == 0) {
+//                throw new RuntimeException('Пополните баланс в боте');
+//            }
+            $country = SmsCountry::query()->where(['org_id' => $request->country])->first();
+            $services = $request->services;
+
+            $result = $this->orderService->createMulti(
+//                $result['data'],
+                $botDto,
+                $country->org_id,
+                $services
+            );
+
+            return ApiHelpers::success($result);
+        } catch (Exception $e) {
+            return ApiHelpers::error($e->getMessage());
+        }
+    }
+
+    /**
      * Создание заказа
      *
      * Request[
