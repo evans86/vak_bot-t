@@ -81,7 +81,7 @@ class ProductService extends MainService
                 'name' => $key,
                 'image' => 'https://smsactivate.s3.eu-central-1.amazonaws.com/assets/ico/' . $key . '0.webp',
                 'count' => $service["count"],
-                'cost' => $pricePercent,
+                'cost' => $pricePercent * 100,
             ]);
 
         }
