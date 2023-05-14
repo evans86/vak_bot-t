@@ -50,6 +50,7 @@ class BotService extends MainService
         $bot->version = $dto->version;
         $bot->percent = $dto->percent;
         $bot->api_key = $dto->api_key;
+        $bot->color = $dto->color;
         $bot->category_id = $dto->category_id;
         $bot->resource_link = $dto->resource_link;
         if (!$bot->save())
