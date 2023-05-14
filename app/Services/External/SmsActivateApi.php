@@ -72,7 +72,7 @@ class SmsActivateApi
     public function getNumberV2($service, $country = null, $forward = 0, $operator = null, $ref = null)
     {
         $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'service' => $service, 'forward' => $forward);
-        if ($country) {
+        if (!is_null($country)) {
             $requestParam['country'] = $country;
         }
         if ($operator && ($country == 0 || $country == 1 || $country == 2)) {
@@ -225,7 +225,6 @@ class SmsActivateApi
 
         $serializedData = http_build_query($data);
 
-
         if ($method === 'GET') {
             $result = file_get_contents("$this->url?$serializedData");
 
@@ -251,6 +250,7 @@ class SmsActivateApi
             );
             $context = stream_context_create($options);
             $result = file_get_contents($this->url, false, $context);
+//            dd($result);
             if ($getNumber == 1) {
                 return OrdersHelper::requestArray($result);
             }
