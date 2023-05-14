@@ -57,6 +57,7 @@ Route::get('error', [BotController::class, 'error']);
 Route::get('get', [BotController::class, 'get']);
 Route::post('update', [BotController::class, 'update']);
 Route::get('delete', [BotController::class, 'delete']);
+Route::get('getSettings', [BotController::class, 'getSettings']);
 
 /**
  * Роуты API (заказы (создание, получение, все))

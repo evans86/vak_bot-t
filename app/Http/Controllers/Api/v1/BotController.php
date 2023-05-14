@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Bot\BotCreateRequest;
 use App\Http\Requests\Bot\BotGetRequest;
 use App\Http\Requests\Bot\BotUpdateRequest;
+use App\Models\Bot\Bot;
 use App\Models\Bot\SmsBot;
 use App\Services\Activate\BotService;
 use Illuminate\Http\Request;
@@ -65,6 +66,29 @@ class BotController extends Controller
             if (empty($bot))
                 return ApiHelpers::error('Not found module.');
             return ApiHelpers::success(BotFactory::fromEntity($bot)->getArray());
+        } catch (\Exception $e) {
+            return ApiHelpers::error($e->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return array|string
+     */
+    public function getSettings(Request $request)
+    {
+        try {
+            if (is_null($request->public_key))
+                return ApiHelpers::error('Not found params: public_key');
+            $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
+            if (empty($bot))
+                throw new \RuntimeException('Not found module.');
+
+            $botDto = BotFactory::fromEntity($bot);
+
+            $result = $botDto->color;
+
+            return ApiHelpers::success($result);
         } catch (\Exception $e) {
             return ApiHelpers::error($e->getMessage());
         }
