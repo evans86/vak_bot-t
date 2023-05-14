@@ -18,30 +18,95 @@ class OrderService extends MainService
     /**
      * Создание заказа мультиактивации
      *
-     * @param array $userData
      * @param BotDto $botDto
      * @param string $country_id
      * @param string $services
-     * @return void
+     * @param string|null $orderAmount
+     * @param array|null $userData
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function createMulti(BotDto $botDto, string $country_id, string $services, array $userData = null)
+    public function createMulti(BotDto $botDto, string $country_id, string $services, string $orderAmount, array $userData)
     {
         // Создать заказ по апи
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
-//        $user = SmsUser::query()->where(['telegram_id' => $userData['user']['telegram_id']])->first();
-//        if (is_null($user)) {
-//            throw new RuntimeException('not found user');
-//        }
+        $user = SmsUser::query()->where(['telegram_id' => $userData['user']['telegram_id']])->first();
+        if (is_null($user)) {
+            throw new RuntimeException('not found user');
+        }
 
-        $serviceResult = $smsActivate->getMultiServiceNumber(
+        $serviceResults = $smsActivate->getMultiServiceNumber(
             $services,
             $forward = 0,
             $country_id,
         );
 
-        dd($serviceResult);
+        $amountFinal = intval(floatval($orderAmount));
 
+        if ($amountFinal > $userData['money']) {
+            foreach ($serviceResults as $key => $serviceResult) {
+                $org_id = intval($serviceResult['activation']);
+                $serviceResult = $smsActivate->setStatus($org_id, SmsOrder::ACCESS_CANCEL);
+            }
+            throw new RuntimeException('Пополните баланс в боте');
+        }
+
+        // Попытаться списать баланс у пользователя
+        $result = BottApi::subtractBalance($botDto, $userData, $amountFinal, 'Списание баланса для номера '
+            . $serviceResults[0]['phone']);
+
+        // Неудача отмена на сервисе
+        if (!$result['result']) {
+            foreach ($serviceResults as $key => $serviceResult) {
+                $org_id = intval($serviceResult['activation']);
+                $serviceResult = $smsActivate->setStatus($org_id, SmsOrder::ACCESS_CANCEL);
+            }
+            throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
+        }
+
+        // Удача создание заказа в бд
+        $country = SmsCountry::query()->where(['org_id' => $country_id])->first();
+        $dateTime = intval(time());
+
+        $response = [];
+        foreach ($serviceResults as $key => $serviceResult) {
+            $data = [
+                'bot_id' => $botDto->id,
+                'user_id' => 1, //$user->id
+                'service' => $serviceResult['service'],
+                'country_id' => $country->id,
+                'org_id' => $serviceResult['activation'],
+                'phone' => $serviceResult['phone'],
+                'codes' => null,
+                'status' => SmsOrder::STATUS_WAIT_CODE, //4
+                'start_time' => $dateTime,
+                'end_time' => $dateTime + 1177,
+                'operator' => null,
+                'price_final' => $amountFinal,
+                'price_start' => $amountFinal, //по сути надо вычесть процент бота
+            ];
+
+            $order = SmsOrder::create($data);
+            $result = $smsActivate->setStatus($order, SmsOrder::ACCESS_RETRY_GET);
+            $result = $this->getStatus($order->org_id, $botDto);
+
+            array_push($response, [
+                'id' => (integer)$order->org_id,
+                'phone' => $order->phone,
+                'time' => $dateTime,
+                'status' => $order->status,
+                'codes' => null,
+                'country' => $country->org_id,
+                'operator' => null,
+                'service' => $serviceResult['service'],
+                'cost' => $amountFinal // не получится разобрать цену для кажого сервса, пока непонятно чем чревато
+            ]);
+        }
+
+//        dd($response);
+
+        return $response;
     }
 
     /**
