@@ -59,7 +59,7 @@ class OrderService extends MainService
                 $org_id = intval($serviceResult['activation']);
                 $serviceResult = $smsActivate->setStatus($org_id, SmsOrder::ACCESS_CANCEL);
             }
-            throw new RuntimeException('Пополните баланс в боте');
+            throw new RuntimeException('Пополните баланс в боте 2');
         }
 
         // Попытаться списать баланс у пользователя
