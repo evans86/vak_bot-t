@@ -113,13 +113,10 @@ class OrderService extends MainService
                 'status' => $order->status,
                 'codes' => null,
                 'country' => $country->org_id,
-                'operator' => null,
                 'service' => $order->service,
                 'cost' => $amountFinal
             ]);
         }
-
-//        dd($response);
 
         return $response;
     }
