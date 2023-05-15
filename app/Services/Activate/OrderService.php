@@ -16,17 +16,14 @@ use RuntimeException;
 class OrderService extends MainService
 {
     /**
-     * Создание заказа мультиактивации
-     *
      * @param BotDto $botDto
      * @param string $country_id
      * @param string $services
-     * @param string|null $orderAmount
-     * @param array|null $userData
+     * @param array $userData
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function createMulti(BotDto $botDto, string $country_id, string $services, string $orderAmount, array $userData)
+    public function createMulti(BotDto $botDto, string $country_id, string $services, array $userData)
     {
         // Создать заказ по апи
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
@@ -36,14 +33,27 @@ class OrderService extends MainService
             throw new RuntimeException('not found user');
         }
 
+        //Создание мультисервиса
         $serviceResults = $smsActivate->getMultiServiceNumber(
             $services,
             $forward = 0,
             $country_id,
         );
 
-        $amountFinal = intval(floatval($orderAmount));
+        //Получение активных активаций
+        $activateActiveOrders = $smsActivate->getActiveActivations();
+        $activateActiveOrders = $activateActiveOrders['activeActivations'];
 
+        $orderAmount = 0;
+        foreach ($activateActiveOrders as $activateActiveOrder) {
+            $orderAmount += $activateActiveOrder['activationCost'];
+        }
+
+        //формирование общей цены заказа
+        $amountFinal = intval(floatval($orderAmount) * 100);
+        $amountFinal = $amountFinal + ($amountFinal * ($botDto->percent / 100));
+
+        //отмена заказа если бабок недостаточно
         if ($amountFinal > $userData['money']) {
             foreach ($serviceResults as $key => $serviceResult) {
                 $org_id = intval($serviceResult['activation']);
@@ -70,21 +80,26 @@ class OrderService extends MainService
         $dateTime = intval(time());
 
         $response = [];
-        foreach ($serviceResults as $key => $serviceResult) {
+        foreach ($activateActiveOrders as $activateActiveOrder) {
+
+            //формирование цены для каждого заказа
+            $amountStart = intval(floatval($activateActiveOrder['activationCost']) * 100);
+            $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
+
             $data = [
                 'bot_id' => $botDto->id,
                 'user_id' => 1, //$user->id
-                'service' => $serviceResult['service'],
+                'service' => $activateActiveOrder['serviceCode'],
                 'country_id' => $country->id,
-                'org_id' => $serviceResult['activation'],
-                'phone' => $serviceResult['phone'],
+                'org_id' => $activateActiveOrder['activationId'],
+                'phone' => $activateActiveOrder['phoneNumber'],
                 'codes' => null,
                 'status' => SmsOrder::STATUS_WAIT_CODE, //4
                 'start_time' => $dateTime,
                 'end_time' => $dateTime + 1177,
                 'operator' => null,
-                'price_final' => $amountFinal,
-                'price_start' => $amountFinal, //по сути надо вычесть процент бота
+                'price_final' => $amountStart,
+                'price_start' => $amountFinal,
             ];
 
             $order = SmsOrder::create($data);
@@ -92,15 +107,15 @@ class OrderService extends MainService
             $result = $this->getStatus($order->org_id, $botDto);
 
             array_push($response, [
-                'id' => (integer)$order->org_id,
+                'id' => $order->org_id,
                 'phone' => $order->phone,
-                'time' => $dateTime,
+                'time' => $order->start_time,
                 'status' => $order->status,
                 'codes' => null,
                 'country' => $country->org_id,
                 'operator' => null,
-                'service' => $serviceResult['service'],
-                'cost' => $amountFinal // не получится разобрать цену для кажого сервса, пока непонятно чем чревато
+                'service' => $order->service,
+                'cost' => $amountFinal
             ]);
         }
 
@@ -118,7 +133,8 @@ class OrderService extends MainService
      * @return array
      * @throws \Exception
      */
-    public function create(array $userData, BotDto $botDto, string $country_id): array
+    public
+    function create(array $userData, BotDto $botDto, string $country_id): array
     {
         // Создать заказ по апи
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
@@ -198,7 +214,8 @@ class OrderService extends MainService
      * @param SmsOrder $order
      * @return mixed
      */
-    public function cancel(array $userData, BotDto $botDto, SmsOrder $order)
+    public
+    function cancel(array $userData, BotDto $botDto, SmsOrder $order)
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
         // Проверить уже отменёный
@@ -236,7 +253,8 @@ class OrderService extends MainService
      * @param SmsOrder $order
      * @return int
      */
-    public function confirm(BotDto $botDto, SmsOrder $order)
+    public
+    function confirm(BotDto $botDto, SmsOrder $order)
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
@@ -265,7 +283,8 @@ class OrderService extends MainService
      * @param SmsOrder $order
      * @return int
      */
-    public function second(BotDto $botDto, SmsOrder $order)
+    public
+    function second(BotDto $botDto, SmsOrder $order)
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
@@ -297,7 +316,8 @@ class OrderService extends MainService
      * @param SmsOrder $order
      * @return void
      */
-    public function order(array $userData, BotDto $botDto, SmsOrder $order): void
+    public
+    function order(array $userData, BotDto $botDto, SmsOrder $order): void
     {
         switch ($order->status) {
             case SmsOrder::STATUS_CANCEL:
@@ -351,7 +371,8 @@ class OrderService extends MainService
      *
      * @return void
      */
-    public function cronUpdateStatus(): void
+    public
+    function cronUpdateStatus(): void
     {
         $statuses = [SmsOrder::STATUS_OK, SmsOrder::STATUS_WAIT_CODE, SmsOrder::STATUS_WAIT_RETRY];
 

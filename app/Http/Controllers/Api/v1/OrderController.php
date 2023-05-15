@@ -92,8 +92,6 @@ class OrderController extends Controller
                 return ApiHelpers::error('Not found params: country');
             if (is_null($request->services))
                 return ApiHelpers::error('Not found params: services');
-            if (is_null($request->orderAmount))
-                return ApiHelpers::error('Not found params: orderAmount');
             if (is_null($request->user_secret_key))
                 return ApiHelpers::error('Not found params: user_secret_key');
             if (is_null($request->public_key))
@@ -122,7 +120,6 @@ class OrderController extends Controller
                 $botDto,
                 $country->org_id,
                 $services,
-                $request->orderAmount,
                 $result['data'],
             );
 
