@@ -80,42 +80,50 @@ class OrderService extends MainService
         $dateTime = intval(time());
 
         $response = [];
-        foreach ($activateActiveOrders as $activateActiveOrder) {
 
-            //формирование цены для каждого заказа
-            $amountStart = intval(floatval($activateActiveOrder['activationCost']) * 100);
-            $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
+        foreach ($serviceResults as $key => $serviceResult) {
+            $org_id = intval($serviceResult['activation']);
+            foreach ($activateActiveOrders as $activateActiveOrder) {
+                $active_org_id = intval($activateActiveOrder['activationId']);
 
-            $data = [
-                'bot_id' => $botDto->id,
-                'user_id' => $user->id, //
-                'service' => $activateActiveOrder['serviceCode'],
-                'country_id' => $country->id,
-                'org_id' => $activateActiveOrder['activationId'],
-                'phone' => $activateActiveOrder['phoneNumber'],
-                'codes' => null,
-                'status' => SmsOrder::STATUS_WAIT_CODE, //4
-                'start_time' => $dateTime,
-                'end_time' => $dateTime + 1177,
-                'operator' => null,
-                'price_final' => $amountStart,
-                'price_start' => $amountFinal,
-            ];
+                if ($org_id == $active_org_id) {
+                    //формирование цены для каждого заказа
+                    $amountStart = intval(floatval($activateActiveOrder['activationCost']) * 100);
+                    $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
 
-            $order = SmsOrder::create($data);
-            $result = $smsActivate->setStatus($order, SmsOrder::ACCESS_RETRY_GET);
-            $result = $this->getStatus($order->org_id, $botDto);
+                    $data = [
+                        'bot_id' => $botDto->id,
+                        'user_id' => $user->id, //
+                        'service' => $activateActiveOrder['serviceCode'],
+                        'country_id' => $country->id,
+                        'org_id' => $activateActiveOrder['activationId'],
+                        'phone' => $activateActiveOrder['phoneNumber'],
+                        'codes' => null,
+                        'status' => SmsOrder::STATUS_WAIT_CODE, //4
+                        'start_time' => $dateTime,
+                        'end_time' => $dateTime + 1177,
+                        'operator' => null,
+                        'price_final' => $amountStart,
+                        'price_start' => $amountFinal,
+                    ];
 
-            array_push($response, [
-                'id' => $order->org_id,
-                'phone' => $order->phone,
-                'time' => $order->start_time,
-                'status' => $order->status,
-                'codes' => null,
-                'country' => $country->org_id,
-                'service' => $order->service,
-                'cost' => $amountFinal
-            ]);
+                    $order = SmsOrder::create($data);
+                    $result = $smsActivate->setStatus($order, SmsOrder::ACCESS_RETRY_GET);
+                    $result = $this->getStatus($order->org_id, $botDto);
+
+                    array_push($response, [
+                        'id' => $order->org_id,
+                        'phone' => $order->phone,
+                        'time' => $order->start_time,
+                        'status' => $order->status,
+                        'codes' => null,
+                        'country' => $country->org_id,
+                        'service' => $order->service,
+                        'cost' => $amountFinal
+                    ]);
+                }
+            }
+
         }
 
         return $response;
