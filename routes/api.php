@@ -41,19 +41,15 @@ Route::get('createMulti', [OrderController::class, 'createMulti']);
 /**
  * Роуты API (пользователи)
  */
-Route::get('setCountry', [CountryController::class, 'setCountry']);
 Route::get('setService', [ProductController::class, 'setService']);
 Route::get('setLanguage', [UserController::class, 'setLanguage']);
 Route::get('getUser', [UserController::class, 'getUser']);
-Route::get('balance', [UserController::class, 'balance']);
-//Route::get('test', [UserController::class, 'test']);
 
 /**
  * Роуты API (боты)
  */
 Route::get('ping', [BotController::class, 'ping']);
 Route::get('create', [BotController::class, 'create']);
-Route::get('error', [BotController::class, 'error']);
 Route::get('get', [BotController::class, 'get']);
 Route::post('update', [BotController::class, 'update']);
 Route::get('delete', [BotController::class, 'delete']);
@@ -70,14 +66,7 @@ Route::get('orders', [OrderController::class, 'orders']);
  * Роуты API (заказы (изменение статусов))
  */
 Route::get('closeOrder', [OrderController::class, 'closeOrder']);
-Route::get('reportOrderSms', [OrderController::class, 'reportOrderSms']);
 Route::get('secondSms', [OrderController::class, 'secondSms']);
 Route::get('confirmOrder', [OrderController::class, 'confirmOrder']);
-
-/**
- * Роуты API (заказы (рабочие))
- */
-Route::get('getActive', [OrderController::class, 'getActive']);
-Route::get('getStatus', [OrderController::class, 'getStatus']);
 
 
