@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\v1\CountryController;
 use App\Http\Controllers\Api\v1\UserController;
 use App\Http\Controllers\Api\v1\ProductController;
 use App\Http\Controllers\Api\v1\OrderController;
+use App\Http\Controllers\Api\v1\RentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,5 +69,14 @@ Route::get('orders', [OrderController::class, 'orders']);
 Route::get('closeOrder', [OrderController::class, 'closeOrder']);
 Route::get('secondSms', [OrderController::class, 'secondSms']);
 Route::get('confirmOrder', [OrderController::class, 'confirmOrder']);
+
+/**
+ * Роуты API (аренда номеров))
+ */
+Route::get('getRentCountries', [RentController::class, 'getRentCountries']);
+Route::get('getRentServices', [RentController::class, 'getRentServices']);
+Route::get('createRentOrder', [RentController::class, 'createRentOrder']);
+
+
 
 

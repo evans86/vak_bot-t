@@ -66,5 +66,4 @@ class CountryController extends Controller
         $countries = $this->countryService->getCountries($bot);
         return ApiHelpers::success($countries);
     }
-
 }

@@ -27,6 +27,7 @@ Route::group(['namespace' => 'Activate', 'prefix' => 'activate'], function () {
     Route::get('product', 'ProductController@index')->name('activate.product.index')->middleware('auth');
     Route::get('order', 'OrderController@index')->name('activate.order.index')->middleware('auth');
     Route::get('bot', 'BotController@index')->name('activate.bot.index')->middleware('auth');
+    Route::get('rent', 'RentController@index')->name('activate.rent.index')->middleware('auth');
 });
 
 /**

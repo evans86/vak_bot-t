@@ -149,9 +149,9 @@ class SmsActivateApi
         return $this->request($requestParam, 'GET', true);
     }
 
-    public function getRentServicesAndCountries($time = 4, $operator = "any")
+    public function getRentServicesAndCountries($country = "0", $time = 4, $operator = "any")
     {
-        $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'rent_time' => $time, 'operator' => $operator);
+        $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'rent_time' => $time, 'operator' => $operator, 'country' => $country);
         return $this->requestRent($requestParam, 'POST', true);
     }
 
@@ -173,7 +173,7 @@ class SmsActivateApi
         return $this->requestRent($requestParam, 'POST', true);
     }
 
-    public function getRentNumber($service, $time = 4, $country = 0, $operator = "any", $url = '')
+    public function getRentNumber($service, $country = 0, $time = 4, $url = '', $operator = "any")
     {
         $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'service' => $service, 'rent_time' => $time, 'operator' => $operator, 'country' => $country, 'url' => $url);
         return $this->requestRent($requestParam, 'POST', true);
