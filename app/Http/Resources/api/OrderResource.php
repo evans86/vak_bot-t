@@ -3,6 +3,7 @@
 namespace App\Http\Resources\api;
 
 use App\Models\Order\SmsOrder;
+use App\Models\Rent\RentOrder;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrderResource extends JsonResource
@@ -43,6 +44,25 @@ class OrderResource extends JsonResource
             'operator' => $order->operator,
             'service' => $order->service,
             'cost' => $order->price_final
+        ];
+    }
+
+    /**
+     * @param RentOrder $rent_order
+     * @return array
+     */
+    public static function generateRentArray(RentOrder $rent_order): array
+    {
+        return [
+            'id' => (integer)$rent_order->org_id,
+            'phone' => $rent_order->phone,
+            'time' => $rent_order->start_time,
+            'status' => (integer)$rent_order->status,
+            'codes' => $rent_order->codes,
+            'country' => $rent_order->country->org_id,
+            'operator' => $rent_order->operator,
+            'service' => $rent_order->service,
+            'cost' => $rent_order->price_final
         ];
     }
 }

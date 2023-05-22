@@ -76,6 +76,8 @@ Route::get('confirmOrder', [OrderController::class, 'confirmOrder']);
 Route::get('getRentCountries', [RentController::class, 'getRentCountries']);
 Route::get('getRentServices', [RentController::class, 'getRentServices']);
 Route::get('createRentOrder', [RentController::class, 'createRentOrder']);
+Route::get('getRentOrders', [RentController::class, 'getRentOrders']);
+Route::get('closeRentOrder', [RentController::class, 'closeRentOrder']);
 
 
 
