@@ -290,9 +290,15 @@ class RentController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @return void
+     */
     public function updateSmsRent(Request $request)
     {
         $hook_rent = $request->all();
+
+        dd($hook_rent);
 
         $this->rentService->updateSms($hook_rent);
 //        dd($hook_rent);
