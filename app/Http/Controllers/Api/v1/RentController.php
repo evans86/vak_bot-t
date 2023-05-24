@@ -297,6 +297,7 @@ class RentController extends Controller
     public function updateSmsRent(Request $request)
     {
         $hook_rent = $request->all();
+//        dd($hook_rent);
 
 //       dd($request);
 

@@ -244,9 +244,9 @@ class RentService extends MainService
     public function updateSms(array $hook_rent)
     {
         $rent_org_id = $hook_rent['rentId'];
-        $codes = $hook_rent['sms']['text'];
-        $codes_date = $hook_rent['sms']['date'];
-        $codes_id = $hook_rent['sms']['smsId'];
+        $codes = $hook_rent['text'];
+        $codes_date = $hook_rent['date'];
+        $codes_id = $hook_rent['smsId'];
 
         $rentOrder = RentOrder::query()->where(['org_id' => $rent_org_id])->first();
 
