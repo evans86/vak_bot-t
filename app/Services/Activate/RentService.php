@@ -233,12 +233,25 @@ class RentService extends MainService
         return $amountFinal;
     }
 
-    //продление срока аренды
-    public function continueRent(BotDto $botDto)
+    /**
+     * продление срока аренды
+     *
+     * @param BotDto $botDto
+     * @param RentOrder $rent_order
+     * @param $time
+     * @return void
+     */
+    public function continueRent(BotDto $botDto, RentOrder $rent_order, $time)
     {
+
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
-        $resultRequest = $smsActivate->continueRentNumber();
+        $resultRequest = $smsActivate->continueRentNumber($rent_order->org_id, $time);
+
+        $end_time = strtotime($resultRequest['phone']['endDate']);
+        $rent_order->end_time = $end_time;
+
+        $rent_order->save();
     }
 
     public function updateSms(array $hook_rent)

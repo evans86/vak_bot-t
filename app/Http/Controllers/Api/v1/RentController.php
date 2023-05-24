@@ -10,7 +10,6 @@ use App\Models\Bot\SmsBot;
 use App\Models\Rent\RentOrder;
 use App\Models\User\SmsUser;
 use App\Services\Activate\RentService;
-use App\Services\External\BottApi;
 use Illuminate\Http\Request;
 use Exception;
 use RuntimeException;
@@ -78,6 +77,9 @@ class RentController extends Controller
     public function createRentOrder(Request $request)
     {
         try {
+//            if (is_null($request->user_id))
+//                return ApiHelpers::error('Not found params: user_id');
+//            $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
             if (is_null($request->public_key))
                 return ApiHelpers::error('Not found params: public_key');
             if (is_null($request->country))
@@ -89,6 +91,8 @@ class RentController extends Controller
             $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
             if (empty($bot))
                 return ApiHelpers::error('Not found module.');
+//            if (is_null($request->user_secret_key))
+//                return ApiHelpers::error('Not found params: user_secret_key');
             $botDto = BotFactory::fromEntity($bot);
 
 //            $result = BottApi::checkUser(
@@ -154,6 +158,47 @@ class RentController extends Controller
 
             return ApiHelpers::success($result);
         } catch (Exception $e) {
+            return ApiHelpers::errorNew($e->getMessage());
+        }
+    }
+
+    /**
+     * получить заказ
+     *
+     * @param Request $request
+     * @return array|string
+     */
+    public function getRentOrder(Request $request)
+    {
+        try {
+//            if (is_null($request->user_id))
+//                return ApiHelpers::error('Not found params: user_id');
+//            $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
+            if (is_null($request->order_id))
+                return ApiHelpers::error('Not found params: order_id');
+            $order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
+//            if (is_null($request->user_secret_key))
+//                return ApiHelpers::error('Not found params: user_secret_key');
+            if (is_null($request->public_key))
+                return ApiHelpers::error('Not found params: public_key');
+            $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
+            if (empty($bot))
+                return ApiHelpers::error('Not found module.');
+
+            $botDto = BotFactory::fromEntity($bot);
+//            $result = BottApi::checkUser(
+//                $request->user_id,
+//                $request->user_secret_key,
+//                $botDto->public_key,
+//                $botDto->private_key
+//            );
+//            if (!$result['result']) {
+//                throw new RuntimeException($result['message']);
+//            }
+
+            $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
+            return ApiHelpers::success(OrderResource::generateRentArray($rent_order));
+        } catch (RuntimeException $e) {
             return ApiHelpers::errorNew($e->getMessage());
         }
     }
@@ -255,7 +300,6 @@ class RentController extends Controller
      */
     public function getContinuePrice(Request $request)
     {
-//        dd($request->all());
         try {
 //            if (is_null($request->user_id))
 //                return ApiHelpers::error('Not found params: user_id');
@@ -263,6 +307,8 @@ class RentController extends Controller
             if (is_null($request->order_id))
                 return ApiHelpers::error('Not found params: order_id');
             $order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
+//            if (is_null($request->time)) надо ли этот параметр
+//                return ApiHelpers::error('Not found params: time');
 //            if (is_null($request->user_secret_key))
 //                return ApiHelpers::error('Not found params: user_secret_key');
             if (is_null($request->public_key))
@@ -291,6 +337,53 @@ class RentController extends Controller
     }
 
     /**
+     * продление аренды
+     *
+     * @param Request $request
+     * @return array|string
+     */
+    public function continueRent(Request $request)
+    {
+        try {
+//            if (is_null($request->user_id))
+//                return ApiHelpers::error('Not found params: user_id');
+//            $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
+            if (is_null($request->order_id))
+                return ApiHelpers::error('Not found params: order_id');
+            $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
+            if (is_null($request->time))
+                return ApiHelpers::error('Not found params: time');
+            if (is_null($request->public_key))
+                return ApiHelpers::error('Not found params: public_key');
+            $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
+            if (empty($bot))
+                return ApiHelpers::error('Not found module.');
+//        if (is_null($request->user_secret_key))
+//            return ApiHelpers::error('Not found params: user_secret_key');
+
+            $botDto = BotFactory::fromEntity($bot);
+//        $result = BottApi::checkUser(
+//            $request->user_id,
+//            $request->user_secret_key,
+//            $botDto->public_key,
+//            $botDto->private_key
+//        );
+//        if (!$result['result']) {
+//            throw new RuntimeException($result['message']);
+//        }
+
+            $this->rentService->continueRent($botDto, $rent_order, $request->time);
+
+            $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
+            return ApiHelpers::success(OrderResource::generateRentArray($rent_order));
+        } catch (Exception $e) {
+            return ApiHelpers::errorNew($e->getMessage());
+        }
+    }
+
+    /**
+     * //метод обновения кодов через вебхук
+     *
      * @param Request $request
      * @return void
      */

@@ -77,10 +77,12 @@ Route::get('getRentCountries', [RentController::class, 'getRentCountries']);
 Route::get('getRentServices', [RentController::class, 'getRentServices']);
 Route::get('createRentOrder', [RentController::class, 'createRentOrder']);
 Route::get('getRentOrders', [RentController::class, 'getRentOrders']);
+Route::get('getRentOrder', [RentController::class, 'getRentOrder']);
 Route::get('closeRentOrder', [RentController::class, 'closeRentOrder']);
 Route::get('confirmRentOrder', [RentController::class, 'confirmRentOrder']);
 Route::get('getContinuePrice', [RentController::class, 'getContinuePrice']);
-Route::post('updateSmsRent', [RentController::class, 'updateSmsRent']); //метод для вебхука
+Route::get('continueRent', [RentController::class, 'continueRent']);
+Route::post('updateSmsRent', [RentController::class, 'updateSmsRent']); //метод обновения кодов через вебхук
 
 
 
