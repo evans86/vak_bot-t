@@ -80,7 +80,7 @@ Route::get('getRentOrders', [RentController::class, 'getRentOrders']);
 Route::get('closeRentOrder', [RentController::class, 'closeRentOrder']);
 Route::get('confirmRentOrder', [RentController::class, 'confirmRentOrder']);
 Route::get('getContinuePrice', [RentController::class, 'getContinuePrice']);
-Route::get('updateSmsRent', [RentController::class, 'updateSmsRent']); //метод для вебхука
+Route::post('updateSmsRent', [RentController::class, 'updateSmsRent']); //метод для вебхука
 
 
 
