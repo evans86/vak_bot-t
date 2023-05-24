@@ -250,7 +250,13 @@ class RentService extends MainService
 
         $rentOrder = RentOrder::query()->where(['org_id' => $rent_org_id])->first();
 
-        $rentOrder->codes = $codes;
+//        $str_code = 'Ваш код подтверждения: 107-981. Наберите его в поле ввода.';
+        $codes = explode(' ', $codes);
+        $codes = $codes[3];
+        $update_codes = $rentOrder->codes . $codes;
+//        print_r($codes);
+
+        $rentOrder->codes = $update_codes;
         $rentOrder->codes_id = $codes_id;
         $rentOrder->codes_date = $codes_date;
 
