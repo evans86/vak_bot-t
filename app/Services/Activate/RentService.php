@@ -245,7 +245,7 @@ class RentService extends MainService
     {
         $rent_org_id = $hook_rent['rentId'];
         $codes = $hook_rent['sms']['text'];
-        $codes_date = $hook_rent['sms']['date'];
+        $codes_date = strtotime($hook_rent['sms']['date']);
         $codes_id = $hook_rent['sms']['smsId'];
 
         $rentOrder = RentOrder::query()->where(['org_id' => $rent_org_id])->first();
@@ -254,7 +254,6 @@ class RentService extends MainService
         $codes = explode(' ', $codes);
         $codes = $codes[3];
         $update_codes = $rentOrder->codes . ' ' . $codes;
-//        print_r($codes);
 
         $rentOrder->codes = $update_codes;
         $rentOrder->codes_id = $codes_id;
