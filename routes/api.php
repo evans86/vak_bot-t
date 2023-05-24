@@ -78,6 +78,9 @@ Route::get('getRentServices', [RentController::class, 'getRentServices']);
 Route::get('createRentOrder', [RentController::class, 'createRentOrder']);
 Route::get('getRentOrders', [RentController::class, 'getRentOrders']);
 Route::get('closeRentOrder', [RentController::class, 'closeRentOrder']);
+Route::get('confirmRentOrder', [RentController::class, 'confirmRentOrder']);
+Route::get('getContinuePrice', [RentController::class, 'getContinuePrice']);
+Route::get('updateSmsRent', [RentController::class, 'updateSmsRent']); //метод для вебхука
 
 
 

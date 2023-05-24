@@ -152,7 +152,7 @@ class SmsActivateApi
     public function getRentServicesAndCountries($country = "0", $time = 4, $operator = "any")
     {
         $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'rent_time' => $time, 'operator' => $operator, 'country' => $country);
-        return $this->requestRent($requestParam, 'POST', true);
+        return $this->requestRent($requestParam, 'POST', false, 1);
     }
 
     public function getOperators($country)
@@ -176,7 +176,7 @@ class SmsActivateApi
     public function getRentNumber($service, $country = 0, $time = 4, $url = '', $operator = "any")
     {
         $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'service' => $service, 'rent_time' => $time, 'operator' => $operator, 'country' => $country, 'url' => $url);
-        return $this->requestRent($requestParam, 'POST', true);
+        return $this->requestRent($requestParam, 'POST', true,);
     }
 
     public function getRentStatus($id)
@@ -206,7 +206,7 @@ class SmsActivateApi
     public function getContinueRentPriceNumber($id, $time)
     {
         $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'id' => $id, 'rent_time' => $time);
-        return $this->requestRent($requestParam, 'POST', false);
+        return $this->requestRent($requestParam, 'POST', true, 3);
     }
 
     /**
@@ -238,7 +238,7 @@ class SmsActivateApi
                 return OrdersHelper::requestArray($parsedResponse[0]);
             }
             $json_string = stripslashes(html_entity_decode($result));
-            $result =  json_decode( preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $json_string), true );
+            $result = json_decode(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $json_string), true);
             return $result;
         } else {
             $options = array(
@@ -318,15 +318,26 @@ class SmsActivateApi
             $context = stream_context_create($options);
             $result = file_get_contents($this->url, false, $context);
         }
+        if ($getNumber == 1) {
+            $result = json_decode($result, true);
+            return $result;
+        }
 
         if ($parseAsJSON) {
             $result = json_decode($result, true);
-//            $responsError = new ErrorCodes($result["message"]);
-//            $check = $responsError->checkExist($result["message"]);  // раскоментить если необходимо включить исключения для Аренды
-//            if ($check) {
-//                throw new RequestError($result["message"]);
-//            }
-            return $result;
+//            dd($result);
+            if (isset($result['message'])) {
+                $responsError = new ErrorCodes($result['message']);
+                $check = $responsError->checkExist($result['message']);  // раскоментить если необходимо включить исключения для Аренды
+                if ($check) {
+                    throw new RequestError($result['message']);
+                }
+            }
+//            if ($getNumber == 3){
+//                return $result['price'];
+//            }else{
+                return $result;
+
         }
         return $result;
     }

@@ -7,6 +7,7 @@ use App\Models\Activate\SmsCountry;
 use App\Models\Rent\RentOrder;
 use App\Services\External\SmsActivateApi;
 use App\Services\MainService;
+use RuntimeException;
 
 class RentService extends MainService
 {
@@ -79,6 +80,8 @@ class RentService extends MainService
 
         $resultRequest = $smsActivate->getRentServicesAndCountries($country);
 //        dd($resultRequest);
+        if (!isset($resultRequest['services'][$service]))
+            throw new RuntimeException('Сервис не указан или название неверно');
         $service = $resultRequest['services'][$service];
 //        dd($service);
         $service_price = $service['retail_cost'];
@@ -97,7 +100,7 @@ class RentService extends MainService
      * @param $url
      * @return array
      */
-    public function create(BotDto $botDto, $service, $country, $time, array $userData = null, $url = '')
+    public function create(BotDto $botDto, $service, $country, $time, array $userData = null, $url = 'https://activate.bot-t.com/updateSmsRent')
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
         $country = SmsCountry::query()->where(['org_id' => $country])->first();
@@ -108,8 +111,6 @@ class RentService extends MainService
 
         $amountStart = intval(floatval($orderAmount) * 100);
         $amountFinal = $amountStart + ($amountStart * ($botDto->percent / 100));
-
-        $response = [];
 
         $data = [
             'bot_id' => $botDto->id,
@@ -129,7 +130,7 @@ class RentService extends MainService
 
         $rent_order = RentOrder::create($data);
 
-        array_push($response, [
+        $responseData = [
             'id' => $rent_order->org_id,
             'phone' => $rent_order->phone,
             'time' => $rent_order->end_time,
@@ -138,12 +139,14 @@ class RentService extends MainService
             'country' => $country->org_id,
             'service' => $rent_order->service,
             'cost' => $amountFinal
-        ]);
+        ];
 
-        return $response;
+        return $responseData;
     }
 
     /**
+     * Отмена аренды
+     *
      * @param BotDto $botDto
      * @param RentOrder $rent_order
      * @param array|null $userData
@@ -161,12 +164,34 @@ class RentService extends MainService
         return $result;
     }
 
+    /**
+     * Успешно завершить аренду
+     *
+     * @param BotDto $botDto
+     * @param RentOrder $rent_order
+     * @param array|null $userData
+     * @return false|mixed|string
+     */
+    public function confirm(BotDto $botDto, RentOrder $rent_order, array $userData = null)
+    {
+        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
+
+        $result = $smsActivate->setRentStatus($rent_order->org_id, RentOrder::ACCESS_FINISH);
+
+        $rent_order->status = RentOrder::STATUS_FINISH;
+        $rent_order->save();
+
+        return $result;
+    }
+
     //получение статуса аренды
     public function getStatus(BotDto $botDto, $org_id)
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
         $resultRequest = $smsActivate->getRentStatus($org_id);
+
+        dd($resultRequest);
     }
 
     //изменение статсуса аренды
@@ -185,13 +210,27 @@ class RentService extends MainService
         $resultRequest = $smsActivate->getRentList();
     }
 
-    //цена продления аренды
     //разобраться для всех ли аренд работает?
-    public function priceContinue(BotDto $botDto)
+
+    /**
+     * цена продления аренды
+     *
+     * @param BotDto $botDto
+     * @param RentOrder $rent_order
+     * @param $time
+     * @return float|int
+     */
+    public function priceContinue(BotDto $botDto, RentOrder $rent_order, $time = 4)
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
-        $resultRequest = $smsActivate->getContinueRentPriceNumber();
+        $resultRequest = $smsActivate->getContinueRentPriceNumber($rent_order->org_id, $time);
+        $requestAmount = $resultRequest['price'];
+
+        $amountStart = intval(floatval($requestAmount) * 100);
+        $amountFinal = $amountStart + ($amountStart * ($botDto->percent / 100));
+
+        return $amountFinal;
     }
 
     //продление срока аренды
@@ -200,5 +239,21 @@ class RentService extends MainService
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
         $resultRequest = $smsActivate->continueRentNumber();
+    }
+
+    public function updateSms(array $hook_rent)
+    {
+        $rent_org_id = $hook_rent['rentId'];
+        $codes = $hook_rent['sms']['text'];
+        $codes_date = $hook_rent['sms']['date'];
+        $codes_id = $hook_rent['sms']['smsId'];
+
+        $rentOrder = RentOrder::query()->where(['org_id' => $rent_org_id])->first();
+
+        $rentOrder->codes = $codes;
+        $rentOrder->codes_id = $codes_id;
+        $rentOrder->codes_date = $codes_date;
+
+        $rentOrder->save();
     }
 }

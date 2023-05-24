@@ -7,7 +7,6 @@ use App\Helpers\ApiHelpers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\api\OrderResource;
 use App\Models\Bot\SmsBot;
-use App\Models\Order\SmsOrder;
 use App\Models\Rent\RentOrder;
 use App\Models\User\SmsUser;
 use App\Services\Activate\RentService;
@@ -209,4 +208,93 @@ class RentController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @return array|string
+     */
+    public function confirmRentOrder(Request $request)
+    {
+        try {
+//            if (is_null($request->user_id))
+//                return ApiHelpers::error('Not found params: user_id');
+//            $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
+            if (is_null($request->order_id))
+                return ApiHelpers::error('Not found params: order_id');
+            $order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
+//            if (is_null($request->user_secret_key))
+//                return ApiHelpers::error('Not found params: user_secret_key');
+            if (is_null($request->public_key))
+                return ApiHelpers::error('Not found params: public_key');
+            $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
+            if (empty($bot))
+                return ApiHelpers::error('Not found module.');
+
+            $botDto = BotFactory::fromEntity($bot);
+//            $result = BottApi::checkUser(
+//                $request->user_id,
+//                $request->user_secret_key,
+//                $botDto->public_key,
+//                $botDto->private_key
+//            );
+//            if (!$result['result']) {
+//                throw new RuntimeException($result['message']);
+//            }
+//
+            $result = $this->rentService->confirm($botDto, $order);
+
+            $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
+            return ApiHelpers::success(OrderResource::generateRentArray($rent_order));
+        } catch (Exception $e) {
+            return ApiHelpers::errorNew($e->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return array|string
+     */
+    public function getContinuePrice(Request $request)
+    {
+//        dd($request->all());
+        try {
+//            if (is_null($request->user_id))
+//                return ApiHelpers::error('Not found params: user_id');
+//            $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
+            if (is_null($request->order_id))
+                return ApiHelpers::error('Not found params: order_id');
+            $order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
+//            if (is_null($request->user_secret_key))
+//                return ApiHelpers::error('Not found params: user_secret_key');
+            if (is_null($request->public_key))
+                return ApiHelpers::error('Not found params: public_key');
+            $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
+            if (empty($bot))
+                return ApiHelpers::error('Not found module.');
+
+            $botDto = BotFactory::fromEntity($bot);
+//            $result = BottApi::checkUser(
+//                $request->user_id,
+//                $request->user_secret_key,
+//                $botDto->public_key,
+//                $botDto->private_key
+//            );
+//            if (!$result['result']) {
+//                throw new RuntimeException($result['message']);
+//            }
+//
+            $result = $this->rentService->priceContinue($botDto, $order);
+
+            return ApiHelpers::success($result);
+        } catch (Exception $e) {
+            return ApiHelpers::errorNew($e->getMessage());
+        }
+    }
+
+    public function updateSmsRent(Request $request)
+    {
+        $hook_rent = $request->all();
+
+        $this->rentService->updateSms($hook_rent);
+//        dd($hook_rent);
+    }
 }
