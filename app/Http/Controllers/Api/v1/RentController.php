@@ -34,16 +34,20 @@ class RentController extends Controller
      */
     public function getRentCountries(Request $request)
     {
-        if (is_null($request->public_key))
-            return ApiHelpers::error('Not found params: public_key');
-        $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
-        if (empty($bot))
-            return ApiHelpers::error('Not found module.');
-        $botDto = BotFactory::fromEntity($bot);
+        try {
+            if (is_null($request->public_key))
+                return ApiHelpers::error('Not found params: public_key');
+            $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
+            if (empty($bot))
+                return ApiHelpers::error('Not found module.');
+            $botDto = BotFactory::fromEntity($bot);
 
-        $countries = $this->rentService->getRentCountries($botDto);
+            $countries = $this->rentService->getRentCountries($botDto);
 
-        return ApiHelpers::success($countries);
+            return ApiHelpers::success($countries);
+        } catch (Exception $e) {
+            return ApiHelpers::error($e->getMessage());
+        }
     }
 
     /**
@@ -54,18 +58,22 @@ class RentController extends Controller
      */
     public function getRentServices(Request $request)
     {
-        if (is_null($request->public_key))
-            return ApiHelpers::error('Not found params: public_key');
-        if (is_null($request->country))
-            return ApiHelpers::error('Not found params: country');
-        $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
-        if (empty($bot))
-            return ApiHelpers::error('Not found module.');
-        $botDto = BotFactory::fromEntity($bot);
+        try {
+            if (is_null($request->public_key))
+                return ApiHelpers::error('Not found params: public_key');
+            if (is_null($request->country))
+                return ApiHelpers::error('Not found params: country');
+            $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
+            if (empty($bot))
+                return ApiHelpers::error('Not found module.');
+            $botDto = BotFactory::fromEntity($bot);
 
-        $services = $this->rentService->getRentService($botDto, $request->country);
+            $services = $this->rentService->getRentService($botDto, $request->country);
 
-        return ApiHelpers::success($services);
+            return ApiHelpers::success($services);
+        } catch (Exception $e) {
+            return ApiHelpers::error($e->getMessage());
+        }
     }
 
     /**
@@ -113,6 +121,7 @@ class RentController extends Controller
                 $request->service,
                 $request->country,
                 $request->time,
+//                $result['data']
             );
 
             return ApiHelpers::success($rentOrder);
@@ -197,6 +206,7 @@ class RentController extends Controller
 //            }
 
             $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
+
             return ApiHelpers::success(OrderResource::generateRentArray($rent_order));
         } catch (RuntimeException $e) {
             return ApiHelpers::errorNew($e->getMessage());
@@ -204,17 +214,10 @@ class RentController extends Controller
     }
 
     /**
-     * Установить статус 8 (Отменить активацию (если номер Вам не подошел))
-     *
-     * Request[
-     *  'user_id'
-     *  'order_id'
-     *  'public_key'
-     * ]
+     * отменить аренду
      *
      * @param Request $request
      * @return array|string
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function closeRentOrder(Request $request)
     {
@@ -247,6 +250,7 @@ class RentController extends Controller
             $result = $this->rentService->cancel($botDto, $order);
 
             $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
+
             return ApiHelpers::success(OrderResource::generateRentArray($rent_order));
         } catch (Exception $e) {
             return ApiHelpers::errorNew($e->getMessage());
@@ -288,6 +292,7 @@ class RentController extends Controller
             $result = $this->rentService->confirm($botDto, $order);
 
             $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
+
             return ApiHelpers::success(OrderResource::generateRentArray($rent_order));
         } catch (Exception $e) {
             return ApiHelpers::errorNew($e->getMessage());
@@ -375,6 +380,7 @@ class RentController extends Controller
             $this->rentService->continueRent($botDto, $rent_order, $request->time);
 
             $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
+
             return ApiHelpers::success(OrderResource::generateRentArray($rent_order));
         } catch (Exception $e) {
             return ApiHelpers::errorNew($e->getMessage());

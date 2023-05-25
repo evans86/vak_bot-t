@@ -48,7 +48,7 @@ class OrderResource extends JsonResource
     }
 
     /**
-     * @param RentOrder $rent_order
+     * @param RentOrder|null $rent_order
      * @return array
      */
     public static function generateRentArray(RentOrder $rent_order): array
@@ -56,7 +56,8 @@ class OrderResource extends JsonResource
         return [
             'id' => (integer)$rent_order->org_id,
             'phone' => $rent_order->phone,
-            'time' => $rent_order->start_time,
+            'start_time' => $rent_order->start_time,
+            'end_time' => $rent_order->end_time,
             'status' => (integer)$rent_order->status,
             'codes' => $rent_order->codes,
             'country' => $rent_order->country->org_id,

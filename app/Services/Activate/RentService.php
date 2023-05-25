@@ -3,8 +3,12 @@
 namespace App\Services\Activate;
 
 use App\Dto\BotDto;
+use App\Dto\BotFactory;
 use App\Models\Activate\SmsCountry;
+use App\Models\Bot\SmsBot;
 use App\Models\Rent\RentOrder;
+use App\Models\User\SmsUser;
+use App\Services\External\BottApi;
 use App\Services\External\SmsActivateApi;
 use App\Services\MainService;
 use RuntimeException;
@@ -79,11 +83,11 @@ class RentService extends MainService
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
         $resultRequest = $smsActivate->getRentServicesAndCountries($country);
-//        dd($resultRequest);
+
         if (!isset($resultRequest['services'][$service]))
             throw new RuntimeException('Сервис не указан или название неверно');
+
         $service = $resultRequest['services'][$service];
-//        dd($service);
         $service_price = $service['retail_cost'];
 
         return $service_price;
@@ -103,14 +107,32 @@ class RentService extends MainService
     public function create(BotDto $botDto, $service, $country, $time, array $userData = null, $url = 'https://activate.bot-t.com/updateSmsRent/')
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
+
+//        $user = SmsUser::query()->where(['telegram_id' => $userData['user']['telegram_id']])->first();
+//        if (is_null($user)) {
+//            throw new RuntimeException('not found user');
+//        }
+
         $country = SmsCountry::query()->where(['org_id' => $country])->first();
         $orderAmount = $this->getPriceService($botDto, $country->org_id, $service);
+        $amountStart = intval(floatval($orderAmount) * 100);
+        $amountFinal = $amountStart + ($amountStart * ($botDto->percent / 100));
+
+        //проверка баланса пользователя
+//        if ($amountFinal > $userData['money']) {
+//            throw new RuntimeException('Пополните баланс в боте');
+//        }
+
+        // Попытаться списать баланс у пользователя
+//        $result = BottApi::subtractBalance($botDto, $userData, $amountFinal, 'Списание баланса для аренды номера.');
+
+        // Неудача отмена - заказа
+//        if (!$result['result']) {
+//            throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
+//        }
 
         $resultRequest = $smsActivate->getRentNumber($service, $country->org_id, $time, $url);
         $end_time = strtotime($resultRequest['phone']['endDate']);
-
-        $amountStart = intval(floatval($orderAmount) * 100);
-        $amountFinal = $amountStart + ($amountStart * ($botDto->percent / 100));
 
         $data = [
             'bot_id' => $botDto->id,
@@ -133,7 +155,8 @@ class RentService extends MainService
         $responseData = [
             'id' => $rent_order->org_id,
             'phone' => $rent_order->phone,
-            'time' => $rent_order->end_time,
+            'start_time' => $rent_order->start_time,
+            'end_time' => $rent_order->end_time,
             'status' => $rent_order->status,
             'codes' => null,
             'country' => $country->org_id,
@@ -148,7 +171,7 @@ class RentService extends MainService
      * Отмена аренды
      *
      * @param BotDto $botDto
-     * @param RentOrder $rent_order
+     * @param RentOrder|null $rent_order
      * @param array|null $userData
      * @return mixed
      */
@@ -156,10 +179,26 @@ class RentService extends MainService
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
+//        // Проверить уже отменёный
+//        if ($rent_order->status == RentOrder::STATUS_CANCEL)
+//            throw new RuntimeException('The order has already been canceled');
+//        // Проверить активированный
+//        if ($rent_order->status == SmsOrder::STATUS_FINISH)
+//            throw new RuntimeException('The order has not been canceled, the number has been activated, Status 10');
+//        if (!is_null($rent_order->codes))
+//            throw new RuntimeException('The order has not been canceled, the number has been activated');
+
         $result = $smsActivate->setRentStatus($rent_order->org_id, RentOrder::ACCESS_CANCEL);
 
         $rent_order->status = RentOrder::STATUS_CANCEL;
-        $rent_order->save();
+
+        if ($rent_order->save()) {
+            // Он же возвращает баланс
+            $amountFinal = $rent_order->price_final;
+//            $result = BottApi::addBalance($botDto, $userData, $amountFinal, 'Возврат баланса, аренда отменена');
+        } else {
+            throw new RuntimeException('Not save order');
+        }
 
         return $result;
     }
@@ -168,7 +207,7 @@ class RentService extends MainService
      * Успешно завершить аренду
      *
      * @param BotDto $botDto
-     * @param RentOrder $rent_order
+     * @param RentOrder|null $rent_order
      * @param array|null $userData
      * @return false|mixed|string
      */
@@ -176,47 +215,34 @@ class RentService extends MainService
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
+        if ($rent_order->status == RentOrder::STATUS_CANCEL)
+            throw new RuntimeException('The order has already been canceled');
+        if (is_null($rent_order->codes))
+            throw new RuntimeException('Попытка установить несуществующий статус');
+        if ($rent_order->status == RentOrder::STATUS_FINISH)
+            throw new RuntimeException('The order has not been canceled, the number has been activated, Status 10');
+
         $result = $smsActivate->setRentStatus($rent_order->org_id, RentOrder::ACCESS_FINISH);
 
         $rent_order->status = RentOrder::STATUS_FINISH;
-        $rent_order->save();
 
-        return $result;
-    }
+        if ($rent_order->save()) {
+            // Он же возвращает баланс
+//            BottApi::createOrder($botDto, $userData, $rent_order->price_final,
+//                'Заказ активации для номера ' . $rent_order->phone);
+        } else {
+            throw new RuntimeException('Not save order');
+        }
 
-    //получение статуса аренды
-    public function getStatus(BotDto $botDto, $org_id)
-    {
-        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
-
-        $resultRequest = $smsActivate->getRentStatus($org_id);
-
-        dd($resultRequest);
-    }
-
-    //изменение статсуса аренды
-    public function setStatus(BotDto $botDto)
-    {
-        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
-
-        $resultRequest = $smsActivate->setRentStatus();
-    }
-
-    //получение списка текущих активаций
-    public function getRentList(BotDto $botDto)
-    {
-        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
-
-        $resultRequest = $smsActivate->getRentList();
+        return RentOrder::STATUS_FINISH;
     }
 
     //разобраться для всех ли аренд работает?
-
     /**
      * цена продления аренды
      *
      * @param BotDto $botDto
-     * @param RentOrder $rent_order
+     * @param RentOrder|null $rent_order
      * @param $time
      * @return float|int
      */
@@ -237,14 +263,34 @@ class RentService extends MainService
      * продление срока аренды
      *
      * @param BotDto $botDto
-     * @param RentOrder $rent_order
+     * @param RentOrder|null $rent_order
      * @param $time
+     * @param array|null $userData
      * @return void
      */
-    public function continueRent(BotDto $botDto, RentOrder $rent_order, $time)
+    public function continueRent(BotDto $botDto, RentOrder $rent_order, $time, array $userData = null)
     {
-
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
+
+//        $user = SmsUser::query()->where(['telegram_id' => $userData['user']['telegram_id']])->first();
+//        if (is_null($user)) {
+//            throw new RuntimeException('not found user');
+//        }
+
+        $amountFinal = $this->priceContinue($botDto, $rent_order, $time);
+
+        //проверка баланса пользователя
+//        if ($amountFinal > $userData['money']) {
+//            throw new RuntimeException('Пополните баланс в боте');
+//        }
+
+        // Попытаться списать баланс у пользователя
+//        $result = BottApi::subtractBalance($botDto, $userData, $amountFinal, 'Списание баланса для продления аренды номера.');
+
+        // Неудача отмена - заказа
+//        if (!$result['result']) {
+//            throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
+//        }
 
         $resultRequest = $smsActivate->continueRentNumber($rent_order->org_id, $time);
 
@@ -254,6 +300,12 @@ class RentService extends MainService
         $rent_order->save();
     }
 
+    /**
+     * обновление кода через вебхук
+     *
+     * @param array $hook_rent
+     * @return void
+     */
     public function updateSms(array $hook_rent)
     {
         $rent_org_id = $hook_rent['rentId'];
@@ -273,5 +325,44 @@ class RentService extends MainService
         $rentOrder->codes_date = $codes_date;
 
         $rentOrder->save();
+    }
+
+    /**
+     * крон обновления статуса
+     *
+     * @return void
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function cronUpdateRentStatus(): void
+    {
+        $statuses = [RentOrder::STATUS_CANCEL, RentOrder::STATUS_WAIT_CODE];
+
+        $rent_orders = RentOrder::query()->whereIn('status', $statuses)
+            ->where('end_time', '<=', time())->get();
+
+        echo "START count:" . count($rent_orders) . PHP_EOL;
+
+        foreach ($rent_orders as $key => $rent_order) {
+            echo $rent_order->id . PHP_EOL;
+
+            $bot = SmsBot::query()->where(['id' => $rent_order->bot_id])->first();
+
+            $botDto = BotFactory::fromEntity($bot);
+            $result = BottApi::get(
+                $rent_order->user->telegram_id,
+                $botDto->public_key,
+                $botDto->private_key
+            );
+
+            echo 'confirm_start' . PHP_EOL;
+            $this->confirm(
+                $botDto,
+                $rent_order,
+                $result['data']
+            );
+            echo 'confirm_finish' . PHP_EOL;
+
+            echo "FINISH" . $rent_order->id . PHP_EOL;
+        }
     }
 }
