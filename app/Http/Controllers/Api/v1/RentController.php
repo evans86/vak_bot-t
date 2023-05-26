@@ -26,7 +26,6 @@ class RentController extends Controller
     public function __construct()
     {
         $this->rentService = new RentService();
-        $this->middleware('admin');
     }
 
     /**
