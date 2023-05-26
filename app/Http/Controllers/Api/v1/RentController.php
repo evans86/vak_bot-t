@@ -249,7 +249,7 @@ class RentController extends Controller
                 throw new RuntimeException($result['message']);
             }
 
-            $result = $this->rentService->cancel($botDto, $order);
+            $result = $this->rentService->cancel($botDto, $order, $result['data']);
 
             $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
 
@@ -291,7 +291,7 @@ class RentController extends Controller
                 throw new RuntimeException($result['message']);
             }
 
-            $result = $this->rentService->confirm($botDto, $order);
+            $result = $this->rentService->confirm($botDto, $order, $result['data']);
 
             $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
 
@@ -335,7 +335,7 @@ class RentController extends Controller
                 throw new RuntimeException($result['message']);
             }
 
-            $result = $this->rentService->priceContinue($botDto, $order);
+            $result = $this->rentService->priceContinue($botDto, $order, $request->time);
 
             return ApiHelpers::success($result);
         } catch (Exception $e) {
@@ -379,7 +379,7 @@ class RentController extends Controller
                 throw new RuntimeException($result['message']);
             }
 
-            $this->rentService->continueRent($botDto, $rent_order, $request->time);
+            $this->rentService->continueRent($botDto, $rent_order, $request->time, $result['data']);
 
             $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
 

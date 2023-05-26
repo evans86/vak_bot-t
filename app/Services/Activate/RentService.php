@@ -179,7 +179,7 @@ class RentService extends MainService
      * @param array|null $userData
      * @return mixed
      */
-    public function cancel(BotDto $botDto, RentOrder $rent_order, array $userData = null)
+    public function cancel(BotDto $botDto, RentOrder $rent_order, array $userData)
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
@@ -215,7 +215,7 @@ class RentService extends MainService
      * @param array|null $userData
      * @return false|mixed|string
      */
-    public function confirm(BotDto $botDto, RentOrder $rent_order, array $userData = null)
+    public function confirm(BotDto $botDto, RentOrder $rent_order, array $userData)
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
@@ -251,7 +251,7 @@ class RentService extends MainService
      * @param $time
      * @return float|int
      */
-    public function priceContinue(BotDto $botDto, RentOrder $rent_order, $time = 4)
+    public function priceContinue(BotDto $botDto, RentOrder $rent_order, $time)
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
@@ -273,7 +273,7 @@ class RentService extends MainService
      * @param array|null $userData
      * @return void
      */
-    public function continueRent(BotDto $botDto, RentOrder $rent_order, $time, array $userData = null)
+    public function continueRent(BotDto $botDto, RentOrder $rent_order, $time, array $userData)
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
