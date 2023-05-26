@@ -232,8 +232,8 @@ class RentService extends MainService
 
         if ($rent_order->save()) {
             // Он же возвращает баланс
-//            BottApi::createOrder($botDto, $userData, $rent_order->price_final,
-//                'Заказ активации для номера ' . $rent_order->phone);
+            BottApi::createOrder($botDto, $userData, $rent_order->price_final,
+                'Заказ активации для номера ' . $rent_order->phone);
         } else {
             throw new RuntimeException('Not save order');
         }
@@ -277,25 +277,25 @@ class RentService extends MainService
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
-//        $user = SmsUser::query()->where(['telegram_id' => $userData['user']['telegram_id']])->first();
-//        if (is_null($user)) {
-//            throw new RuntimeException('not found user');
-//        }
+        $user = SmsUser::query()->where(['telegram_id' => $userData['user']['telegram_id']])->first();
+        if (is_null($user)) {
+            throw new RuntimeException('not found user');
+        }
 
         $amountFinal = $this->priceContinue($botDto, $rent_order, $time);
 
         //проверка баланса пользователя
-//        if ($amountFinal > $userData['money']) {
-//            throw new RuntimeException('Пополните баланс в боте');
-//        }
+        if ($amountFinal > $userData['money']) {
+            throw new RuntimeException('Пополните баланс в боте');
+        }
 
         // Попытаться списать баланс у пользователя
-//        $result = BottApi::subtractBalance($botDto, $userData, $amountFinal, 'Списание баланса для продления аренды номера.');
+        $result = BottApi::subtractBalance($botDto, $userData, $amountFinal, 'Списание баланса для продления аренды номера.');
 
         // Неудача отмена - заказа
-//        if (!$result['result']) {
-//            throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
-//        }
+        if (!$result['result']) {
+            throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
+        }
 
         $resultRequest = $smsActivate->continueRentNumber($rent_order->org_id, $time);
 
