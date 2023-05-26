@@ -104,14 +104,14 @@ class RentService extends MainService
      * @param $url
      * @return array
      */
-    public function create(BotDto $botDto, $service, $country, $time, array $userData = null, $url = 'https://activate.bot-t.com/updateSmsRent/')
+    public function create(BotDto $botDto, $service, $country, $time, array $userData, $url = 'https://activate.bot-t.com/updateSmsRent/')
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
-//        $user = SmsUser::query()->where(['telegram_id' => $userData['user']['telegram_id']])->first();
-//        if (is_null($user)) {
-//            throw new RuntimeException('not found user');
-//        }
+        $user = SmsUser::query()->where(['telegram_id' => $userData['user']['telegram_id']])->first();
+        if (is_null($user)) {
+            throw new RuntimeException('not found user');
+        }
 
         $country = SmsCountry::query()->where(['org_id' => $country])->first();
         $orderAmount = $this->getPriceService($botDto, $country->org_id, $service);
@@ -119,17 +119,17 @@ class RentService extends MainService
         $amountFinal = $amountStart + ($amountStart * ($botDto->percent / 100));
 
         //проверка баланса пользователя
-//        if ($amountFinal > $userData['money']) {
-//            throw new RuntimeException('Пополните баланс в боте');
-//        }
+        if ($amountFinal > $userData['money']) {
+            throw new RuntimeException('Пополните баланс в боте');
+        }
 
         // Попытаться списать баланс у пользователя
-//        $result = BottApi::subtractBalance($botDto, $userData, $amountFinal, 'Списание баланса для аренды номера.');
+        $result = BottApi::subtractBalance($botDto, $userData, $amountFinal, 'Списание баланса для аренды номера.');
 
-        // Неудача отмена - заказа
-//        if (!$result['result']) {
-//            throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
-//        }
+        // Неудача
+        if (!$result['result']) {
+            throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
+        }
 
         $resultRequest = $smsActivate->getRentNumber($service, $country->org_id, $time, $url);
         $end_time = strtotime($resultRequest['phone']['endDate']);

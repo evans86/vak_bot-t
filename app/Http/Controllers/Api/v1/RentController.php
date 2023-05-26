@@ -10,6 +10,7 @@ use App\Models\Bot\SmsBot;
 use App\Models\Rent\RentOrder;
 use App\Models\User\SmsUser;
 use App\Services\Activate\RentService;
+use App\Services\External\BottApi;
 use Illuminate\Http\Request;
 use Exception;
 use RuntimeException;
@@ -85,9 +86,9 @@ class RentController extends Controller
     public function createRentOrder(Request $request)
     {
         try {
-//            if (is_null($request->user_id))
-//                return ApiHelpers::error('Not found params: user_id');
-//            $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
+            if (is_null($request->user_id))
+                return ApiHelpers::error('Not found params: user_id');
+            $user = SmsUser::query()->where(['telegram_id' => $request->user_id])->first();
             if (is_null($request->public_key))
                 return ApiHelpers::error('Not found params: public_key');
             if (is_null($request->country))
@@ -99,29 +100,29 @@ class RentController extends Controller
             $bot = SmsBot::query()->where('public_key', $request->public_key)->first();
             if (empty($bot))
                 return ApiHelpers::error('Not found module.');
-//            if (is_null($request->user_secret_key))
-//                return ApiHelpers::error('Not found params: user_secret_key');
+            if (is_null($request->user_secret_key))
+                return ApiHelpers::error('Not found params: user_secret_key');
             $botDto = BotFactory::fromEntity($bot);
 
-//            $result = BottApi::checkUser(
-//                $request->user_id,
-//                $request->user_secret_key,
-//                $botDto->public_key,
-//                $botDto->private_key
-//            );
-//            if (!$result['result']) {
-//                throw new RuntimeException($result['message']);
-//            }
-//            if ($result['data']['money'] == 0) {
-//                throw new RuntimeException('Пополните баланс в боте');
-//            }
+            $result = BottApi::checkUser(
+                $request->user_id,
+                $request->user_secret_key,
+                $botDto->public_key,
+                $botDto->private_key
+            );
+            if (!$result['result']) {
+                throw new RuntimeException($result['message']);
+            }
+            if ($result['data']['money'] == 0) {
+                throw new RuntimeException('Пополните баланс в боте');
+            }
 
             $rentOrder = $this->rentService->create(
                 $botDto,
                 $request->service,
                 $request->country,
                 $request->time,
-//                $result['data']
+                $result['data']
             );
 
             return ApiHelpers::success($rentOrder);
