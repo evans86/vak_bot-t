@@ -183,14 +183,14 @@ class RentService extends MainService
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
-//        // Проверить уже отменёный
-//        if ($rent_order->status == RentOrder::STATUS_CANCEL)
-//            throw new RuntimeException('The order has already been canceled');
-//        // Проверить активированный
-//        if ($rent_order->status == SmsOrder::STATUS_FINISH)
-//            throw new RuntimeException('The order has not been canceled, the number has been activated, Status 10');
-//        if (!is_null($rent_order->codes))
-//            throw new RuntimeException('The order has not been canceled, the number has been activated');
+        // Проверить уже отменёный
+        if ($rent_order->status == RentOrder::STATUS_CANCEL)
+            throw new RuntimeException('The order has already been canceled');
+        // Проверить активированный
+        if ($rent_order->status == SmsOrder::STATUS_FINISH)
+            throw new RuntimeException('The order has not been canceled, the number has been activated, Status 10');
+        if (!is_null($rent_order->codes))
+            throw new RuntimeException('The order has not been canceled, the number has been activated');
 
         $result = $smsActivate->setRentStatus($rent_order->org_id, RentOrder::ACCESS_CANCEL);
 
@@ -199,7 +199,7 @@ class RentService extends MainService
         if ($rent_order->save()) {
             // Он же возвращает баланс
             $amountFinal = $rent_order->price_final;
-//            $result = BottApi::addBalance($botDto, $userData, $amountFinal, 'Возврат баланса, аренда отменена');
+            $result = BottApi::addBalance($botDto, $userData, $amountFinal, 'Возврат баланса, аренда отменена');
         } else {
             throw new RuntimeException('Not save order');
         }
@@ -242,6 +242,7 @@ class RentService extends MainService
     }
 
     //разобраться для всех ли аренд работает?
+
     /**
      * цена продления аренды
      *
