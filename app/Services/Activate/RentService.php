@@ -59,10 +59,14 @@ class RentService extends MainService
 
         $result = [];
         foreach ($services as $key => $service) {
+
+            $amountStart = intval(floatval($service['retail_cost']) * 100);
+            $amountFinal = $amountStart + ($amountStart * ($botDto->percent / 100));
+
             array_push($result, [
                 'name' => $key,
                 'count' => $service['quant']['total'],
-                'cost' => (integer)$service['retail_cost'] * 100,
+                'cost' => $amountFinal,
                 'image' => 'https://smsactivate.s3.eu-central-1.amazonaws.com/assets/ico/' . $key . '0.webp',
             ]);
         }
