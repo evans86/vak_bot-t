@@ -26,6 +26,7 @@ class RentController extends Controller
     public function __construct()
     {
         $this->rentService = new RentService();
+        $this->middleware('verified');
     }
 
     /**
@@ -398,8 +399,6 @@ class RentController extends Controller
     public function updateSmsRent(Request $request)
     {
         $hook_rent = $request->all();
-
-        var_dump($hook_rent);
 
         $this->rentService->updateSms($hook_rent);
     }
