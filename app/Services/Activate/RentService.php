@@ -108,7 +108,7 @@ class RentService extends MainService
      * @param $url
      * @return array
      */
-    public function create(BotDto $botDto, $service, $country, $time, array $userData, $url = 'https://activate.bot-t.com/updateSmsRent')
+    public function create(BotDto $botDto, $service, $country, $time, array $userData, $url = 'https://activate.bot-t.com/rent/updateSmsRent')
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
