@@ -120,7 +120,7 @@ class RentService extends MainService
 
         //проверка баланса пользователя
         if ($amountFinal > $userData['money']) {
-            throw new RuntimeException('Пополните баланс в боте');
+            throw new RuntimeException('Пополните баланс в боте..');
         }
 
         // Попытаться списать баланс у пользователя
