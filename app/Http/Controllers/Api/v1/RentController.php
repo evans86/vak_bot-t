@@ -6,6 +6,7 @@ use App\Dto\BotFactory;
 use App\Helpers\ApiHelpers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\api\OrderResource;
+use App\Http\Resources\api\RentResource;
 use App\Models\Bot\SmsBot;
 use App\Models\Rent\RentOrder;
 use App\Models\User\SmsUser;
@@ -163,7 +164,7 @@ class RentController extends Controller
                 throw new RuntimeException($result['message']);
             }
 
-            $result = OrderResource::collection(RentOrder::query()->where(['user_id' => $user->id])->
+            $result = RentResource::collection(RentOrder::query()->where(['user_id' => $user->id])->
             where(['bot_id' => $bot->id])->get());
 
             return ApiHelpers::success($result);
@@ -208,7 +209,7 @@ class RentController extends Controller
 
             $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
 
-            return ApiHelpers::success(OrderResource::generateRentArray($rent_order));
+            return ApiHelpers::success(RentResource::generateRentArray($rent_order));
         } catch (RuntimeException $e) {
             return ApiHelpers::errorNew($e->getMessage());
         }
@@ -252,7 +253,7 @@ class RentController extends Controller
 
             $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
 
-            return ApiHelpers::success(OrderResource::generateRentArray($rent_order));
+            return ApiHelpers::success(RentResource::generateRentArray($rent_order));
         } catch (Exception $e) {
             return ApiHelpers::errorNew($e->getMessage());
         }
@@ -294,7 +295,7 @@ class RentController extends Controller
 
             $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
 
-            return ApiHelpers::success(OrderResource::generateRentArray($rent_order));
+            return ApiHelpers::success(RentResource::generateRentArray($rent_order));
         } catch (Exception $e) {
             return ApiHelpers::errorNew($e->getMessage());
         }
@@ -382,7 +383,7 @@ class RentController extends Controller
 
             $rent_order = RentOrder::query()->where(['org_id' => $request->order_id])->first();
 
-            return ApiHelpers::success(OrderResource::generateRentArray($rent_order));
+            return ApiHelpers::success(RentResource::generateRentArray($rent_order));
         } catch (Exception $e) {
             return ApiHelpers::errorNew($e->getMessage());
         }

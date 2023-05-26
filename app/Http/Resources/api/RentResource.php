@@ -2,11 +2,10 @@
 
 namespace App\Http\Resources\api;
 
-use App\Models\Order\SmsOrder;
 use App\Models\Rent\RentOrder;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class OrderResource extends JsonResource
+class RentResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,7 +18,8 @@ class OrderResource extends JsonResource
         return [
             'id' => (integer)$this->org_id,
             'phone' => $this->phone,
-            'time' => (integer)$this->start_time,
+            'start_time' => (integer)$this->start_time,
+            'end_time' => (integer)$this->end_time,
             'status' => (integer)$this->status,
             'codes' => json_decode($this->codes),
             'country' => $this->country->org_id,
@@ -29,21 +29,22 @@ class OrderResource extends JsonResource
     }
 
     /**
-     * @param SmsOrder $order
+     * @param RentOrder|null $rent_order
      * @return array
      */
-    public static function generateOrderArray(SmsOrder $order): array
+    public static function generateRentArray(RentOrder $rent_order): array
     {
         return [
-            'id' => (integer)$order->org_id,
-            'phone' => $order->phone,
-            'time' => $order->start_time,
-            'status' => (integer)$order->status,
-            'codes' => $order->codes,
-            'country' => $order->country->org_id,
-            'operator' => $order->operator,
-            'service' => $order->service,
-            'cost' => $order->price_final
+            'id' => (integer)$rent_order->org_id,
+            'phone' => $rent_order->phone,
+            'start_time' => (integer)$rent_order->start_time,
+            'end_time' => (integer)$rent_order->end_time,
+            'status' => (integer)$rent_order->status,
+            'codes' => $rent_order->codes,
+            'country' => $rent_order->country->org_id,
+            'operator' => $rent_order->operator,
+            'service' => $rent_order->service,
+            'cost' => $rent_order->price_final
         ];
     }
 }
