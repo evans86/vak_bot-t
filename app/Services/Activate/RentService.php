@@ -187,7 +187,7 @@ class RentService extends MainService
         if ($rent_order->status == RentOrder::STATUS_CANCEL)
             throw new RuntimeException('The order has already been canceled');
         // Проверить активированный
-        if ($rent_order->status == SmsOrder::STATUS_FINISH)
+        if ($rent_order->status == RentOrder::STATUS_FINISH)
             throw new RuntimeException('The order has not been canceled, the number has been activated, Status 10');
         if (!is_null($rent_order->codes))
             throw new RuntimeException('The order has not been canceled, the number has been activated');
