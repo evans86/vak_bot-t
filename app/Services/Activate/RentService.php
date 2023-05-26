@@ -62,7 +62,7 @@ class RentService extends MainService
             array_push($result, [
                 'name' => $key,
                 'count' => $service['quant']['total'],
-                'cost' => $service['retail_cost'] * 100,
+                'cost' => (integer)$service['retail_cost'] * 100,
                 'image' => 'https://smsactivate.s3.eu-central-1.amazonaws.com/assets/ico/' . $key . '0.webp',
             ]);
         }
