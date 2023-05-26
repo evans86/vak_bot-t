@@ -136,7 +136,7 @@ class RentService extends MainService
 
         $data = [
             'bot_id' => $botDto->id,
-            'user_id' => 1, //$user->id
+            'user_id' => $user->id,
             'service' => $service,
             'country_id' => $country->id,
             'org_id' => $resultRequest['phone']['id'],
