@@ -399,6 +399,8 @@ class RentController extends Controller
     {
         $hook_rent = $request->all();
 
+        var_dump($hook_rent);
+
         $this->rentService->updateSms($hook_rent);
     }
 }

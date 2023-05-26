@@ -82,7 +82,7 @@ Route::get('closeRentOrder', [RentController::class, 'closeRentOrder']);
 Route::get('confirmRentOrder', [RentController::class, 'confirmRentOrder']);
 Route::get('getContinuePrice', [RentController::class, 'getContinuePrice']);
 Route::get('continueRent', [RentController::class, 'continueRent']);
-Route::get('updateSmsRent', [RentController::class, 'updateSmsRent']); //метод обновения кодов через вебхук
+Route::post('updateSmsRent', [RentController::class, 'updateSmsRent']); //метод обновения кодов через вебхук
 
 
 
