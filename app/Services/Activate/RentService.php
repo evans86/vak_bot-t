@@ -108,7 +108,7 @@ class RentService extends MainService
      * @param $url
      * @return array
      */
-    public function create(BotDto $botDto, $service, $country, $time, array $userData, $url = 'https://activate.bot-t.com/updateSmsRent/')
+    public function create(BotDto $botDto, $service, $country, $time, array $userData, $url = 'https://activate.bot-t.com/updateSmsRent')
     {
         $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
 
@@ -231,7 +231,6 @@ class RentService extends MainService
         $rent_order->status = RentOrder::STATUS_FINISH;
 
         if ($rent_order->save()) {
-            // Он же возвращает баланс
             BottApi::createOrder($botDto, $userData, $rent_order->price_final,
                 'Заказ активации для номера ' . $rent_order->phone);
         } else {
