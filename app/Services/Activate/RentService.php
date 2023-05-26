@@ -240,8 +240,6 @@ class RentService extends MainService
         return RentOrder::STATUS_FINISH;
     }
 
-    //разобраться для всех ли аренд работает?
-
     /**
      * цена продления аренды
      *
