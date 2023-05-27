@@ -337,7 +337,7 @@ class RentService extends MainService
      */
     public function cronUpdateRentStatus(): void
     {
-        $statuses = [RentOrder::STATUS_CANCEL, RentOrder::STATUS_WAIT_CODE];
+        $statuses = [RentOrder::STATUS_WAIT_CODE];
 
         $rent_orders = RentOrder::query()->whereIn('status', $statuses)
             ->where('end_time', '<=', time())->get();
