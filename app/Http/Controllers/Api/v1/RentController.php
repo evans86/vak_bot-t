@@ -378,6 +378,9 @@ class RentController extends Controller
             if (!$result['result']) {
                 throw new RuntimeException($result['message']);
             }
+            if ($result['data']['money'] == 0) {
+                throw new RuntimeException('Пополните баланс в боте');
+            }
 
             $this->rentService->continueRent($botDto, $rent_order, $request->time, $result['data']);
 
