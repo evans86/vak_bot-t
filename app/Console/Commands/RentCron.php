@@ -35,6 +35,7 @@ class RentCron extends Command
      * Execute the console command.
      *
      * @return int
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function handle()
     {
