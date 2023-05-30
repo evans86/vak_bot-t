@@ -69,32 +69,26 @@ class SmsActivateApi
         return $this->request($requestParam, 'POST', null);
     }
 
-    public function getNumberV2($service, $country = null, $forward = 0, $operator = null, $ref = 5245236)
+    public function getNumberV2($service, $country = null, $forward = 0, $operator = null)
     {
-        $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'service' => $service, 'forward' => $forward);
+        $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'service' => $service, 'forward' => $forward, 'ref' => 5245236);
         if (!is_null($country)) {
             $requestParam['country'] = $country;
         }
         if ($operator && ($country == 0 || $country == 1 || $country == 2)) {
             $requestParam['operator'] = $operator;
         }
-        if ($ref) {
-            $requestParam['ref'] = $ref;
-        }
         return $this->request($requestParam, 'POST', null);
     }
 
-    public function getMultiServiceNumber($services, $forward = 0, $country = null, $operator = null, $ref = 5245236)
+    public function getMultiServiceNumber($services, $forward = 0, $country = null, $operator = null)
     {
-        $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'multiService' => $services, 'forward' => $forward);
+        $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'multiService' => $services, 'forward' => $forward, 'ref' => 5245236);
         if ($country) {
             $requestParam['country'] = $country;
         }
         if ($operator && ($country == 0 || $country == 1 || $country == 2)) {
             $requestParam['operator'] = $operator;
-        }
-        if ($ref) {
-            $requestParam['ref'] = $ref;
         }
         return $this->request($requestParam, 'POST', true, 3);
     }
