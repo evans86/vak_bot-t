@@ -71,7 +71,7 @@ class SmsActivateApi
 
     public function getNumberV2($service, $country = null, $forward = 0, $operator = null)
     {
-        $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'service' => $service, 'forward' => $forward, 'ref' => 5245236);
+        $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'service' => $service, 'forward' => $forward, 'ref' => 'WEB');
         if (!is_null($country)) {
             $requestParam['country'] = $country;
         }
@@ -83,7 +83,7 @@ class SmsActivateApi
 
     public function getMultiServiceNumber($services, $forward = 0, $country = null, $operator = null)
     {
-        $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'multiService' => $services, 'forward' => $forward, 'ref' => 5245236);
+        $requestParam = array('api_key' => $this->apiKey, 'action' => __FUNCTION__, 'multiService' => $services, 'forward' => $forward, 'ref' => 'WEB');
         if ($country) {
             $requestParam['country'] = $country;
         }
