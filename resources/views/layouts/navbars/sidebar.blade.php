@@ -5,7 +5,6 @@
             <a href="/" class="simple-text logo-normal">{{ __('Activate') }}</a>
         </div>
         <ul class="nav">
-
             <li @if ($pageSlug == 'countries') class="active " @endif>
                 <a href="{{ route('activate.countries.index') }}">
                     <i class="tim-icons icon-world"></i>
@@ -52,12 +51,6 @@
                 <a href="{{ route('pages.notifications') }}">
                     <i class="tim-icons icon-bell-55"></i>
                     <p>{{ __('Notifications') }}</p>
-                </a>
-            </li>
-            <li @if ($pageSlug == 'typography') class="active " @endif>
-                <a href="{{ route('pages.typography') }}">
-                    <i class="tim-icons icon-align-center"></i>
-                    <p>{{ __('Typography') }}</p>
                 </a>
             </li>
         </ul>
