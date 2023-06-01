@@ -1,45 +1,57 @@
-@extends('layouts.main')
+{{--@extends('layouts.main')--}}
+@extends('layouts.app', ['page' => __('Заказы'), 'pageSlug' => 'orders'])
+
 @section('content')
-    <div class="container mt-2">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Сервис ID</th>
-                <th scope="col">Пользователь</th>
-                <th scope="col">Номер телефона</th>
-                <th scope="col">Страна</th>
-                <th scope="col">Оператор</th>
-                <th scope="col">Сервис</th>
-                <th scope="col">Статус</th>
-                <th scope="col">Коды</th>
-                <th scope="col">Бот</th>
-                <th scope="col">Создан в сервисе </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-            @foreach($orders as $order)
-                <tr>
-                    <td>{{ $order->id }}</td>
-                    <td>{{ $order->org_id }}</td>
-                    <td>{{ $order->user->telegram_id }}</td>
-                    <td>{{ $order->phone }}</td>
-                    <td>{{ $order->country->name_en }}<img src={{ $order->country->image }} width="24"></td>
-                    <td>{{ $order->operator }}</td>
-                    <td><img class="service_img"
-                             src="https://smsactivate.s3.eu-central-1.amazonaws.com/assets/ico/{{ $order->service }}0.webp"
-                             width="24"></td>
-                    <td>{!!\App\Helpers\OrdersHelper::statusLabel($order->status)!!}</td>
-                    <td>{{ $order->codes }}</td>
-                    <td>{{ $order->bot_id }}</td>
-                    <td>{{\Carbon\Carbon::createFromTimestamp($order->start_time)->toDateTimeString()}}</td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
-        <div class="d-flex">
-            {!! $orders->links() !!}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card ">
+                <div class="card-header">
+                    <h4 class="card-title"> Заказы</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table tablesorter " id="">
+                            <thead class=" text-primary">
+                            <tr>
+                                <th class="text-center">ID</th>
+                                <th class="text-center">Сервис ID</th>
+                                <th class="text-center">Пользователь</th>
+                                <th class="text-center">Номер телефона</th>
+                                <th class="text-center">Страна</th>
+                                <th class="text-center">Оператор</th>
+                                <th class="text-center">Сервис</th>
+                                <th class="text-center">Статус</th>
+                                <th class="text-center">Коды</th>
+                                <th class="text-center">Бот</th>
+                                <th class="text-center">Создан в сервисе </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($orders as $order)
+                                <tr>
+                                    <td class="text-center">{{ $order->id }}</td>
+                                    <td class="text-center">{{ $order->org_id }}</td>
+                                    <td class="text-center">{{ $order->user->telegram_id }}</td>
+                                    <td class="text-center">{{ $order->phone }}</td>
+                                    <td class="text-center">{{ $order->country->name_en }}<img src={{ $order->country->image }} width="24"></td>
+                                    <td class="text-center">{{ $order->operator }}</td>
+                                    <td class="text-center"><img class="service_img"
+                                             src="https://smsactivate.s3.eu-central-1.amazonaws.com/assets/ico/{{ $order->service }}0.webp"
+                                             width="24"></td>
+                                    <td class="text-center">{!!\App\Helpers\OrdersHelper::statusLabel($order->status)!!}</td>
+                                    <td class="text-center"><code>{{ $order->codes }}</code></td>
+                                    <td class="text-center">{{ $order->bot_id }}</td>
+                                    <td class="text-center">{{\Carbon\Carbon::createFromTimestamp($order->start_time)->toDateTimeString()}}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex">
+                        {!! $orders->links() !!}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @endsection
