@@ -47,12 +47,12 @@
                     <p>{{ __('Icons') }}</p>
                 </a>
             </li>
-            <li @if ($pageSlug == 'notifications') class="active " @endif>
-                <a href="{{ route('pages.notifications') }}">
-                    <i class="tim-icons icon-bell-55"></i>
-                    <p>{{ __('Notifications') }}</p>
-                </a>
-            </li>
+{{--            <li @if ($pageSlug == 'notifications') class="active " @endif>--}}
+{{--                <a href="{{ route('pages.notifications') }}">--}}
+{{--                    <i class="tim-icons icon-bell-55"></i>--}}
+{{--                    <p>{{ __('Notifications') }}</p>--}}
+{{--                </a>--}}
+{{--            </li>--}}
         </ul>
     </div>
 </div>

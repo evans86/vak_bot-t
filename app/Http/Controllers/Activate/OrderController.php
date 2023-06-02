@@ -13,8 +13,15 @@ class OrderController
     {
         $orders = SmsOrder::orderBy('id', 'DESC')->Paginate(15);
 
+        $allCount = count(SmsOrder::get());
+        $successCount = count(SmsOrder::query()->where('status', SmsOrder::STATUS_FINISH)->get());
+        $cancelCount = count(SmsOrder::query()->where('status', SmsOrder::STATUS_CANCEL)->get());
+
         return view('activate.order.index', compact(
             'orders',
+            'allCount',
+            'successCount',
+            'cancelCount',
         ));
     }
 }

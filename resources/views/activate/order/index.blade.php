@@ -13,6 +13,26 @@
                         <table class="table tablesorter " id="">
                             <thead class=" text-primary">
                             <tr>
+                                <th class="text-center">Общее число активаций</th>
+                                <th class="text-center">Успешно завершенные</th>
+                                <th class="text-center">Отмененые активации</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <th class="text-center">{{ $allCount }}</th>
+                                <th class="text-center">{{ $successCount }}</th>
+                                <th class="text-center">{{ $cancelCount }}</th>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table tablesorter " id="">
+                            <thead class=" text-primary">
+                            <tr>
                                 <th class="text-center">ID</th>
                                 <th class="text-center">Сервис ID</th>
                                 <th class="text-center">Пользователь</th>
@@ -23,7 +43,7 @@
                                 <th class="text-center">Статус</th>
                                 <th class="text-center">Коды</th>
                                 <th class="text-center">Бот</th>
-                                <th class="text-center">Создан в сервисе </th>
+                                <th class="text-center">Создан в сервисе</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -33,11 +53,12 @@
                                     <td class="text-center">{{ $order->org_id }}</td>
                                     <td class="text-center">{{ $order->user->telegram_id }}</td>
                                     <td class="text-center">{{ $order->phone }}</td>
-                                    <td class="text-center">{{ $order->country->name_en }}<img src={{ $order->country->image }} width="24"></td>
+                                    <td class="text-center">{{ $order->country->name_en }}<img
+                                            src={{ $order->country->image }} width="24"></td>
                                     <td class="text-center">{{ $order->operator }}</td>
                                     <td class="text-center"><img class="service_img"
-                                             src="https://smsactivate.s3.eu-central-1.amazonaws.com/assets/ico/{{ $order->service }}0.webp"
-                                             width="24"></td>
+                                                                 src="https://smsactivate.s3.eu-central-1.amazonaws.com/assets/ico/{{ $order->service }}0.webp"
+                                                                 width="24"></td>
                                     <td class="text-center">{!!\App\Helpers\OrdersHelper::statusLabel($order->status)!!}</td>
                                     <td class="text-center"><code>{{ $order->codes }}</code></td>
                                     <td class="text-center">{{ $order->bot_id }}</td>
