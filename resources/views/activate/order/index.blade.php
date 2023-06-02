@@ -14,14 +14,14 @@
                             <thead class=" text-primary">
                             <tr>
                                 <th class="text-center">Общее число активаций</th>
-                                <th class="text-center">Успешно завершенные</th>
+                                <th class="text-center">Успешно завершенные (сегодня)</th>
                                 <th class="text-center">Отмененые активации</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr>
                                 <th class="text-center">{{ $allCount }}</th>
-                                <th class="text-center">{{ $successCount }}</th>
+                                <th class="text-center">{{ $successCount }}({{ $todayOrders }})</th>
                                 <th class="text-center">{{ $cancelCount }}</th>
                             </tr>
                             </tbody>
