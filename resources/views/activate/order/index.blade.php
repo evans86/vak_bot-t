@@ -13,16 +13,16 @@
                         <table class="table tablesorter " id="">
                             <thead class=" text-primary">
                             <tr>
-                                <th class="text-center">Общее число активаций</th>
+                                <th class="text-center">Общее число активаций (сегодня)</th>
                                 <th class="text-center">Успешно завершенные (сегодня)</th>
-                                <th class="text-center">Отмененые активации</th>
+                                <th class="text-center">Отмененые активации (сегодня)</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr>
-                                <th class="text-center">{{ $allCount }}</th>
-                                <th class="text-center">{{ $successCount }}({{ $todayOrders }})</th>
-                                <th class="text-center">{{ $cancelCount }}</th>
+                                <th class="text-center">{{ $allCount }} ({{ $todayOrders }})</th>
+                                <th class="text-center">{{ $successCount }} ({{ $todaySuccess }})</th>
+                                <th class="text-center">{{ $cancelCount }} ({{ $todayCancel }})</th>
                             </tr>
                             </tbody>
                         </table>
