@@ -4,6 +4,7 @@ namespace App\Services\Activate;
 
 use App\Models\Activate\SmsCountry;
 use App\Services\External\SmsActivateApi;
+use App\Services\External\VakApi;
 use App\Services\MainService;
 
 class CountryService extends MainService
@@ -15,28 +16,52 @@ class CountryService extends MainService
     public function getApiCountries()
     {
         //оставить свой API
-        $smsActivate = new SmsActivateApi(config('services.key_activate.key'), BotService::DEFAULT_HOST);
+        $smsVak = new VakApi(config('services.key_activate.key'), BotService::DEFAULT_HOST);
 
-        $countries = $smsActivate->getCountries();
+        $countries = $smsVak->getCountryOperatorList();
 
         $this->formingCountriesArr($countries);
     }
 
+    /**
+     * @param $countries
+     * @return void
+     */
+    private function formingCountriesArr($countries)
+    {
+        foreach ($countries as $key => $country) {
+
+            $org_id = mb_strtolower($key);
+
+            $data = [
+                'org_id' => $org_id,
+                'name_ru' => null,
+                'name_en' => $country[0]['name'],
+                'image' => 'https://vak-sms.com' . $country[0]['icon']
+            ];
+
+            $country = SmsCountry::updateOrCreate($data);
+            $country->save();
+        }
+    }
+
     public function getCountries($bot)
     {
-        $smsActivate = new SmsActivateApi($bot->api_key, $bot->resource_link);
+        $smsVak = new VakApi($bot->api_key, $bot->resource_link);
 
-        $countries = $smsActivate->getCountries();
+        $countries = $smsVak->getCountryOperatorList();
 
         $result = [];
 
         foreach ($countries as $key => $country) {
 
+            $org_id = mb_strtolower($key);
+
             array_push($result, [
-                'org_id' => $country['id'],
-                'name_ru' => $country['rus'],
-                'name_en' => $country['eng'],
-                'image' => 'https://sms-activate.org/assets/ico/country/' . $country['id'] . '.png'
+                'org_id' => $org_id,
+                'name_ru' => null,
+                'name_en' => $country[0]['name'],
+                'image' => 'https://vak-sms.com' . $country[0]['icon']
             ]);
         }
 
@@ -57,26 +82,6 @@ class CountryService extends MainService
         $countries = $smsActivate->getPrices(null, $service);
 
         return $this->formingServicesArr($countries, $bot);
-    }
-
-    /**
-     * @param $countries
-     * @return void
-     */
-    private function formingCountriesArr($countries)
-    {
-        foreach ($countries as $key => $country) {
-
-            $data = [
-                'org_id' => $country['id'],
-                'name_ru' => $country['rus'],
-                'name_en' => $country['eng'],
-                'image' => 'https://sms-activate.org/assets/ico/country/' . $country['id'] . '.png'
-            ];
-
-            $country = SmsCountry::updateOrCreate($data);
-            $country->save();
-        }
     }
 
     /**

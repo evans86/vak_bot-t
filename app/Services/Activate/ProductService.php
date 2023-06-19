@@ -3,6 +3,7 @@
 namespace App\Services\Activate;
 
 use App\Services\External\SmsActivateApi;
+use App\Services\External\VakApi;
 use App\Services\MainService;
 
 class ProductService extends MainService
@@ -66,20 +67,20 @@ class ProductService extends MainService
      */
     public function getServices($bot, $country = null)
     {
-        $smsActivate = new SmsActivateApi($bot->api_key, $bot->resource_link);
+        $smsVak = new VakApi($bot->api_key, $bot->resource_link);
 
-        $services = $smsActivate->getPrices($country);
-        $services = current($services);
+        $services = $smsVak->getCountNumberList($country);
+//        dd($services);
 
         $result = [];
         foreach ($services as $key => $service) {
 
-            $price = $service["cost"];
+            $price = $service["price"];
             $pricePercent = $price + ($price * ($bot->percent / 100));
 
             array_push($result, [
-                'name' => $key,
-                'image' => 'https://smsactivate.s3.eu-central-1.amazonaws.com/assets/ico/' . $key . '0.webp',
+                'name' => $service['code'],
+                'image' => 'https://vak-sms.com/static/service/' . $key . '.png',
                 'count' => $service["count"],
                 'cost' => $pricePercent * 100,
             ]);

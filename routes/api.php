@@ -33,28 +33,30 @@ Route::resources([
 ]);
 
 /**
- * Роуты API мультисервис
+ * Роуты API страны, сервисы
  */
-Route::get('getCountries', [CountryController::class, 'getCountries']);
-Route::get('getServices', [ProductController::class, 'getServices']);
+Route::get('getCountries', [CountryController::class, 'getCountries']);//+
+Route::get('getServices', [ProductController::class, 'getServices']);//+
+
+//в этом софте пока не исаользуется
 Route::get('createMulti', [OrderController::class, 'createMulti']);
 
 /**
  * Роуты API (пользователи)
  */
-Route::get('setService', [ProductController::class, 'setService']);
-Route::get('setLanguage', [UserController::class, 'setLanguage']);
-Route::get('getUser', [UserController::class, 'getUser']);
+Route::get('setService', [ProductController::class, 'setService']);//+
+Route::get('setLanguage', [UserController::class, 'setLanguage']);//+
+Route::get('getUser', [UserController::class, 'getUser']);//+
 
 /**
  * Роуты API (боты)
  */
-Route::get('ping', [BotController::class, 'ping']);
-Route::get('create', [BotController::class, 'create']);
-Route::get('get', [BotController::class, 'get']);
-Route::post('update', [BotController::class, 'update']);
-Route::get('delete', [BotController::class, 'delete']);
-Route::get('getSettings', [BotController::class, 'getSettings']);
+Route::get('ping', [BotController::class, 'ping']);//+
+Route::get('create', [BotController::class, 'create']);//+
+Route::get('get', [BotController::class, 'get']);//+
+Route::post('update', [BotController::class, 'update']);//+
+Route::get('delete', [BotController::class, 'delete']);//+
+Route::get('getSettings', [BotController::class, 'getSettings']);//+
 
 /**
  * Роуты API (заказы (создание, получение, все))
