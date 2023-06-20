@@ -3,6 +3,7 @@
 namespace App\Services\Activate;
 
 use App\Models\User\SmsUser;
+use App\Services\External\VakApi;
 use App\Services\MainService;
 use App\Services\External\SmsActivateApi;
 use RuntimeException;
@@ -17,13 +18,14 @@ class UserService extends MainService
     public function balance($bot)
     {
         try {
-            $smsActivate = new SmsActivateApi($bot->api_key, $bot->resource_link);
-            $balance = $smsActivate->getBalance();
+            $smsVak = new VakApi($bot->api_key, $bot->resource_link);
+            $balance = $smsVak->getBalance();
+//            dd($balance);
         } catch (\Exception $e) {
             $balance = '';
         }
 
-        return $balance;
+        return $balance['balance'];
     }
 
     /**

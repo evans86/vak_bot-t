@@ -227,7 +227,11 @@ class OrderController extends Controller
             }
 
 
-            $this->orderService->order($result['data'], $botDto, $order);
+            $this->orderService->order(
+                $result['data'],
+                $botDto,
+                $order
+            );
 
             $order = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
             return ApiHelpers::success(OrderResource::generateOrderArray($order));
@@ -375,7 +379,11 @@ class OrderController extends Controller
                 throw new RuntimeException($result['message']);
             }
 
-            $result = $this->orderService->cancel($result['data'], $botDto, $order);
+            $result = $this->orderService->cancel(
+                $result['data'],
+                $botDto,
+                $order
+            );
 
             $order = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
             return ApiHelpers::success(OrderResource::generateOrderArray($order));

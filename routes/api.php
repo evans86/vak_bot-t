@@ -61,16 +61,16 @@ Route::get('getSettings', [BotController::class, 'getSettings']);//+
 /**
  * Роуты API (заказы (создание, получение, все))
  */
-Route::get('createOrder', [OrderController::class, 'createOrder']);
-Route::get('getOrder', [OrderController::class, 'getOrder']);
-Route::get('orders', [OrderController::class, 'orders']);
+Route::get('createOrder', [OrderController::class, 'createOrder']);//+
+Route::get('getOrder', [OrderController::class, 'getOrder']);//+
+Route::get('orders', [OrderController::class, 'orders']);//+
 
 /**
  * Роуты API (заказы (изменение статусов))
  */
-Route::get('closeOrder', [OrderController::class, 'closeOrder']);
-Route::get('secondSms', [OrderController::class, 'secondSms']);
-Route::get('confirmOrder', [OrderController::class, 'confirmOrder']);
+Route::get('closeOrder', [OrderController::class, 'closeOrder']);//+
+Route::get('secondSms', [OrderController::class, 'secondSms']);//+
+Route::get('confirmOrder', [OrderController::class, 'confirmOrder']);//+
 
 /**
  * Роуты API (аренда номеров))

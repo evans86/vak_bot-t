@@ -11,12 +11,12 @@
                     <p>{{ __('Список стран') }}</p>
                 </a>
             </li>
-            <li @if ($pageSlug == 'products') class="active " @endif>
-                <a href="{{ route('activate.product.index') }}">
-                    <i class="tim-icons icon-notes"></i>
-                    <p>{{ __('Список сервисов') }}</p>
-                </a>
-            </li>
+{{--            <li @if ($pageSlug == 'products') class="active " @endif>--}}
+{{--                <a href="{{ route('activate.product.index') }}">--}}
+{{--                    <i class="tim-icons icon-notes"></i>--}}
+{{--                    <p>{{ __('Список сервисов') }}</p>--}}
+{{--                </a>--}}
+{{--            </li>--}}
             <li @if ($pageSlug == 'users') class="active " @endif>
                 <a href="{{ route('users.index') }}">
                     <i class="tim-icons icon-single-02"></i>

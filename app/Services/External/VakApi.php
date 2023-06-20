@@ -27,7 +27,9 @@ class VakApi
         $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
         $result = $response->getBody()->getContents();
-        return json_decode($result, true);
+        $result = json_decode($result, true);
+        $this->checkError($result);
+        return $result;
     }
 
     //список стран и операторов
@@ -41,7 +43,9 @@ class VakApi
         $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
         $result = $response->getBody()->getContents();
-        return json_decode($result, true);
+        $result = json_decode($result, true);
+        $this->checkError($result);
+        return $result;
     }
 
     //количество всех доступных номеров списком
@@ -56,23 +60,28 @@ class VakApi
         $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
         $result = $response->getBody()->getContents();
-        return json_decode($result, true);
+        $result = json_decode($result, true);
+        $this->checkError($result);
+        return $result;
     }
 
     //количетсов доступных номеров для сервиса
-    public function getCountNumber($service, $country)
+    public function getCountNumber($service, $country, $price = '')
     {
         $requestParam = [
             'apiKey' => $this->apiKey,
             'service' => $service,
             'country' => $country,
+            'price' => $price,
         ];
 
         $client = new Client(['base_uri' => $this->url]);
         $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
         $result = $response->getBody()->getContents();
-        return json_decode($result, true);
+        $result = json_decode($result, true);
+        $this->checkError($result);
+        return $result;
     }
 
     //получение номера, пока без rent и мультиактивации (после регистрации приложения добавить $softId)
@@ -88,7 +97,9 @@ class VakApi
         $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
         $result = $response->getBody()->getContents();
-        return json_decode($result, true);
+        $result = json_decode($result, true);
+        $this->checkError($result);
+        return $result;
     }
 
     //продление номера, хз пока как юзать
@@ -104,7 +115,9 @@ class VakApi
         $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
         $result = $response->getBody()->getContents();
-        return json_decode($result, true);
+        $result = json_decode($result, true);
+        $this->checkError($result);
+        return $result;
     }
 
     /**
@@ -126,7 +139,7 @@ class VakApi
      * @return mixed
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function setStatus($status, $idNum)
+    public function setStatus($idNum, $status)
     {
         $requestParam = [
             'apiKey' => $this->apiKey,
@@ -138,7 +151,9 @@ class VakApi
         $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
         $result = $response->getBody()->getContents();
-        return json_decode($result, true);
+        $result = json_decode($result, true);
+        $this->checkError($result);
+        return $result;
     }
 
     /**
@@ -155,7 +170,7 @@ class VakApi
      * @return mixed
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function getSmsCode($idNum, $all)
+    public function getSmsCode($idNum, $all = '')
     {
         $requestParam = [
             'apiKey' => $this->apiKey,
@@ -167,18 +182,24 @@ class VakApi
         $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
         $result = $response->getBody()->getContents();
-        return json_decode($result, true);
+        $result = json_decode($result, true);
+        $this->checkError($result);
+        return $result;
     }
 
-//{"error": "apiKeyNotFound"}  # Неверный API ключ.
-//{"error": "noService"}  # Данный сервис не поддерживается, свяжитесь с администрацией сайта.
-//{"error": "noNumber"}  # Нет номеров, попробуйте позже.
-//{"error": "noMoney"}  # Недостаточно средств, пополните баланс.
-//{"error": "noCountry"}  # Запрашиваемая страна отсутствует.
-//{"error": "noOperator"}  # Оператор не найден для запрашиваемой страны.
-//{"error": "badStatus"}  # Не верный статус.
-//{"error": "idNumNotFound"}  # Не верный ID операции.
-//{"error": "badService"}  # Не верный код сайта, сервиса, соц. сети.
-//{"error": "badData"}  # Отправлены неверные данные.
-
+    /**
+     * @param $result
+     * @return void
+     * @throws RequestError
+     */
+    public function checkError($result)
+    {
+        if (isset($result['error'])) {
+            $responsError = new ErrorCodes($result['error']);
+            $check = $responsError->checkExist($result['error']);
+            if ($check) {
+                throw new RequestError($result['error']);
+            }
+        }
+    }
 }
