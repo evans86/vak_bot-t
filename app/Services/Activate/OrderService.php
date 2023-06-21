@@ -153,7 +153,8 @@ class OrderService extends MainService
             throw new RuntimeException('Choose service pls');
 
         $service_price = $smsVak->getCountNumber($user->service, $country_id);
-        $amountStart = intval(floatval($service_price) * 100);
+
+        $amountStart = intval(floatval($service_price['price']) * 100);
         $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
 
         if ($amountFinal > $userData['money']) {
