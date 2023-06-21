@@ -328,8 +328,7 @@ class OrderService extends MainService
                     break;
                 if (is_null($order->codes)) {
                     BottApi::createOrder($botDto, $userData, $order->price_final,
-                        'Заказ активации для номера ' . $order->phone .
-                        ' с смс: ' . $sms);
+                        'Заказ активации номера');
                 }
                 $order->codes = $sms;
                 $order->save();
