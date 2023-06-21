@@ -27,16 +27,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 /**
  * Роуты API (страны, операторы, сервисы), ресурсный подход
  */
-Route::resources([
-    'countries' => CountryController::class,
-    'services' => ProductController::class,
-]);
+//Route::resources([
+//    'countries' => CountryController::class,
+//    'services' => ProductController::class,
+//]);
 
 /**
  * Роуты API страны, сервисы
  */
-Route::get('getCountries', [CountryController::class, 'getCountries']);//+
-Route::get('getServices', [ProductController::class, 'getServices']);//+
+Route::get('countries', [CountryController::class, 'getCountries']);//+
+Route::get('services', [ProductController::class, 'getServices']);//+
 
 //в этом софте пока не исаользуется
 Route::get('createMulti', [OrderController::class, 'createMulti']);
