@@ -140,7 +140,7 @@ class OrderService extends MainService
      * @throws \Exception
      */
     public
-    function create(array $userData, BotDto $botDto, string $country_id): array
+    function create(array $userData, BotDto $botDto, string $country_id, string $service): array
     {
         // Создать заказ по апи
         $smsVak = new VakApi($botDto->api_key, $botDto->resource_link);
@@ -149,10 +149,8 @@ class OrderService extends MainService
         if (is_null($user)) {
             throw new RuntimeException('not found user');
         }
-        if (empty($user->service))
-            throw new RuntimeException('Choose service pls');
 
-        $service_price = $smsVak->getCountNumber($user->service, $country_id);
+        $service_price = $smsVak->getCountNumber($service, $country_id);
 
         $amountStart = intval(floatval($service_price['price']) * 100);
         $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
@@ -169,7 +167,7 @@ class OrderService extends MainService
         }
 
         $serviceResult = $smsVak->getNumber(
-            $user->service,
+            $service,
             $country_id
         );
 
@@ -181,7 +179,7 @@ class OrderService extends MainService
         $data = [
             'bot_id' => $botDto->id,
             'user_id' => $user->id,
-            'service' => $user->service,
+            'service' => $service,
             'country_id' => $country->id,
             'org_id' => $org_id,
             'phone' => $serviceResult['tel'],
@@ -204,7 +202,7 @@ class OrderService extends MainService
             'codes' => null,
             'country' => $country->org_id,
             'operator' => null,
-            'service' => $user->service,
+            'service' => $service,
             'cost' => $amountFinal
         ];
         return $result;
