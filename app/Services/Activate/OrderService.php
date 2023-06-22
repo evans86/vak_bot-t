@@ -26,10 +26,9 @@ class OrderService extends MainService
      */
     public function createMulti(BotDto $botDto, string $country_id, string $services, array $userData)
     {
-        // Создать заказ по апи
-        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
-
+        $smsVak = new VakApi($botDto->api_key, $botDto->resource_link);
         $user = SmsUser::query()->where(['telegram_id' => $userData['user']['telegram_id']])->first();
+//        $user = SmsUser::query()->where(['id' => 1])->first();
         if (is_null($user)) {
             throw new RuntimeException('not found user');
         }

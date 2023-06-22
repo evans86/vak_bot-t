@@ -229,7 +229,6 @@ class OrderController extends Controller
                 throw new RuntimeException($result['message']);
             }
 
-
             $this->orderService->order(
                 $result['data'],
                 $botDto,
