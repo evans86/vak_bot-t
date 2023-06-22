@@ -33,6 +33,32 @@ class OrderService extends MainService
             throw new RuntimeException('not found user');
         }
 
+
+
+        $service_price = $smsVak->getCountNumber($service, $country_id);
+
+        $amountStart = intval(floatval($service_price['price']) * 100);
+        $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
+
+        if ($amountFinal > $userData['money']) {
+            throw new RuntimeException('Пополните баланс в боте');
+        }
+
+        //Попытаться списать баланс у пользователя
+        $result = BottApi::subtractBalance($botDto, $userData, $amountFinal, 'Списание баланса для активации номера');
+
+        if (!$result['result']) {
+            throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
+        }
+
+        $serviceResult = $smsVak->getNumber(
+            $services,
+            $country_id
+        );
+
+
+
+
         //Создание мультисервиса
         $serviceResults = $smsActivate->getMultiServiceNumber(
             $services,
