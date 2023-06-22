@@ -33,11 +33,14 @@ class OrderService extends MainService
             throw new RuntimeException('not found user');
         }
 
+        $convert_services = explode(',', $services);
+        $first_price = $smsVak->getCountNumber($convert_services[0], $country_id);
+        $second_price = $smsVak->getCountNumber($convert_services[1], $country_id);
 
+        $all_price = $first_price['price'] + $second_price['price'];
+        $all_price = $all_price + ($all_price / 2);
 
-        $service_price = $smsVak->getCountNumber($service, $country_id);
-
-        $amountStart = intval(floatval($service_price['price']) * 100);
+        $amountStart = intval(floatval($all_price) * 100);
         $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
 
         if ($amountFinal > $userData['money']) {
@@ -51,55 +54,11 @@ class OrderService extends MainService
             throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
         }
 
-        $serviceResult = $smsVak->getNumber(
+        //Создание мультисервиса
+        $serviceResults = $smsVak->getNumber(
             $services,
             $country_id
         );
-
-
-
-
-        //Создание мультисервиса
-        $serviceResults = $smsActivate->getMultiServiceNumber(
-            $services,
-            $forward = 0,
-            $country_id,
-        );
-
-        //Получение активных активаций
-        $activateActiveOrders = $smsActivate->getActiveActivations();
-        $activateActiveOrders = $activateActiveOrders['activeActivations'];
-
-        $orderAmount = 0;
-        foreach ($activateActiveOrders as $activateActiveOrder) {
-            $orderAmount += $activateActiveOrder['activationCost'];
-        }
-
-        //формирование общей цены заказа
-        $amountFinal = intval(floatval($orderAmount) * 100);
-        $amountFinal = $amountFinal + ($amountFinal * ($botDto->percent / 100));
-
-        //отмена заказа если бабок недостаточно
-        if ($amountFinal > $userData['money']) {
-            foreach ($serviceResults as $key => $serviceResult) {
-                $org_id = intval($serviceResult['activation']);
-                $serviceResult = $smsActivate->setStatus($org_id, SmsOrder::ACCESS_CANCEL);
-            }
-            throw new RuntimeException('Пополните баланс в боте..');
-        }
-
-        // Попытаться списать баланс у пользователя
-        $result = BottApi::subtractBalance($botDto, $userData, $amountFinal, 'Списание баланса для номера '
-            . $serviceResults[0]['phone']);
-
-        // Неудача отмена на сервисе
-        if (!$result['result']) {
-            foreach ($serviceResults as $key => $serviceResult) {
-                $org_id = intval($serviceResult['activation']);
-                $serviceResult = $smsActivate->setStatus($org_id, SmsOrder::ACCESS_CANCEL);
-            }
-            throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
-        }
 
         // Удача создание заказа в бд
         $country = SmsCountry::query()->where(['org_id' => $country_id])->first();
@@ -108,49 +67,45 @@ class OrderService extends MainService
         $response = [];
 
         foreach ($serviceResults as $key => $serviceResult) {
-            $org_id = intval($serviceResult['activation']);
-            foreach ($activateActiveOrders as $activateActiveOrder) {
-                $active_org_id = intval($activateActiveOrder['activationId']);
+            $org_id = intval($serviceResult['idNum']);
 
-                if ($org_id == $active_org_id) {
-                    //формирование цены для каждого заказа
-                    $amountStart = intval(floatval($activateActiveOrder['activationCost']) * 100);
-                    $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
+                $service_price = $smsVak->getCountNumber($serviceResult['service'], $country_id);
+                $final_service_price = $service_price + (($all_price / 2) / 2);
 
-                    $data = [
-                        'bot_id' => $botDto->id,
-                        'user_id' => $user->id, //
-                        'service' => $activateActiveOrder['serviceCode'],
-                        'country_id' => $country->id,
-                        'org_id' => $activateActiveOrder['activationId'],
-                        'phone' => $activateActiveOrder['phoneNumber'],
-                        'codes' => null,
-                        'status' => SmsOrder::STATUS_WAIT_CODE, //4
-                        'start_time' => $dateTime,
-                        'end_time' => $dateTime + 1177,
-                        'operator' => null,
-                        'price_final' => $amountStart,
-                        'price_start' => $amountFinal,
-                    ];
+                //формирование цены для каждого заказа
+                $amountStart = intval(floatval($final_service_price) * 100);
+                $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
 
-                    $order = SmsOrder::create($data);
-                    $result = $smsActivate->setStatus($order, SmsOrder::ACCESS_RETRY_GET);
-                    $result = $this->getStatus($order->org_id, $botDto);
+                $data = [
+                    'bot_id' => $botDto->id,
+                    'user_id' => $user->id,
+                    'service' => $serviceResult['service'],
+                    'country_id' => $country->id,
+                    'org_id' => $serviceResult['idNum'],
+                    'phone' => $serviceResult['tel'],
+                    'codes' => null,
+                    'status' => SmsOrder::STATUS_WAIT_CODE,
+                    'start_time' => $dateTime,
+                    'end_time' => $dateTime + 1177,
+                    'operator' => null,
+                    'price_final' => $amountStart,
+                    'price_start' => $amountFinal,
+                ];
 
-                    array_push($response, [
-                        'id' => $order->org_id,
-                        'phone' => $order->phone,
-                        'time' => $order->start_time,
-                        'status' => $order->status,
-                        'codes' => null,
-                        'country' => $country->org_id,
-                        'service' => $order->service,
-                        'cost' => $amountFinal
-                    ]);
-                }
+                $order = SmsOrder::create($data);
+
+                array_push($response, [
+                    'id' => $order->org_id,
+                    'phone' => $order->phone,
+                    'time' => $order->start_time,
+                    'status' => $order->status,
+                    'codes' => null,
+                    'country' => $country->org_id,
+                    'service' => $order->service,
+                    'cost' => $amountFinal
+                ]);
+
             }
-
-        }
 
         return $response;
     }
