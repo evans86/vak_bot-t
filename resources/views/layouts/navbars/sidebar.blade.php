@@ -29,12 +29,12 @@
                     <p>{{ __('Заказы') }}</p>
                 </a>
             </li>
-            <li @if ($pageSlug == 'rents') class="active " @endif>
-                <a href="{{ route('activate.rent.index') }}">
-                    <i class="tim-icons icon-spaceship"></i>
-                    <p>{{ __('Аренды') }}</p>
-                </a>
-            </li>
+{{--            <li @if ($pageSlug == 'rents') class="active " @endif>--}}
+{{--                <a href="{{ route('activate.rent.index') }}">--}}
+{{--                    <i class="tim-icons icon-spaceship"></i>--}}
+{{--                    <p>{{ __('Аренды') }}</p>--}}
+{{--                </a>--}}
+{{--            </li>--}}
             <li @if ($pageSlug == 'bots') class="active " @endif>
                 <a href="{{ route('activate.bot.index') }}">
                     <i class="tim-icons icon-controller"></i>
