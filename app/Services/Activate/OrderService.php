@@ -68,43 +68,43 @@ class OrderService extends MainService
 
         foreach ($serviceResults as $key => $serviceResult) {
 
-                $service_price = $smsVak->getCountNumber($serviceResult['service'], $country_id);
-                $final_service_price = $service_price['price'] + (($all_price_services / 2) / 2);
+            $service_price = $smsVak->getCountNumber($serviceResult['service'], $country_id);
+            $final_service_price = $service_price['price'] + (($all_price_services / 2) / 2);
 
-                //формирование цены для каждого заказа
-                $amountStart = intval(floatval($final_service_price) * 100);
-                $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
+            //формирование цены для каждого заказа
+            $amountStart = intval(floatval($final_service_price) * 100);
+            $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
 
-                $data = [
-                    'bot_id' => $botDto->id,
-                    'user_id' => $user->id,
-                    'service' => $serviceResult['service'],
-                    'country_id' => $country->id,
-                    'org_id' => $serviceResult['idNum'],
-                    'phone' => $serviceResult['tel'],
-                    'codes' => null,
-                    'status' => SmsOrder::STATUS_WAIT_CODE,
-                    'start_time' => $dateTime,
-                    'end_time' => $dateTime + 1177,
-                    'operator' => null,
-                    'price_final' => $amountStart,
-                    'price_start' => $amountFinal,
-                ];
+            $data = [
+                'bot_id' => $botDto->id,
+                'user_id' => $user->id,
+                'service' => $serviceResult['service'],
+                'country_id' => $country->id,
+                'org_id' => $serviceResult['idNum'],
+                'phone' => $serviceResult['tel'],
+                'codes' => null,
+                'status' => SmsOrder::STATUS_WAIT_CODE,
+                'start_time' => $dateTime,
+                'end_time' => $dateTime + 1177,
+                'operator' => null,
+                'price_final' => $amountStart,
+                'price_start' => $amountFinal,
+            ];
 
-                $order = SmsOrder::create($data);
+            $order = SmsOrder::create($data);
 
-                array_push($response, [
-                    'id' => $order->org_id,
-                    'phone' => $order->phone,
-                    'time' => $order->start_time,
-                    'status' => $order->status,
-                    'codes' => null,
-                    'country' => $country->org_id,
-                    'service' => $order->service,
-                    'cost' => $amountFinal
-                ]);
+            array_push($response, [
+                'id' => $order->org_id,
+                'phone' => $order->phone,
+                'time' => $order->start_time,
+                'status' => $order->status,
+                'codes' => null,
+                'country' => $country->org_id,
+                'service' => $order->service,
+                'cost' => $amountFinal
+            ]);
 
-            }
+        }
 
         return $response;
     }
@@ -209,12 +209,17 @@ class OrderService extends MainService
             throw new RuntimeException('The order has not been canceled, the number has been activated');
 
         // Обновить статус setStatus()
-        $result = $smsVak->setStatus($order->org_id, SmsOrder::ACCESS_END);
+//        try {
+            $result = $smsVak->setStatus($order->org_id, SmsOrder::ACCESS_END);
 
-        if ($result['status'] == SmsOrder::STATUS_RECEIVED)
-            throw new RuntimeException('На данный номер уже получен код подтверждения, отмена невозможна.');
-        if ($result['status'] == SmsOrder::STATUS_WAIT_SMS)
-            throw new RuntimeException('На данные номер уже отправлено смс, отмена невозможна. Ожидайте код.');
+
+            if ($result['status'] == SmsOrder::STATUS_RECEIVED)
+                throw new RuntimeException('На данный номер уже получен код подтверждения, отмена невозможна.');
+            if ($result['status'] == SmsOrder::STATUS_WAIT_SMS)
+                throw new RuntimeException('На данные номер уже отправлено смс, отмена невозможна. Ожидайте код.');
+//        } catch (\Exception $e) {
+//
+//        }
 
         $order->status = SmsOrder::STATUS_CANCEL;
         if ($order->save()) {
@@ -237,8 +242,7 @@ class OrderService extends MainService
     public
     function confirm(BotDto $botDto, SmsOrder $order)
     {
-        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
-
+//        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
         if ($order->status == SmsOrder::STATUS_CANCEL)
             throw new RuntimeException('The order has already been canceled');
         if (is_null($order->codes))
