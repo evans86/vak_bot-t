@@ -67,10 +67,9 @@ class OrderService extends MainService
         $response = [];
 
         foreach ($serviceResults as $key => $serviceResult) {
-            $org_id = intval($serviceResult['idNum']);
 
                 $service_price = $smsVak->getCountNumber($serviceResult['service'], $country_id);
-                $final_service_price = $service_price + (($all_price / 2) / 2);
+                $final_service_price = $service_price['price'] + (($all_price / 2) / 2);
 
                 //формирование цены для каждого заказа
                 $amountStart = intval(floatval($final_service_price) * 100);

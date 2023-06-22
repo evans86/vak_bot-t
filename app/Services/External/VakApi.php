@@ -85,12 +85,14 @@ class VakApi
     }
 
     //получение номера, пока без rent и мультиактивации (после регистрации приложения добавить $softId)
-    public function getNumber($service, $country)
+    public function getNumber($service, $country, $rent = false, $softId = '')
     {
         $requestParam = [
             'apiKey' => $this->apiKey,
             'service' => $service,
             'country' => $country,
+            'rent' => $rent, //только 4 часа
+            'softId' => $softId, //номер софта
         ];
 
         $client = new Client(['base_uri' => $this->url]);

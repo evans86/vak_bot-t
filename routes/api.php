@@ -25,14 +25,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 /**
- * Роуты API (страны, операторы, сервисы), ресурсный подход
- */
-//Route::resources([
-//    'countries' => CountryController::class,
-//    'services' => ProductController::class,
-//]);
-
-/**
  * Роуты API страны, сервисы
  */
 Route::get('countries', [CountryController::class, 'getCountries']);//+
@@ -77,8 +69,9 @@ Route::get('confirmOrder', [OrderController::class, 'confirmOrder']);//+
 /**
  * Роуты API (аренда номеров))
  */
-Route::get('getRentCountries', [RentController::class, 'getRentCountries']);
-Route::get('getRentServices', [RentController::class, 'getRentServices']);
+Route::get('getRentCountries', [CountryController::class, 'getCountries']);
+Route::get('getRentServices', [ProductController::class, 'getServices']);
+
 Route::get('createRentOrder', [RentController::class, 'createRentOrder']);
 Route::get('getRentOrders', [RentController::class, 'getRentOrders']);
 Route::get('getRentOrder', [RentController::class, 'getRentOrder']);
