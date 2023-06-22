@@ -17,7 +17,7 @@ class OrderResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => (integer)$this->org_id,
+            'id' => $this->org_id,
             'phone' => $this->phone,
             'time' => (integer)$this->start_time,
             'status' => $this->status,
@@ -35,7 +35,7 @@ class OrderResource extends JsonResource
     public static function generateOrderArray(SmsOrder $order): array
     {
         return [
-            'id' => (integer)$order->org_id,
+            'id' => $order->org_id,
             'phone' => $order->phone,
             'time' => $order->start_time,
             'status' => $order->status,
