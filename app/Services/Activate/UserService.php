@@ -20,9 +20,8 @@ class UserService extends MainService
         try {
             $smsVak = new VakApi($bot->api_key, $bot->resource_link);
             $balance = $smsVak->getBalance();
-//            dd($balance);
         } catch (\Exception $e) {
-            $balance = '';
+            return $balance = '';
         }
 
         return $balance['balance'];
