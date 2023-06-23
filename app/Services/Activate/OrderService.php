@@ -41,7 +41,7 @@ class OrderService extends MainService
         $all_price_services = $first_price['price'] + $second_price['price'];
         $all_price = $all_price_services + ($all_price_services / 2);
 
-        $amountStart = (int) ceil(floatval($all_price['price'])  * 100);
+        $amountStart = (int) ceil(floatval($all_price) * 100);
         $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
 
         if ($amountFinal > $userData['money']) {
