@@ -39,7 +39,7 @@ class OrderService extends MainService
         $second_price = $smsVak->getCountNumber($convert_services[1], $country_id);
 
         $all_price_services = $first_price['price'] + $second_price['price'];
-        $all_price = $all_price_services + ($all_price_services / 2);
+        $all_price = $all_price_services + ($all_price_services / 2) * $botDto->percent / 100;
 
         $amountStart = intval(floatval($all_price) * 100);
         $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
@@ -70,7 +70,7 @@ class OrderService extends MainService
         foreach ($serviceResults as $key => $serviceResult) {
 
             $service_price = $smsVak->getCountNumber($serviceResult['service'], $country_id);
-            $final_service_price = $service_price['price'] + (($all_price_services / 2) / 2);
+            $final_service_price = $service_price['price'] + (($all_price_services / 2) / 2) * $botDto->percent / 100;
 
             //формирование цены для каждого заказа
             $amountStart = intval(floatval($final_service_price) * 100);
