@@ -70,10 +70,18 @@ class ProductService extends MainService
         $smsVak = new VakApi($bot->api_key, $bot->resource_link);
 
         $services = $smsVak->getCountNumberList($country);
-//        dd($services);
 
         $result = [];
+
+        if (!is_null($bot->black))
+            $black_array = explode(',', $bot->black);
+
         foreach ($services as $key => $service) {
+
+            if (!is_null($bot->black)) {
+                if (in_array($key, $black_array))
+                    continue;
+            }
 
             $price = $service["price"];
             $pricePercent = $price + ($price * ($bot->percent / 100));
