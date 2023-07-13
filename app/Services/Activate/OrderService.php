@@ -314,7 +314,7 @@ class OrderService extends MainService
                     break;
                 if (is_null($order->codes)) {
                     BottApi::createOrder($botDto, $userData, $order->price_final,
-                        'Заказ активации номера (Модуль Vak Sms)');
+                        'Заказ активации номера: ' . $order->phone . '(Модуль Vak Sms)');
                 }
                 $order->codes = $sms;
                 $order->save();
