@@ -13,6 +13,8 @@ use App\Services\External\RequestError;
 use App\Services\External\SmsActivateApi;
 use App\Services\External\VakApi;
 use App\Services\MainService;
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 use RuntimeException;
 
 class OrderService extends MainService
@@ -41,7 +43,7 @@ class OrderService extends MainService
         $all_price_services = $first_price['price'] + $second_price['price'];
         $all_price = $all_price_services + ($all_price_services / 2);
 
-        $amountStart = (int) ceil(floatval($all_price) * 100);
+        $amountStart = (int)ceil(floatval($all_price) * 100);
         $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
 
         if ($amountFinal > $userData['money']) {
@@ -73,7 +75,7 @@ class OrderService extends MainService
             $final_service_price = $service_price['price'] + (($all_price_services / 2) / 2);
 
             //формирование цены для каждого заказа
-            $amountStart = (int) ceil(floatval($final_service_price)  * 100);
+            $amountStart = (int)ceil(floatval($final_service_price) * 100);
             $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
 
             $data = [
@@ -133,7 +135,7 @@ class OrderService extends MainService
         $service_price = $smsVak->getCountNumber($service, $country_id);
 
 //        $amountStart = intval(floatval($service_price['price']) * 100);
-        $amountStart = (int) ceil(floatval($service_price['price'])  * 100);
+        $amountStart = (int)ceil(floatval($service_price['price']) * 100);
         $amountFinal = $amountStart + $amountStart * $botDto->percent / 100;
 
         if ($amountFinal > $userData['money']) {
@@ -220,7 +222,7 @@ class OrderService extends MainService
                 throw new RuntimeException('На данные номер уже отправлено смс, отмена невозможна. Ожидайте код.');
 
         } catch (\Exception $e) {
-            if($e->getMessage() != 'Не верный ID операции')
+            if ($e->getMessage() != 'Не верный ID операции')
                 throw new RuntimeException('Ошибка сервера');
         }
 
@@ -331,44 +333,69 @@ class OrderService extends MainService
     public
     function cronUpdateStatus(): void
     {
-        $statuses = [SmsOrder::STATUS_WAIT_CODE, SmsOrder::STATUS_WAIT_RETRY];
+        try {
+            $statuses = [SmsOrder::STATUS_WAIT_CODE, SmsOrder::STATUS_WAIT_RETRY];
 
-        $orders = SmsOrder::query()->whereIn('status', $statuses)
-            ->where('end_time', '<=', time())->get();
+            $orders = SmsOrder::query()->whereIn('status', $statuses)
+                ->where('end_time', '<=', time())->get();
 
-        echo "START count:" . count($orders) . PHP_EOL;
-        foreach ($orders as $key => $order) {
-            echo $order->id . PHP_EOL;
-            $bot = SmsBot::query()->where(['id' => $order->bot_id])->first();
+            echo "START count:" . count($orders) . PHP_EOL;
 
-            $botDto = BotFactory::fromEntity($bot);
-            $result = BottApi::get(
-                $order->user->telegram_id,
-                $botDto->public_key,
-                $botDto->private_key
-            );
-            echo $order->id . PHP_EOL;
+            $start_text = "Vak Start count: " . count($orders) . PHP_EOL;
+            $this->notifyTelegram($start_text);
 
+            foreach ($orders as $key => $order) {
+                echo $order->id . PHP_EOL;
+                $bot = SmsBot::query()->where(['id' => $order->bot_id])->first();
 
-            if (is_null($order->codes)) {
-                echo 'cancel_start' . PHP_EOL;
-                $this->cancel(
-                    $result['data'],
-                    $botDto,
-                    $order
+                $botDto = BotFactory::fromEntity($bot);
+                $result = BottApi::get(
+                    $order->user->telegram_id,
+                    $botDto->public_key,
+                    $botDto->private_key
                 );
-                echo 'cancel_finish' . PHP_EOL;
-            } else {
-                echo 'confirm_start' . PHP_EOL;
-                $this->confirm(
-                    $botDto,
-                    $order
-                );
-                echo 'confirm_finish' . PHP_EOL;
+                echo $order->id . PHP_EOL;
+
+
+                if (is_null($order->codes)) {
+                    echo 'cancel_start' . PHP_EOL;
+                    $this->cancel(
+                        $result['data'],
+                        $botDto,
+                        $order
+                    );
+                    echo 'cancel_finish' . PHP_EOL;
+                } else {
+                    echo 'confirm_start' . PHP_EOL;
+                    $this->confirm(
+                        $botDto,
+                        $order
+                    );
+                    echo 'confirm_finish' . PHP_EOL;
+                }
+                echo "FINISH" . $order->id . PHP_EOL;
+
             }
-            echo "FINISH" . $order->id . PHP_EOL;
 
+            $finish_text = "Vak finish count: " . count($orders) . PHP_EOL;
+            $this->notifyTelegram($finish_text);
+
+        } catch (\Exception $e) {
+            $this->notifyTelegram($e->getMessage());
         }
+    }
+
+    public function notifyTelegram($text)
+    {
+        $client = new Client();
+
+        $client->post('https://api.telegram.org/bot6331654488:AAEmDoHZLV6D3YYShrwdanKlWCbo9nBjQy4/sendMessage', [
+
+            RequestOptions::JSON => [
+                'chat_id' => 398981226,
+                'text' => $text,
+            ]
+        ]);
     }
 
     /**
