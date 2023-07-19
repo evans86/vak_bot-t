@@ -286,7 +286,7 @@ class OrderService extends MainService
         if ($result['status'] != SmsOrder::STATUS_READY)
             throw new RuntimeException('При проверке статуса произошла ошибка, вернулся статус: ' . $result['status']);
 
-        $resultSet = $order->status = SmsOrder::STATUS_WAIT_RETRY;
+        $resultSet = $order->status = SmsOrder::STATUS_WAIT_CODE;
 
         $order->save();
         return $resultSet;
