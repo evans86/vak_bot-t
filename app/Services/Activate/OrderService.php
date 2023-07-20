@@ -154,7 +154,7 @@ class OrderService extends MainService
             $country_id
         );
 
-        $org_id = $serviceResult['idNum'];
+        $org_id = $serviceResult['idum'];
 
         // Удача создание заказа в бд
         $country = SmsCountry::query()->where(['org_id' => $country_id])->first();
