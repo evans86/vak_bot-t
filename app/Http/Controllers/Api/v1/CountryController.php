@@ -49,8 +49,11 @@ class CountryController extends Controller
 
             $countries = $this->countryService->getPricesService($bot, $user->service);
             return ApiHelpers::success($countries);
+        } catch (\RuntimeException $r) {
+            BotLogHelpers::notifyBotLog('(🟢R ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
+            return ApiHelpers::error($r->getMessage());
         } catch (\Exception $e) {
-            BotLogHelpers::notifyBotLog('(🟢Vak): ' . $e->getMessage());
+            BotLogHelpers::notifyBotLog('(🟢E '.__FUNCTION__.' Vak): ' . $e->getMessage());
             \Log::error($e->getMessage());
             return ApiHelpers::error('Countries error');
         }
@@ -73,8 +76,11 @@ class CountryController extends Controller
 
             $countries = $this->countryService->getCountries($bot);
             return ApiHelpers::success($countries);
+        } catch (\RuntimeException $r) {
+            BotLogHelpers::notifyBotLog('(🟢R ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
+            return ApiHelpers::error($r->getMessage());
         } catch (\Exception $e) {
-            BotLogHelpers::notifyBotLog('(🟢Vak): ' . $e->getMessage());
+            BotLogHelpers::notifyBotLog('(🟢E '.__FUNCTION__.' Vak): ' . $e->getMessage());
             \Log::error($e->getMessage());
             return ApiHelpers::error('Multi-services countries error');
         }
