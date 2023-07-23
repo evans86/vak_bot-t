@@ -254,7 +254,7 @@ class OrderController extends Controller
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢R ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
             return ApiHelpers::error($r->getMessage());
-        } catch (RuntimeException $e) {
+        } catch (Exception $e) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $e->getMessage());
             \Log::error($e->getMessage());
             return ApiHelpers::error('Get order error');
