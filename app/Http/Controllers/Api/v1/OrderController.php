@@ -131,7 +131,7 @@ class OrderController extends Controller
             return ApiHelpers::success($result);
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢R ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
-            return ApiHelpers::error($r->getMessage());
+            return ApiHelpers::error('Create multi error');
         } catch (Exception $e) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $e->getMessage());
             \Log::error($e->getMessage());
