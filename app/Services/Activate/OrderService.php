@@ -142,13 +142,6 @@ class OrderService extends MainService
             throw new RuntimeException('Пополните баланс в боте');
         }
 
-        //Попытаться списать баланс у пользователя
-        $result = BottApi::subtractBalance($botDto, $userData, $amountFinal, 'Списание баланса для активации номера (Модуль Vak Sms)');
-
-        if (!$result['result']) {
-            throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
-        }
-
         $serviceResult = $smsVak->getNumber(
             $service,
             $country_id
@@ -176,6 +169,14 @@ class OrderService extends MainService
         ];
 
         $order = SmsOrder::create($data);
+
+        //Попытаться списать баланс у пользователя
+        $result = BottApi::subtractBalance($botDto, $userData, $amountFinal, 'Списание баланса для активации номера ' . $serviceResult['tel']);
+
+        if (!$result['result']) {
+            $this->cancel($userData, $botDto, $order);
+            throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
+        }
 
         $result = [
             'id' => $order->org_id,
