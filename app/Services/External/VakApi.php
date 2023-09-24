@@ -2,6 +2,7 @@
 
 namespace App\Services\External;
 
+use App\Helpers\BotLogHelpers;
 use GuzzleHttp\Client;
 use http\Exception\RuntimeException;
 
@@ -33,6 +34,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
+            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
             throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
@@ -53,6 +55,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
+            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
             throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
@@ -74,6 +77,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
+            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
             throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
@@ -97,6 +101,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
+            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
             throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
@@ -120,6 +125,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
+            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
             throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
@@ -142,6 +148,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
+            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
             throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
@@ -182,6 +189,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
+            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
             throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
@@ -217,6 +225,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
+            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
             throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
