@@ -3,6 +3,7 @@
 namespace App\Services\External;
 
 use GuzzleHttp\Client;
+use http\Exception\RuntimeException;
 
 class VakApi
 {
@@ -19,106 +20,130 @@ class VakApi
     //баланс пользователя
     public function getBalance()
     {
-        $requestParam = [
-            'apiKey' => $this->apiKey
-        ];
+        try {
+            $requestParam = [
+                'apiKey' => $this->apiKey
+            ];
 
-        $client = new Client(['base_uri' => $this->url]);
-        $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $client = new Client(['base_uri' => $this->url]);
+            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
-        $result = $response->getBody()->getContents();
-        $result = json_decode($result, true);
-        $this->checkError($result);
-        return $result;
+            $result = $response->getBody()->getContents();
+            $result = json_decode($result, true);
+            $this->checkError($result);
+            return $result;
+        } catch (\RuntimeException $r) {
+            throw new RuntimeException('Ошибка в получении данных провайдера');
+        }
     }
 
     //список стран и операторов
     public function getCountryOperatorList()
     {
-        $requestParam = [
-            'apiKey' => $this->apiKey
-        ];
+        try {
+            $requestParam = [
+                'apiKey' => $this->apiKey
+            ];
 
-        $client = new Client(['base_uri' => $this->url]);
-        $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $client = new Client(['base_uri' => $this->url]);
+            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
-        $result = $response->getBody()->getContents();
-        $result = json_decode($result, true);
-        $this->checkError($result);
-        return $result;
+            $result = $response->getBody()->getContents();
+            $result = json_decode($result, true);
+            $this->checkError($result);
+            return $result;
+        } catch (\RuntimeException $r) {
+            throw new RuntimeException('Ошибка в получении данных провайдера');
+        }
     }
 
     //количество всех доступных номеров списком
     public function getCountNumberList($country)
     {
-        $requestParam = [
-            'apiKey' => $this->apiKey,
-            'country' => $country,
-        ];
+        try {
+            $requestParam = [
+                'apiKey' => $this->apiKey,
+                'country' => $country,
+            ];
 
-        $client = new Client(['base_uri' => $this->url]);
-        $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $client = new Client(['base_uri' => $this->url]);
+            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
-        $result = $response->getBody()->getContents();
-        $result = json_decode($result, true);
-        $this->checkError($result);
-        return $result;
+            $result = $response->getBody()->getContents();
+            $result = json_decode($result, true);
+            $this->checkError($result);
+            return $result;
+        } catch (\RuntimeException $r) {
+            throw new RuntimeException('Ошибка в получении данных провайдера');
+        }
     }
 
     //количетсов доступных номеров для сервиса
     public function getCountNumber($service, $country, $price = '')
     {
-        $requestParam = [
-            'apiKey' => $this->apiKey,
-            'service' => $service,
-            'country' => $country,
-            'price' => $price,
-        ];
+        try {
+            $requestParam = [
+                'apiKey' => $this->apiKey,
+                'service' => $service,
+                'country' => $country,
+                'price' => $price,
+            ];
 
-        $client = new Client(['base_uri' => $this->url]);
-        $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $client = new Client(['base_uri' => $this->url]);
+            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
-        $result = $response->getBody()->getContents();
-        $result = json_decode($result, true);
-        $this->checkError($result);
-        return $result;
+            $result = $response->getBody()->getContents();
+            $result = json_decode($result, true);
+            $this->checkError($result);
+            return $result;
+        } catch (\RuntimeException $r) {
+            throw new RuntimeException('Ошибка в получении данных провайдера');
+        }
     }
 
     //получение номера, пока без rent и мультиактивации (после регистрации приложения добавить $softId)
     public function getNumber($service, $country, $softId = 76)
     {
-        $requestParam = [
-            'apiKey' => $this->apiKey,
-            'service' => $service,
-            'country' => $country,
-            'softId' => $softId, //номер софта
-        ];
+        try {
+            $requestParam = [
+                'apiKey' => $this->apiKey,
+                'service' => $service,
+                'country' => $country,
+                'softId' => $softId, //номер софта
+            ];
 
-        $client = new Client(['base_uri' => $this->url]);
-        $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $client = new Client(['base_uri' => $this->url]);
+            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
-        $result = $response->getBody()->getContents();
-        $result = json_decode($result, true);
-        $this->checkError($result);
-        return $result;
+            $result = $response->getBody()->getContents();
+            $result = json_decode($result, true);
+            $this->checkError($result);
+            return $result;
+        } catch (\RuntimeException $r) {
+            throw new RuntimeException('Ошибка в получении данных провайдера');
+        }
     }
 
     //продление номера, хз пока как юзать
     public function prolongNumber($service, $tel)
     {
-        $requestParam = [
-            'apiKey' => $this->apiKey,
-            'service' => $service,
-            'tel' => $tel,//Номер телефона на который ранее был получен код из смс
-        ];
+        try {
+            $requestParam = [
+                'apiKey' => $this->apiKey,
+                'service' => $service,
+                'tel' => $tel,//Номер телефона на который ранее был получен код из смс
+            ];
 
-        $client = new Client(['base_uri' => $this->url]);
-        $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $client = new Client(['base_uri' => $this->url]);
+            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
-        $result = $response->getBody()->getContents();
-        $result = json_decode($result, true);
-        $this->checkError($result);
-        return $result;
+            $result = $response->getBody()->getContents();
+            $result = json_decode($result, true);
+            $this->checkError($result);
+            return $result;
+        } catch (\RuntimeException $r) {
+            throw new RuntimeException('Ошибка в получении данных провайдера');
+        }
     }
 
     /**
@@ -142,19 +167,23 @@ class VakApi
      */
     public function setStatus($idNum, $status)
     {
-        $requestParam = [
-            'apiKey' => $this->apiKey,
-            'status' => $status,//Статус операции.
-            'idNum' => $idNum,//ID операции
-        ];
+        try {
+            $requestParam = [
+                'apiKey' => $this->apiKey,
+                'status' => $status,//Статус операции.
+                'idNum' => $idNum,//ID операции
+            ];
 
-        $client = new Client(['base_uri' => $this->url]);
-        $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $client = new Client(['base_uri' => $this->url]);
+            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
-        $result = $response->getBody()->getContents();
-        $result = json_decode($result, true);
-        $this->checkError($result);
-        return $result;
+            $result = $response->getBody()->getContents();
+            $result = json_decode($result, true);
+            $this->checkError($result);
+            return $result;
+        } catch (\RuntimeException $r) {
+            throw new RuntimeException('Ошибка в получении данных провайдера');
+        }
     }
 
     /**
@@ -173,19 +202,23 @@ class VakApi
      */
     public function getSmsCode($idNum, $all = '')
     {
-        $requestParam = [
-            'apiKey' => $this->apiKey,
-            'idNum' => $idNum,//ID операции
-            'all' => $all, //Параметр указывает необходимость получить весь список полученных кодов
-        ];
+        try {
+            $requestParam = [
+                'apiKey' => $this->apiKey,
+                'idNum' => $idNum,//ID операции
+                'all' => $all, //Параметр указывает необходимость получить весь список полученных кодов
+            ];
 
-        $client = new Client(['base_uri' => $this->url]);
-        $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $client = new Client(['base_uri' => $this->url]);
+            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
 
-        $result = $response->getBody()->getContents();
-        $result = json_decode($result, true);
-        $this->checkError($result);
-        return $result;
+            $result = $response->getBody()->getContents();
+            $result = json_decode($result, true);
+            $this->checkError($result);
+            return $result;
+        } catch (\RuntimeException $r) {
+            throw new RuntimeException('Ошибка в получении данных провайдера');
+        }
     }
 
     /**
