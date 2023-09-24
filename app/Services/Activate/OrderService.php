@@ -214,18 +214,18 @@ class OrderService extends MainService
             throw new RuntimeException('The order has not been canceled, the number has been activated');
 
         // Обновить статус setStatus()
-        try {
-            $result = $smsVak->setStatus($order->org_id, SmsOrder::ACCESS_END);
-
-            if ($result['status'] == SmsOrder::STATUS_RECEIVED)
-                throw new RuntimeException('На данный номер уже получен код подтверждения, отмена невозможна.');
-            if ($result['status'] == SmsOrder::STATUS_WAIT_SMS)
-                throw new RuntimeException('На данные номер уже отправлено смс, отмена невозможна. Ожидайте код.');
-
-        } catch (\Exception $e) {
-            if ($e->getMessage() != 'Не верный ID операции')
-                throw new RuntimeException('Ошибка сервера');
-        }
+//        try {
+//            $result = $smsVak->setStatus($order->org_id, SmsOrder::ACCESS_END);
+//
+//            if ($result['status'] == SmsOrder::STATUS_RECEIVED)
+//                throw new RuntimeException('На данный номер уже получен код подтверждения, отмена невозможна.');
+//            if ($result['status'] == SmsOrder::STATUS_WAIT_SMS)
+//                throw new RuntimeException('На данные номер уже отправлено смс, отмена невозможна. Ожидайте код.');
+//
+//        } catch (\Exception $e) {
+//            if ($e->getMessage() != 'Не верный ID операции')
+//                throw new RuntimeException('Ошибка сервера');
+//        }
 
         $order->status = SmsOrder::STATUS_CANCEL;
         if ($order->save()) {
