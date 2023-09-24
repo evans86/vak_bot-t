@@ -33,7 +33,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
-            throw new RuntimeException('Ошибка в получении данных провайдера');
+            throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
 
@@ -53,7 +53,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
-            throw new RuntimeException('Ошибка в получении данных провайдера');
+            throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
 
@@ -74,7 +74,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
-            throw new RuntimeException('Ошибка в получении данных провайдера');
+            throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
 
@@ -97,7 +97,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
-            throw new RuntimeException('Ошибка в получении данных провайдера');
+            throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
 
@@ -120,7 +120,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
-            throw new RuntimeException('Ошибка в получении данных провайдера');
+            throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
 
@@ -142,7 +142,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
-            throw new RuntimeException('Ошибка в получении данных провайдера');
+            throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
 
@@ -182,7 +182,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
-            throw new RuntimeException('Ошибка в получении данных провайдера');
+            throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
 
@@ -217,7 +217,7 @@ class VakApi
             $this->checkError($result);
             return $result;
         } catch (\RuntimeException $r) {
-            throw new RuntimeException('Ошибка в получении данных провайдера');
+            throw new \RuntimeException('Ошибка в получении данных провайдера');
         }
     }
 
