@@ -360,7 +360,7 @@ class OrderService extends MainService
 
                 if (is_null($order->codes)) {
                     echo 'cancel_start' . PHP_EOL;
-                    $this->cancel(
+                    $this->cancelCron(
                         $result['data'],
                         $botDto,
                         $order
@@ -384,6 +384,52 @@ class OrderService extends MainService
         } catch (\Exception $e) {
             $this->notifyTelegram('🔴' . $e->getMessage());
         }
+    }
+
+    /**
+     * Отмена заказа со статусом 9 костыль
+     *
+     * @param array $userData
+     * @param BotDto $botDto
+     * @param SmsOrder $order
+     * @return mixed
+     */
+    public
+    function cancelCron(array $userData, BotDto $botDto, SmsOrder $order)
+    {
+        $smsVak = new VakApi($botDto->api_key, $botDto->resource_link);
+        // Проверить уже отменёный
+        if ($order->status == SmsOrder::STATUS_CANCEL)
+            throw new RuntimeException('The order has already been canceled');
+        if ($order->status == SmsOrder::STATUS_FINISH)
+            throw new RuntimeException('The order has not been canceled, the number has been activated, Status 10');
+        // Можно отменить только статус 4 и кодов нет
+        if (!is_null($order->codes))
+            throw new RuntimeException('The order has not been canceled, the number has been activated');
+
+        // Обновить статус setStatus()
+//        try {
+//            $result = $smsVak->setStatus($order->org_id, SmsOrder::ACCESS_END);
+//
+//            if ($result['status'] == SmsOrder::STATUS_RECEIVED)
+//                throw new RuntimeException('На данный номер уже получен код подтверждения, отмена невозможна.');
+//            if ($result['status'] == SmsOrder::STATUS_WAIT_SMS)
+//                throw new RuntimeException('На данные номер уже отправлено смс, отмена невозможна. Ожидайте код.');
+//
+//        } catch (\Exception $e) {
+//            if ($e->getMessage() != 'Не верный ID операции')
+//                throw new RuntimeException('Ошибка сервера');
+//        }
+
+        $order->status = SmsOrder::STATUS_CANCEL;
+        if ($order->save()) {
+            // Он же возвращает баланс
+            $amountFinal = $order->price_final;
+            $result = BottApi::addBalance($botDto, $userData, $amountFinal, 'Возврат баланса, активация отменена');
+        } else {
+            throw new RuntimeException('Not save order');
+        }
+        return $result;
     }
 
     public function notifyTelegram($text)
