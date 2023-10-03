@@ -49,7 +49,11 @@ class CountryService extends MainService
     {
         $smsVak = new VakApi($bot->api_key, $bot->resource_link);
 
-        $countries = $smsVak->getCountryOperatorList();
+        $countries = \Cache::get('countries');
+        if($countries === null){
+            $countries = $smsVak->getCountryOperatorList();
+            \Cache::put('countries', $countries, 900);
+        }
 
         $result = [];
 
