@@ -69,11 +69,12 @@ class ProductService extends MainService
     {
         $smsVak = new VakApi($bot->api_key, $bot->resource_link);
 
-        $services = \Cache::get('services');
-        if($services === null){
-            $services = $smsVak->getCountNumberList($country);
-            \Cache::put('services', $services, 15);
-        }
+        $services = $smsVak->getCountNumberList($country);
+//        $services = \Cache::get('services');
+//        if($services === null){
+//
+//            \Cache::put('services', $services, 15);
+//        }
 
         $result = [];
 
