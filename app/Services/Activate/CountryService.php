@@ -65,7 +65,7 @@ class CountryService extends MainService
                 'org_id' => $org_id,
                 'name_ru' => null,
                 'name_en' => $country[0]['name'],
-                'image' => 'https://vak-sms.com' . $country[0]['icon']
+                'image' => 'https://vak-sms.ru' . $country[0]['icon']
             ]);
         }
 

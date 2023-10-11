@@ -92,7 +92,7 @@ class ProductService extends MainService
 
             array_push($result, [
                 'name' => $service['code'],
-                'image' => 'https://vak-sms.com/static/service/' . $key . '.png',
+                'image' => 'https://vak-sms.ru/static/service/' . $key . '.png',
                 'count' => $service["count"],
                 'cost' => $pricePercent * 100,
             ]);
