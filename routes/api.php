@@ -66,19 +66,6 @@ Route::get('closeOrder', [OrderController::class, 'closeOrder']);//+
 Route::get('secondSms', [OrderController::class, 'secondSms']);//+
 Route::get('confirmOrder', [OrderController::class, 'confirmOrder']);//+
 
-/**
- * Роуты API (аренда номеров))
- */
-//Route::get('getRentCountries', [CountryController::class, 'getCountries']);
-//Route::get('getRentServices', [ProductController::class, 'getServices']);
-//Route::get('createRentOrder', [RentController::class, 'createRentOrder']);
-//Route::get('getRentOrder', [RentController::class, 'getRentOrder']);
-//Route::get('closeRentOrder', [RentController::class, 'closeRentOrder']);
-//Route::get('confirmRentOrder', [RentController::class, 'confirmRentOrder']);
-//Route::get('getContinuePrice', [RentController::class, 'getContinuePrice']);
-//Route::get('continueRent', [RentController::class, 'continueRent']);
-//Route::post('rent/updateSmsRent', [RentController::class, 'updateSmsRent'])->name('cashier.webhook'); //метод обновения кодов через вебхук
-
 
 
 
