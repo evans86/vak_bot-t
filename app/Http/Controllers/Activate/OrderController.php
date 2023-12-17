@@ -12,7 +12,7 @@ class OrderController
      */
     public function index()
     {
-        $orders = SmsOrder::latest()->take(15)->Paginate(15);
+        $orders = SmsOrder::orderBy('id', 'DESC')->take(100)->Paginate(15);
 
         $allCount = count(SmsOrder::get());
         $successCount = count(SmsOrder::query()->where('status', SmsOrder::STATUS_FINISH)->get());
