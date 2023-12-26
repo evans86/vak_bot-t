@@ -438,7 +438,7 @@ class OrderService extends MainService
 
         $ids = [
             6715142449,
-            778591134
+//            778591134
         ];
 
         //CronLogBot#1
