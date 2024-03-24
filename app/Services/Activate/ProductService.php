@@ -70,10 +70,11 @@ class ProductService extends MainService
         $smsVak = new VakApi($bot->api_key, $bot->resource_link);
 
         $services = \Cache::get('services_' . $country);
-        if($services === null){
-            $services = $smsVak->getCountNumberList($country);
+        if ($services === null) {
+            $services = $smsVak->getCountNumbersList($country);
             \Cache::put('services_' . $country, $services, 15);
         }
+//        dd($services);
 
         $result = [];
 
@@ -81,19 +82,19 @@ class ProductService extends MainService
             $black_array = explode(',', $bot->black);
 
         foreach ($services as $key => $service) {
-
+//dd($key);
             if (!is_null($bot->black)) {
                 if (in_array($key, $black_array))
                     continue;
             }
-
-            $price = $service["price"];
+//dd($service);
+            $price = $service[0]["cost"];
             $pricePercent = $price + ($price * ($bot->percent / 100));
-
+//dd($pricePercent);
             array_push($result, [
-                'name' => $service['code'],
+                'name' => $key,
                 'image' => 'https://vak-sms.ru/static/service/' . $key . '.png',
-                'count' => $service["count"],
+                'count' => $service[0]["quantity"],
                 'cost' => $pricePercent * 100,
             ]);
 

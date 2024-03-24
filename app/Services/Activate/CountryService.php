@@ -47,25 +47,21 @@ class CountryService extends MainService
 
     public function getCountries($bot)
     {
-        $smsVak = new VakApi($bot->api_key, $bot->resource_link);
+        $smsVak = new VakApi($bot->api_key);
 
         $countries = \Cache::get('countries');
-        if($countries === null){
-            $countries = $smsVak->getCountryOperatorList();
+        if ($countries === null) {
+            $countries = $smsVak->getCountryList();
             \Cache::put('countries', $countries, 900);
         }
-
         $result = [];
 
         foreach ($countries as $key => $country) {
-
-            $org_id = mb_strtolower($key);
-
             array_push($result, [
-                'org_id' => $org_id,
+                'org_id' => $country['countryCode'],
                 'name_ru' => null,
-                'name_en' => $country[0]['name'],
-                'image' => 'https://vak-sms.ru' . $country[0]['icon']
+                'name_en' => $country['countryName'],
+                'image' => 'https://vak-sms.ru/static/country/' . $country['countryCode'] . '.png'
             ]);
         }
 

@@ -40,7 +40,7 @@ class VakApi
     }
 
     //список стран и операторов
-    public function getCountryOperatorList()
+    public function getCountryList()
     {
         try {
             $requestParam = [
@@ -60,8 +60,32 @@ class VakApi
         }
     }
 
+    //метод на API v0!!!!
+    public function getPrices($country)
+    {
+//        try {
+            $requestParam = [
+                'api_key' => $this->apiKey,
+                'action' => __FUNCTION__,
+                'country' => $country,
+            ];
+
+            $client = new Client(['base_uri' => 'https://vak-sms.ru/stubs/handler_api.php']);
+            $response = $client->get('?' . http_build_query($requestParam));
+
+            $result = $response->getBody()->getContents();
+
+            $result = json_decode($result, true);
+            $this->checkError($result);
+            return $result;
+//        } catch (\RuntimeException $r) {
+//            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
+//            throw new \RuntimeException('Ошибка в получении данных провайдера');
+//        }
+    }
+
     //количество всех доступных номеров списком
-    public function getCountNumberList($country)
+    public function getCountNumbersList($country)
     {
         try {
             $requestParam = [
