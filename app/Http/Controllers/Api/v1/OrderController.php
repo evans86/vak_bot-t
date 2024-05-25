@@ -417,6 +417,7 @@ class OrderController extends Controller
             );
 
             $order = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
+            BotLogHelpers::notifyBotLog('(🟢R ' . __FUNCTION__ . ' Vak): ' . 'ОТМЕНА ЗАКАЗА ПРОД');
             return ApiHelpers::success(OrderResource::generateOrderArray($order));
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢R ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
