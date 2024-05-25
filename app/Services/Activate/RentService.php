@@ -51,17 +51,19 @@ class RentService extends MainService
         ]);
 
         $urls = [
-            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678',
-            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678',
-            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678',
-            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678',
-            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678',
-            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678',
-            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678',
-            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678',
-            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678',
-            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678',
-            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678',
+            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678&secret_user_key=9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5',
+            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678&secret_user_key=9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5',
+            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678&secret_user_key=9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5',
+            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678&secret_user_key=9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5',
+            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678&secret_user_key=9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5',
+            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678&secret_user_key=9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5',
+            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678&secret_user_key=9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5',
+            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678&secret_user_key=9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5',
+            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678&secret_user_key=9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5',
+            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678&secret_user_key=9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5',
+            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678&secret_user_key=9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5',
+            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678&secret_user_key=9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5',
+            '/closeOrder?user_id=3998&order_id=1716674678439413&public_key=26c5fcc1b09969ed86d017944c058678&secret_user_key=9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5',
         ];
 
         $promises = [];
