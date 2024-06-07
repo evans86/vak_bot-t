@@ -29,7 +29,7 @@ class BotLogHelpers
             RequestOptions::JSON => [
                 'chat_id' => 6715142449,
                 'text' => $message,
-                'message_effect_id' => '5104841245755180586'
+                'message_effect_id' => '5107584321108051014'
             ]
         ]);
     }
