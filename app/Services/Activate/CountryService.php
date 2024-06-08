@@ -18,7 +18,7 @@ class CountryService extends MainService
         //оставить свой API
         $smsVak = new VakApi(config('services.key_activate.key'), BotService::DEFAULT_HOST);
 
-        $countries = $smsVak->getCountryOperatorList();
+        $countries = $smsVak->getCountryList();
 
         $this->formingCountriesArr($countries);
     }
@@ -31,13 +31,13 @@ class CountryService extends MainService
     {
         foreach ($countries as $key => $country) {
 
-            $org_id = mb_strtolower($key);
+//            $org_id = mb_strtolower($key);
 
             $data = [
-                'org_id' => $org_id,
+                'org_id' => $country['countryCode'],
                 'name_ru' => null,
-                'name_en' => $country[0]['name'],
-                'image' => 'https://vak-sms.com' . $country[0]['icon']
+                'name_en' => $country['countryName'],
+                'image' => 'https://vak-sms.ru/static/country/' . $country['countryCode'] . '.png'
             ];
 
             $country = SmsCountry::updateOrCreate($data);
