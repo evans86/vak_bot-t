@@ -37,7 +37,7 @@ class CountryService extends MainService
                 'org_id' => $country['countryCode'],
                 'name_ru' => null,
                 'name_en' => $country['countryName'],
-                'image' => 'https://vak-sms.ru/static/country/' . $country['countryCode'] . '.png'
+                'image' => 'https://moresms.net/static/country/' . $country['countryCode'] . '.png'
             ];
 
             $country = SmsCountry::updateOrCreate($data);
@@ -61,7 +61,7 @@ class CountryService extends MainService
                 'org_id' => $country['countryCode'],
                 'name_ru' => null,
                 'name_en' => $country['countryName'],
-                'image' => 'https://vak-sms.ru/static/country/' . $country['countryCode'] . '.png'
+                'image' => 'https://moresms.net/static/country/' . $country['countryCode'] . '.png'
             ]);
         }
 
