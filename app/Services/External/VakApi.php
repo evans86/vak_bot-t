@@ -15,7 +15,7 @@ class VakApi
     public function __construct($apiKey)
     {
         $this->apiKey = $apiKey;
-        $this->url = 'https://vak-sms.ru/api/';
+        $this->url = 'https://moresms.net/api/';
     }
 
     //баланс пользователя
