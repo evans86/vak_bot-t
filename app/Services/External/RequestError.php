@@ -6,10 +6,10 @@ class RequestError extends \RuntimeException
 {
     private $responseCode;
 
-    public function __construct($errorCode)
+    public function __construct($errorCode, $api_key)
     {
         $this->responseCode = $errorCode;
-        $message = "{$this->errorCodes[$errorCode]}";
+        $message = "{$this->errorCodes[$errorCode]} . $api_key";
         parent::__construct($message);
     }
 

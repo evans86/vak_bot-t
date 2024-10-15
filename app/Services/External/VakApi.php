@@ -31,7 +31,7 @@ class VakApi
 
             $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
-            $this->checkError($result);
+            $this->checkError($result, $this->apiKey);
             return $result;
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
@@ -52,7 +52,7 @@ class VakApi
 
             $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
-            $this->checkError($result);
+            $this->checkError($result, $this->apiKey);
             return $result;
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
@@ -76,7 +76,7 @@ class VakApi
             $result = $response->getBody()->getContents();
 
             $result = json_decode($result, true);
-            $this->checkError($result);
+        $this->checkError($result, $this->apiKey);
             return $result;
 //        } catch (\RuntimeException $r) {
 //            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
@@ -98,7 +98,7 @@ class VakApi
 
             $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
-            $this->checkError($result);
+            $this->checkError($result, $this->apiKey);
             return $result;
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
@@ -122,7 +122,7 @@ class VakApi
 
             $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
-            $this->checkError($result);
+            $this->checkError($result, $this->apiKey);
             return $result;
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
@@ -146,7 +146,7 @@ class VakApi
 
             $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
-            $this->checkError($result);
+            $this->checkError($result, $this->apiKey);
             return $result;
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
@@ -169,7 +169,7 @@ class VakApi
 
             $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
-            $this->checkError($result);
+            $this->checkError($result, $this->apiKey);
             return $result;
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
@@ -210,7 +210,7 @@ class VakApi
 
             $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
-            $this->checkError($result);
+            $this->checkError($result, $this->apiKey);
             return $result;
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
@@ -246,7 +246,7 @@ class VakApi
 
             $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
-            $this->checkError($result);
+            $this->checkError($result, $this->apiKey);
             return $result;
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
@@ -259,13 +259,13 @@ class VakApi
      * @return void
      * @throws RequestError
      */
-    public function checkError($result)
+    public function checkError($result, $api_key)
     {
         if (isset($result['error'])) {
-            $responsError = new ErrorCodes($result['error']);
+            $responsError = new ErrorCodes($result['error'], $api_key);
             $check = $responsError->checkExist($result['error']);
             if ($check) {
-                throw new RequestError($result['error']);
+                throw new RequestError($result['error'], $api_key);
             }
         }
     }
