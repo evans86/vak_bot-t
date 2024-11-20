@@ -4,6 +4,7 @@ namespace App\Services\Activate;
 
 use App\Dto\BotDto;
 use App\Dto\BotFactory;
+use App\Helpers\BotLogHelpers;
 use App\Models\Activate\SmsCountry;
 use App\Models\Bot\SmsBot;
 use App\Models\Order\SmsOrder;
@@ -199,9 +200,10 @@ class OrderService extends MainService
      * @param BotDto $botDto
      * @param SmsOrder $order
      * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public
-    function cancel(array $userData, BotDto $botDto, SmsOrder $order)
+    function cancel(array $userData, BotDto $botDto, SmsOrder $order) //,
     {
         $smsVak = new VakApi($botDto->api_key, $botDto->resource_link);
         // Проверить уже отменёный
@@ -212,6 +214,7 @@ class OrderService extends MainService
         // Можно отменить только статус 4 и кодов нет
         if (!is_null($order->codes))
             throw new RuntimeException('The order has not been canceled, the number has been activated');
+
 
         // Обновить статус setStatus()
         try {
@@ -231,6 +234,7 @@ class OrderService extends MainService
         if ($order->save()) {
             // Он же возвращает баланс
             $amountFinal = $order->price_final;
+//            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . 'Вернул баланс');
             $result = BottApi::addBalance($botDto, $userData, $amountFinal, 'Возврат баланса, активация отменена');
         } else {
             throw new RuntimeException('Not save order');
