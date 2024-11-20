@@ -397,7 +397,7 @@ class OrderController extends Controller
                 return ApiHelpers::error('Not found module.');
             if (is_null($request->order_id))
                 return ApiHelpers::error('Not found params: order_id');
-            $order = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
+            $order = SmsOrder::query()->lockForUpdate()->find(['org_id' => $request->order_id]);
 
             $botDto = BotFactory::fromEntity($bot);
             $result = BottApi::checkUser(
