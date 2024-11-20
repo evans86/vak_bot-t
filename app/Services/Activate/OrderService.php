@@ -203,7 +203,7 @@ class OrderService extends MainService
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public
-    function cancel(array $userData, BotDto $botDto, SmsOrder $order) //,
+    function cancel(array $userData, BotDto $botDto, SmsOrder $order) //
     {
         $smsVak = new VakApi($botDto->api_key, $botDto->resource_link);
         // Проверить уже отменёный
