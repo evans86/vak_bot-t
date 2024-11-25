@@ -397,27 +397,62 @@ class OrderController extends Controller
                 return ApiHelpers::error('Not found module.');
             if (is_null($request->order_id))
                 return ApiHelpers::error('Not found params: order_id');
-            $order = SmsOrder::query()->where(['org_id' => $request->order_id])->lockForUpdate()->first();
 
-            $botDto = BotFactory::fromEntity($bot);
-            $result = BottApi::checkUser(
-                $request->user_id,
-                $request->user_secret_key,
-                $botDto->public_key,
-                $botDto->private_key
-            );
-            if (!$result['result']) {
-                throw new RuntimeException($result['message']);
-            }
+            return \DB::transaction(function () use ($request, $bot) {
+                // Проверка пользователя и получение данных внутри транзакции
+                $botDto = BotFactory::fromEntity($bot);
+                $result = BottApi::checkUser(
+                    $request->user_id,
+                    $request->user_secret_key,
+                    $botDto->public_key,
+                    $botDto->private_key
+                );
 
-            $result = $this->orderService->cancel(
-                $result['data'],
-                $botDto,
-                $order
-            );
+                if (!$result['result']) {
+                    throw new RuntimeException($result['message']);
+                }
 
-            $order = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
-            return ApiHelpers::success(OrderResource::generateOrderArray($order));
+                // Получаем заказ с блокировкой внутри транзакции
+                $order = SmsOrder::query()
+                    ->where(['org_id' => $request->order_id])
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$order) {
+                    throw new RuntimeException('Order not found');
+                }
+
+                $result = $this->orderService->cancel(
+                    $result['data'],
+                    $botDto,
+                    $order
+                );
+
+                // Получаем обновленный заказ для ответа
+                $updatedOrder = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
+                return ApiHelpers::success(OrderResource::generateOrderArray($updatedOrder));
+            });
+//            $order = SmsOrder::query()->where(['org_id' => $request->order_id])->lockForUpdate()->first();
+
+//            $botDto = BotFactory::fromEntity($bot);
+//            $result = BottApi::checkUser(
+//                $request->user_id,
+//                $request->user_secret_key,
+//                $botDto->public_key,
+//                $botDto->private_key
+//            );
+//            if (!$result['result']) {
+//                throw new RuntimeException($result['message']);
+//            }
+//
+//            $result = $this->orderService->cancel(
+//                $result['data'],
+//                $botDto,
+//                $order
+//            );
+//
+//            $order = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
+//            return ApiHelpers::success(OrderResource::generateOrderArray($order));
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢R ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
             return ApiHelpers::error($r->getMessage());
@@ -425,6 +460,7 @@ class OrderController extends Controller
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $e->getMessage());
             \Log::error($e->getMessage());
             return ApiHelpers::error('Close order error');
+        } catch (\Throwable $e) {
         }
     }
 }

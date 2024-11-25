@@ -205,7 +205,6 @@ class OrderService extends MainService
     public
     function cancel(array $userData, BotDto $botDto, SmsOrder $order) //
     {
-        $smsVak = new VakApi($botDto->api_key, $botDto->resource_link);
         // Проверить уже отменёный
         if ($order->status == SmsOrder::STATUS_CANCEL)
             throw new RuntimeException('The order has already been canceled');
@@ -215,6 +214,7 @@ class OrderService extends MainService
         if (!is_null($order->codes))
             throw new RuntimeException('The order has not been canceled, the number has been activated');
 
+        $smsVak = new VakApi($botDto->api_key, $botDto->resource_link);
 
         // Обновить статус setStatus()
         try {
