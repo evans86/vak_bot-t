@@ -207,7 +207,7 @@ class OrderService extends MainService
     {
         // Проверить уже отменёный
         if ($order->status == SmsOrder::STATUS_CANCEL)
-            throw new RuntimeException('The order has already been canceled');
+            throw new RuntimeException('The order has already been canceled' . $botDto->id);
         if ($order->status == SmsOrder::STATUS_FINISH)
             throw new RuntimeException('The order has not been canceled, the number has been activated, Status 10');
         // Можно отменить только статус 4 и кодов нет
