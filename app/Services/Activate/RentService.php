@@ -336,12 +336,13 @@ class RentService extends MainService
     // Асинхронный запрос для тестов
     public function cronGuzzle()
     {
-        $url = 'http://vpn/closeOrder';
+        $url = 'https://smsvakback.bot-t.com/closeOrder';
 
         $params = [
-            'user_id' => '1',
-            'order_id' => '1731874944091838',
-            'public_key' => '062d7c679ca22cf88b01b13c0b24b057',
+            'user_id' => '6715142449',
+            'order_id' => '1732566852467574',
+            'public_key' => '26c5fcc1b09969ed86d017944c058678',
+            'user_secret_key' => '9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5'
         ];
 
         $requests = 10;
