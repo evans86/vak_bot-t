@@ -336,69 +336,28 @@ class RentService extends MainService
     // Асинхронный запрос для тестов
     public function cronGuzzle()
     {
-        $url = 'https://smsvakback.bot-t.com/closeOrder';
-
-        $params = [
-            'user_id' => '6715142449',
-            'order_id' => '1732566852467574',
-            'public_key' => '26c5fcc1b09969ed86d017944c058678',
-            'user_secret_key' => '9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5'
-        ];
-
-        $requests = 10;
-        $promises = [];
-        $client = new \GuzzleHttp\Client([
-            'verify' => false,
-            'http_errors' => false // чтобы видеть тело ответа даже при ошибках
-        ]);
-
-        for ($i = 0; $i < $requests; $i++) {
-            $promises[] = $client->getAsync($url, [ // используем GET запрос
-                'query' => $params // параметры будут добавлены к URL
-            ]);
-        }
-
-        $results = \GuzzleHttp\Promise\Utils::settle($promises)->wait();
-
-        $successful_cancellations = 0;
-        $errors = [];
-
-        foreach ($results as $result) {
-            if ($result['state'] === 'fulfilled') {
-                $response = json_decode($result['value']->getBody(), true);
-                echo "Response: " . json_encode($response) . "\n";
-                if (isset($response['success']) && $response['success']) {
-                    $successful_cancellations++;
-                } else {
-                    $errors[] = $response['message'] ?? 'Unknown error';
-                }
-            } else {
-                $errors[] = $result['reason']->getMessage();
-                echo "Request Error: " . $result['reason']->getMessage() . "\n";
-            }
-        }
-
-        echo "\nSummary:\n";
-        echo "Total requests: $requests\n";
-        echo "Successful cancellations: $successful_cancellations\n";
-        echo "\nErrors encountered:\n";
-        foreach (array_count_values($errors) as $error => $count) {
-            echo "$error: $count times\n";
-        }
-
-
-//        $url = 'http://vak/closeOrder?user_id=1&order_id=1731874944091838&public_key=062d7c679ca22cf88b01b13c0b24b057'; // URL вашего endpoint'а
+//        $url = 'https://smsvakback.bot-t.com/closeOrder';
 //
-//        $requests = 10; // Количество параллельных запросов
+//        $params = [
+//            'user_id' => '6715142449',
+//            'order_id' => '1732566852467574',
+//            'public_key' => '26c5fcc1b09969ed86d017944c058678',
+//            'user_secret_key' => '9f8f55483e3d8b769f8fec128376a6e729975548d0d7a6e73e31d0d7e4d5e4d5'
+//        ];
+//
+//        $requests = 10;
 //        $promises = [];
-//        $client = new \GuzzleHttp\Client();
+//        $client = new \GuzzleHttp\Client([
+//            'verify' => false,
+//            'http_errors' => false // чтобы видеть тело ответа даже при ошибках
+//        ]);
 //
 //        for ($i = 0; $i < $requests; $i++) {
-//            $promises[] = $client->postAsync($url, [
+//            $promises[] = $client->getAsync($url, [ // используем GET запрос
+//                'query' => $params // параметры будут добавлены к URL
 //            ]);
 //        }
 //
-//        // Запускаем все запросы параллельно
 //        $results = \GuzzleHttp\Promise\Utils::settle($promises)->wait();
 //
 //        $successful_cancellations = 0;
@@ -407,18 +366,19 @@ class RentService extends MainService
 //        foreach ($results as $result) {
 //            if ($result['state'] === 'fulfilled') {
 //                $response = json_decode($result['value']->getBody(), true);
+//                echo "Response: " . json_encode($response) . "\n";
 //                if (isset($response['success']) && $response['success']) {
 //                    $successful_cancellations++;
 //                } else {
-//                    // Сохраняем текст ошибки
 //                    $errors[] = $response['message'] ?? 'Unknown error';
 //                }
 //            } else {
-//                // Сохраняем ошибку запроса
 //                $errors[] = $result['reason']->getMessage();
+//                echo "Request Error: " . $result['reason']->getMessage() . "\n";
 //            }
 //        }
 //
+//        echo "\nSummary:\n";
 //        echo "Total requests: $requests\n";
 //        echo "Successful cancellations: $successful_cancellations\n";
 //        echo "\nErrors encountered:\n";
@@ -426,95 +386,6 @@ class RentService extends MainService
 //            echo "$error: $count times\n";
 //        }
 
-//        $client = new Client();
-//        $requests = [
-//            'req1' => $client->getAsync('http://vak/closeOrder?user_id=1&order_id=1731874944091838&public_key=062d7c679ca22cf88b01b13c0b24b057'),
-//            'req2' => $client->getAsync('http://vak/closeOrder?user_id=1&order_id=1731874944091838&public_key=062d7c679ca22cf88b01b13c0b24b057'),
-//            'req3' => $client->getAsync('http://vak/closeOrder?user_id=1&order_id=1731874944091838&public_key=062d7c679ca22cf88b01b13c0b24b057')
-//        ];
-//
-//        $pool = new Pool($client, $requests);
-//        $promise = $pool->promise();
-//        $promise->wait();
-
-// Ждем завершения всех запросов
-//        $results = Promise::settle($promises)->wait();
-
-// Обрабатываем результаты каждого запроса
-//        foreach ($results as $url => $result) {
-//            if ($result['state'] === 'fulfilled') {
-//                // Обработка успешного ответа
-//                echo 'Response from ' . $url . ': ' . $result['value']->getBody() . PHP_EOL;
-//            } else {
-//                // Обработка ошибки
-//                echo 'Error making request to ' . $url . PHP_EOL;
-//            }
-//        }
-
-
-//        $client = new \GuzzleHttp\Client([
-//            'base_uri' => 'http://vak',
-//        ]);
-//
-//        $urls = [
-//            '/closeOrder?user_id=1&order_id=1731874944091838&public_key=062d7c679ca22cf88b01b13c0b24b057',
-//            '/closeOrder?user_id=1&order_id=1731874944091838&public_key=062d7c679ca22cf88b01b13c0b24b057',
-//            '/closeOrder?user_id=1&order_id=1731874944091838&public_key=062d7c679ca22cf88b01b13c0b24b057',
-//            '/closeOrder?user_id=1&order_id=1731874944091838&public_key=062d7c679ca22cf88b01b13c0b24b057',
-//        ];
-//
-//        $promises = [];
-//
-//        foreach ($urls as $urlIndex => $url) {
-//            $request = new \GuzzleHttp\Psr7\Request('GET', $url, []);
-//
-//            echo date('d.m.Y H:i:s') . ' запрос ' . $url . PHP_EOL;
-//
-//            $promises[$urlIndex] = $client->sendAsync($request, [
-//                'timeout' => 10,
-//                'on_stats' => function (\GuzzleHttp\TransferStats $stats) use ($url) {
-//                    // Тут можно получить статистику запроса
-//                    $stat = $stats->getHandlerStats();
-////                    dd($stat);
-//                    echo date('d.m.Y H:i:s') . ' получена статистика ' . $url . PHP_EOL;
-//                }
-//            ]);
-//
-//            $promises[$urlIndex]->then(
-//                function (\Psr\Http\Message\ResponseInterface $res) use ($url) {
-//                    // Тут обработка ответа
-//                    echo date('d.m.Y H:i:s') . ' запрос выполнен ' . $url . PHP_EOL;
-//                },
-//                function (\GuzzleHttp\Exception\RequestException $e) {
-//                    // Тут обработка ошибки
-//                }
-//            );
-//        }
-//
-//        // Ждать ответов
-//        $results = \GuzzleHttp\Promise\Utils::settle($promises)->wait(true);
-//
-//        // Обработка результатов по всем запросам
-//        if (sizeof($results) > 0) {
-//            foreach ($results as $urlIndex => $result) {
-//                // Обработка ответа по запросу $urls[$urlIndex]
-//
-//                if ($result['state'] != 'fulfilled' || !isset($result['value'])) {
-//                    // Если запрос выполнился с ошибкой
-//                    continue;
-//                }
-//
-//                /** @var \GuzzleHttp\Psr7\Response $response */
-//                $response = $result['value'];
-//
-//                // Получение заголовков
-//                // $response->getHeaderLine('Content-Length');
-//
-//                // Обработка тела ответа
-//                $body = $response->getBody();
-//                echo date('d.m.Y H:i:s') . ' обработка запроса в цикле' . $urls[$urlIndex] . PHP_EOL;
-//            }
-//        }
     }
 
     /**
