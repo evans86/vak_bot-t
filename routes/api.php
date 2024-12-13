@@ -33,13 +33,13 @@ Route::get('services', [ProductController::class, 'getServices']);//+
 //для мультисервиса
 Route::get('getCountries', [CountryController::class, 'getCountries']);//+
 Route::get('getServices', [ProductController::class, 'getServices']);//+
-Route::get('createMulti', [OrderController::class, 'createMulti']);//+
+Route::get('createMulti', [OrderController::class, 'createMulti'])->middleware('throttle_user_secret_key');//+
 
 /**
  * Роуты API (пользователи)
  */
-Route::get('setService', [ProductController::class, 'setService']);//+
-Route::get('setLanguage', [UserController::class, 'setLanguage']);//+
+Route::get('setService', [ProductController::class, 'setService'])->middleware('throttle_user_secret_key');//+
+Route::get('setLanguage', [UserController::class, 'setLanguage'])->middleware('throttle_user_secret_key');//+
 Route::get('getUser', [UserController::class, 'getUser']);//+
 
 /**
@@ -55,16 +55,16 @@ Route::get('getSettings', [BotController::class, 'getSettings']);//+
 /**
  * Роуты API (заказы (создание, получение, все))
  */
-Route::get('createOrder', [OrderController::class, 'createOrder']);//+
-Route::get('getOrder', [OrderController::class, 'getOrder']);//+
-Route::get('orders', [OrderController::class, 'orders']);//+
+Route::get('createOrder', [OrderController::class, 'createOrder'])->middleware('throttle_user_secret_key');//+
+Route::get('getOrder', [OrderController::class, 'getOrder'])->middleware('throttle_user_secret_key');//+
+Route::get('orders', [OrderController::class, 'orders'])->middleware('throttle_user_secret_key');//+
 
 /**
  * Роуты API (заказы (изменение статусов))
  */
-Route::get('closeOrder', [OrderController::class, 'closeOrder']);//+
-Route::get('secondSms', [OrderController::class, 'secondSms']);//+
-Route::get('confirmOrder', [OrderController::class, 'confirmOrder']);//+
+Route::get('closeOrder', [OrderController::class, 'closeOrder'])->middleware('throttle_user_secret_key');//+
+Route::get('secondSms', [OrderController::class, 'secondSms'])->middleware('throttle_user_secret_key');//+
+Route::get('confirmOrder', [OrderController::class, 'confirmOrder'])->middleware('throttle_user_secret_key');//+
 
 
 
