@@ -56,8 +56,8 @@ Route::get('getSettings', [BotController::class, 'getSettings']);//+
  * Роуты API (заказы (создание, получение, все))
  */
 Route::get('createOrder', [OrderController::class, 'createOrder'])->middleware('throttle_user_secret_key');//+
-Route::get('getOrder', [OrderController::class, 'getOrder'])->middleware('throttle_user_secret_key');//+
-Route::get('orders', [OrderController::class, 'orders'])->middleware('throttle_user_secret_key');//+
+Route::get('getOrder', [OrderController::class, 'getOrder']);//+
+Route::get('orders', [OrderController::class, 'orders']);//+
 
 /**
  * Роуты API (заказы (изменение статусов))
