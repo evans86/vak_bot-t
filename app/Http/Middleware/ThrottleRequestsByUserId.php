@@ -19,9 +19,9 @@ class ThrottleRequestsByUserId
     {
         $user_secret_key = $request->query('user_secret_key');
 
-        // Проверяем, есть ли вообще параметр user_id
+        // Проверяем, есть ли вообще параметр $user_secret_key
         if ($user_secret_key) {
-            // Генерируем ключ для кэша на основе user_id
+            // Генерируем ключ для кэша на основе $user_secret_key
             $cacheKey = 'last_request_user_' . $user_secret_key;
 
             // Если есть запись о предыдущем запросе
