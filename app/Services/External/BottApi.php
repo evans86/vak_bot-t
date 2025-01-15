@@ -3,6 +3,8 @@
 namespace App\Services\External;
 
 use App\Dto\BotDto;
+use App\Helpers\ApiHelpers;
+use App\Helpers\BotLogHelpers;
 use GuzzleHttp\Client;
 
 class BottApi
@@ -21,18 +23,27 @@ class BottApi
      */
     public static function checkUser(int $telegram_id, string $secret_key, string $public_key, string $private_key)
     {
-        $requestParam = [
-            'public_key' => $public_key,
-            'private_key' => $private_key,
-            'id' => $telegram_id,
-            'secret_key' => $secret_key,
-        ];
+        try {
+            $requestParam = [
+                'public_key' => $public_key,
+                'private_key' => $private_key,
+                'id' => $telegram_id,
+                'secret_key' => $secret_key,
+            ];
 
-        $client = new Client(['base_uri' => self::HOST]);
-        $response = $client->get('v1/module/user/check-secret?' . http_build_query($requestParam));
+            $client = new Client(['base_uri' => self::HOST]);
+            $response = $client->get('v1/module/user/check-secret?' . http_build_query($requestParam));
 
-        $result = $response->getBody()->getContents();
-        return json_decode($result, true);
+            $result = $response->getBody()->getContents();
+            return json_decode($result, true);
+        } catch (\RuntimeException $r) {
+            BotLogHelpers::notifyBotLog('(🟢R ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
+            return ApiHelpers::error($r->getMessage());
+        } catch (\Exception $e) {
+            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $e->getMessage());
+            \Log::error($e->getMessage());
+            return ApiHelpers::error('Check User error');
+        }
     }
 
     /**
@@ -46,17 +57,17 @@ class BottApi
      */
     public static function get(int $telegram_id, string $public_key, string $private_key): array
     {
-        $requestParam = [
-            'public_key' => $public_key,
-            'private_key' => $private_key,
-            'id' => $telegram_id,
-        ];
+            $requestParam = [
+                'public_key' => $public_key,
+                'private_key' => $private_key,
+                'id' => $telegram_id,
+            ];
 
-        $client = new Client(['base_uri' => self::HOST]);
-        $response = $client->get('v1/module/user/get?' . http_build_query($requestParam));
+            $client = new Client(['base_uri' => self::HOST]);
+            $response = $client->get('v1/module/user/get?' . http_build_query($requestParam));
 
-        $result = $response->getBody()->getContents();
-        return json_decode($result, true);
+            $result = $response->getBody()->getContents();
+            return json_decode($result, true);
     }
 
     /**
