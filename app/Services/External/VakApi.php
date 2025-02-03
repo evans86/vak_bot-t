@@ -228,11 +228,11 @@ class VakApi
      *
      * @param $status
      * @param $idNum
-     * @param $all
+     * @param bool $all
      * @return mixed
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function getSmsCode($idNum, $all = '')
+    public function getSmsCode($idNum, bool $all = true)
     {
         try {
             $requestParam = [
