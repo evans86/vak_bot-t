@@ -235,7 +235,7 @@ class OrderService extends MainService
             // Он же возвращает баланс
             $amountFinal = $order->price_final;
 //            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . 'Вернул баланс');
-            $result = BottApi::addBalance($botDto, $userData, $amountFinal, 'Возврат баланса, активация отменена');
+            $result = BottApi::addBalance($botDto, $userData, $amountFinal, 'Возврат баланса, активация отменена order_id = ' . $order->id);
         } else {
             throw new RuntimeException('Not save order');
         }
