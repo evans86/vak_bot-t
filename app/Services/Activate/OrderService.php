@@ -10,12 +10,14 @@ use App\Models\Bot\SmsBot;
 use App\Models\Order\SmsOrder;
 use App\Models\User\SmsUser;
 use App\Services\External\BottApi;
-use App\Services\External\RequestError;
-use App\Services\External\SmsActivateApi;
 use App\Services\External\VakApi;
 use App\Services\MainService;
+use DB;
+use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
+use Log;
 use RuntimeException;
 
 class OrderService extends MainService
@@ -26,7 +28,7 @@ class OrderService extends MainService
      * @param string $services
      * @param array $userData
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function createMulti(BotDto $botDto, string $country_id, string $services, array $userData)
     {
@@ -96,6 +98,7 @@ class OrderService extends MainService
             ];
 
             $order = SmsOrder::create($data);
+            Log::info('Vak: Произошло создание заказа (списание баланса) ' . $order->id);
 
             array_push($response, [
                 'id' => $order->org_id,
@@ -119,8 +122,9 @@ class OrderService extends MainService
      * @param array $userData Сущность DTO from bott
      * @param BotDto $botDto
      * @param string $country_id
+     * @param string $service
      * @return array
-     * @throws \Exception
+     * @throws GuzzleException
      */
     public
     function create(array $userData, BotDto $botDto, string $country_id, string $service): array
@@ -179,6 +183,8 @@ class OrderService extends MainService
             throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
         }
 
+        Log::info('Vak: Произошло создание заказа (списание баланса) ' . $order->id);
+
         $result = [
             'id' => $order->org_id,
             'phone' => $serviceResult['tel'],
@@ -200,7 +206,7 @@ class OrderService extends MainService
      * @param BotDto $botDto
      * @param SmsOrder $order
      * @return mixed
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public
     function cancel(array $userData, BotDto $botDto, SmsOrder $order) //
@@ -225,7 +231,7 @@ class OrderService extends MainService
             if ($result['status'] == SmsOrder::STATUS_WAIT_SMS)
                 throw new RuntimeException('На данные номер уже отправлено смс, отмена невозможна. Ожидайте код.');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($e->getMessage() != 'Не верный ID операции')
                 throw new RuntimeException('Ошибка сервера');
         }
@@ -234,8 +240,9 @@ class OrderService extends MainService
         if ($order->save()) {
             // Он же возвращает баланс
             $amountFinal = $order->price_final;
-//            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . 'Вернул баланс');
+            BotLogHelpers::notifyBotLog('(🟢SUB ' . __FUNCTION__ . ' Vak): ' . 'Вернул баланс order_id = ' . $order->id);
             $result = BottApi::addBalance($botDto, $userData, $amountFinal, 'Возврат баланса, активация отменена order_id = ' . $order->id);
+            Log::info('Vak: Произошла отмена заказа (возврат баланса) ' . $order->id);
         } else {
             throw new RuntimeException('Not save order');
         }
@@ -252,7 +259,6 @@ class OrderService extends MainService
     public
     function confirm(BotDto $botDto, SmsOrder $order)
     {
-//        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
         if ($order->status == SmsOrder::STATUS_CANCEL)
             throw new RuntimeException('The order has already been canceled');
         if (is_null($order->codes))
@@ -263,6 +269,7 @@ class OrderService extends MainService
         $order->status = SmsOrder::STATUS_FINISH;
 
         $order->save();
+        Log::info('Vak: Произошло успешное завершение заказа ' . $order->id);
 
         return SmsOrder::STATUS_FINISH;
     }
@@ -273,6 +280,7 @@ class OrderService extends MainService
      * @param BotDto $botDto
      * @param SmsOrder $order
      * @return int
+     * @throws GuzzleException
      */
     public
     function second(BotDto $botDto, SmsOrder $order)
@@ -304,6 +312,7 @@ class OrderService extends MainService
      * @param BotDto $botDto
      * @param SmsOrder $order
      * @return void
+     * @throws GuzzleException
      */
     public
     function order(array $userData, BotDto $botDto, SmsOrder $order): void
@@ -341,8 +350,12 @@ class OrderService extends MainService
         try {
             $statuses = [SmsOrder::STATUS_WAIT_CODE, SmsOrder::STATUS_WAIT_RETRY];
 
-            $orders = SmsOrder::query()->whereIn('status', $statuses)
-                ->where('end_time', '<=', time())->get();
+            $orders = SmsOrder::query()
+                ->whereIn('status', $statuses)
+                ->where('end_time', '<=', time())
+                ->where('status', '!=', SmsOrder::STATUS_CANCEL) // Исключаем уже отмененные заказы
+                ->lockForUpdate()
+                ->get();
 
             echo "START count:" . count($orders) . PHP_EOL;
 
@@ -361,23 +374,26 @@ class OrderService extends MainService
                 );
                 echo $order->id . PHP_EOL;
 
+                DB::transaction(function () use ($order, $botDto, $result) {
 
-                if (is_null($order->codes)) {
-                    echo 'cancel_start' . PHP_EOL;
-                    $this->cancelCron(
-                        $result['data'],
-                        $botDto,
-                        $order
-                    );
-                    echo 'cancel_finish' . PHP_EOL;
-                } else {
-                    echo 'confirm_start' . PHP_EOL;
-                    $this->confirm(
-                        $botDto,
-                        $order
-                    );
-                    echo 'confirm_finish' . PHP_EOL;
-                }
+                    if (is_null($order->codes)) {
+                        echo 'cancel_start' . PHP_EOL;
+                        $this->cancelCron(
+                            $result['data'],
+                            $botDto,
+                            $order
+                        );
+                        echo 'cancel_finish' . PHP_EOL;
+                    } else {
+                        echo 'confirm_start' . PHP_EOL;
+                        $this->confirm(
+                            $botDto,
+                            $order
+                        );
+                        echo 'confirm_finish' . PHP_EOL;
+                    }
+                });
+
                 echo "FINISH" . $order->id . PHP_EOL;
 
             }
@@ -385,7 +401,7 @@ class OrderService extends MainService
             $finish_text = "Vak finish count: " . count($orders) . PHP_EOL;
             $this->notifyTelegram($finish_text);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->notifyTelegram('🔴' . $e->getMessage());
         }
     }
@@ -397,11 +413,12 @@ class OrderService extends MainService
      * @param BotDto $botDto
      * @param SmsOrder $order
      * @return mixed
+     * @throws GuzzleException
      */
     public
     function cancelCron(array $userData, BotDto $botDto, SmsOrder $order)
     {
-        $smsVak = new VakApi($botDto->api_key, $botDto->resource_link);
+//        $smsVak = new VakApi($botDto->api_key, $botDto->resource_link);
         // Проверить уже отменёный
         if ($order->status == SmsOrder::STATUS_CANCEL)
             throw new RuntimeException('The order has already been canceled');
@@ -429,13 +446,19 @@ class OrderService extends MainService
         if ($order->save()) {
             // Он же возвращает баланс
             $amountFinal = $order->price_final;
-            $result = BottApi::addBalance($botDto, $userData, $amountFinal, 'Возврат баланса, активация отменена');
+            $result = BottApi::addBalance($botDto, $userData, $amountFinal, 'Возврат баланса, активация отменена order_id = ' . $order->id);
+            Log::info('Vak: Произошла отмена заказа (возврат баланса (крон)) ' . $order->id);
         } else {
             throw new RuntimeException('Not save order');
         }
         return $result;
     }
 
+    /**
+     * @param $text
+     * @return void
+     * @throws GuzzleException
+     */
     public function notifyTelegram($text)
     {
         $client = new Client();
@@ -457,7 +480,7 @@ class OrderService extends MainService
                 ]);
             }
             //CronLogBot#2
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             foreach ($ids as $id) {
                 $client->post('https://api.telegram.org/bot6934899828:AAGg_f4k1LG_gcZNsNF2LHgdm7tym-1sYVg/sendMessage', [
 
@@ -468,22 +491,5 @@ class OrderService extends MainService
                 ]);
             }
         }
-    }
-
-
-    /**
-     * Статус заказа с сервиса
-     *
-     * @param $id
-     * @param BotDto $botDto
-     * @return mixed
-     */
-    public
-    function getStatus($id, BotDto $botDto)
-    {
-        $smsActivate = new SmsActivateApi($botDto->api_key, $botDto->resource_link);
-
-        $serviceResult = $smsActivate->getStatus($id);
-        return $serviceResult;
     }
 }

@@ -432,27 +432,7 @@ class OrderController extends Controller
                 $updatedOrder = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
                 return ApiHelpers::success(OrderResource::generateOrderArray($updatedOrder));
             });
-//            $order = SmsOrder::query()->where(['org_id' => $request->order_id])->lockForUpdate()->first();
 
-//            $botDto = BotFactory::fromEntity($bot);
-//            $result = BottApi::checkUser(
-//                $request->user_id,
-//                $request->user_secret_key,
-//                $botDto->public_key,
-//                $botDto->private_key
-//            );
-//            if (!$result['result']) {
-//                throw new RuntimeException($result['message']);
-//            }
-//
-//            $result = $this->orderService->cancel(
-//                $result['data'],
-//                $botDto,
-//                $order
-//            );
-//
-//            $order = SmsOrder::query()->where(['org_id' => $request->order_id])->first();
-//            return ApiHelpers::success(OrderResource::generateOrderArray($order));
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢R ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
             return ApiHelpers::error($r->getMessage());

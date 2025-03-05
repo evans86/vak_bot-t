@@ -57,17 +57,17 @@ class BottApi
      */
     public static function get(int $telegram_id, string $public_key, string $private_key): array
     {
-            $requestParam = [
-                'public_key' => $public_key,
-                'private_key' => $private_key,
-                'id' => $telegram_id,
-            ];
+        $requestParam = [
+            'public_key' => $public_key,
+            'private_key' => $private_key,
+            'id' => $telegram_id,
+        ];
 
-            $client = new Client(['base_uri' => self::HOST]);
-            $response = $client->get('v1/module/user/get?' . http_build_query($requestParam));
+        $client = new Client(['base_uri' => self::HOST]);
+        $response = $client->get('v1/module/user/get?' . http_build_query($requestParam));
 
-            $result = $response->getBody()->getContents();
-            return json_decode($result, true);
+        $result = $response->getBody()->getContents();
+        return json_decode($result, true);
     }
 
     /**
@@ -100,6 +100,9 @@ class BottApi
         $client = new Client(['base_uri' => $link]);
         $response = $client->request('POST', 'subtract-balance', [
             'form_params' => $requestParam,
+            'headers' => [
+                'User-Agent' => $comment,
+            ]
         ]);
 
         $result = $response->getBody()->getContents();
@@ -136,6 +139,9 @@ class BottApi
         $client = new Client(['base_uri' => $link]);
         $response = $client->request('POST', 'add-balance', [
             'form_params' => $requestParam,
+            'headers' => [
+                'User-Agent' => $comment,
+            ]
         ]);
 
         $result = $response->getBody()->getContents();
@@ -165,6 +171,9 @@ class BottApi
         $client = new Client(['base_uri' => $link]);
         $response = $client->request('POST', 'order-create', [
             'form_params' => $requestParam,
+            'headers' => [
+                'User-Agent' => $product,
+            ]
         ]);
 
         $result = $response->getBody()->getContents();
