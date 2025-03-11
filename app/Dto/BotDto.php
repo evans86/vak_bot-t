@@ -29,7 +29,7 @@ class BotDto
             'percent' => $this->percent,
             'version' => $this->version,
             'color' => $this->color,
-            'is_saved' => $this->is_saved,
+//            'is_saved' => $this->is_saved,
             'black' => $this->black,
 //            'resource_link' => $this->resource_link,
         ];
