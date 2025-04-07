@@ -179,7 +179,7 @@ class OrderService extends MainService
         $result = BottApi::subtractBalance($botDto, $userData, $amountFinal, 'Списание баланса для активации номера ' . $serviceResult['tel']);
 
         if (!$result['result']) {
-            $this->cancel($userData, $botDto, $order);
+            $this->cancel($userData, $botDto, $order, true);
             throw new RuntimeException('При списании баланса произошла ошибка: ' . $result['message']);
         }
 
@@ -209,7 +209,7 @@ class OrderService extends MainService
      * @throws GuzzleException
      */
     public
-    function cancel(array $userData, BotDto $botDto, SmsOrder $order) //
+    function cancel(array $userData, BotDto $botDto, SmsOrder $order, bool $error = false)
     {
         // Проверить уже отменёный
         if ($order->status == SmsOrder::STATUS_CANCEL)
@@ -238,11 +238,16 @@ class OrderService extends MainService
 
         $order->status = SmsOrder::STATUS_CANCEL;
         if ($order->save()) {
-            // Он же возвращает баланс
-            $amountFinal = $order->price_final;
-            BotLogHelpers::notifyBotLog('(🟢SUB ' . __FUNCTION__ . ' Vak): ' . 'Вернул баланс order_id = ' . $order->id);
-            $result = BottApi::addBalance($botDto, $userData, $amountFinal, 'Возврат баланса, активация отменена order_id = ' . $order->id);
-            Log::info('Vak: Произошла отмена заказа (возврат баланса) ' . $order->id);
+            if ($error) {
+                Log::info('Vak: Произошла отмена заказа (без возврата (ошибка списания баланса)) ' . $order->id);
+                BotLogHelpers::notifyBotLog('(🟢SUB ' . __FUNCTION__ . ' Vak): ' . 'Произошла отмена заказа (без возврата (ошибка списания баланса)) ' . $order->id);
+            }else{
+                // Он же возвращает баланс
+                $amountFinal = $order->price_final;
+                BotLogHelpers::notifyBotLog('(🟢SUB ' . __FUNCTION__ . ' Vak): ' . 'Вернул баланс order_id = ' . $order->id);
+                $result = BottApi::addBalance($botDto, $userData, $amountFinal, 'Возврат баланса, активация отменена order_id = ' . $order->id);
+                Log::info('Vak: Произошла отмена заказа (возврат баланса) ' . $order->id);
+            }
         } else {
             throw new RuntimeException('Not save order');
         }
