@@ -56,7 +56,7 @@ class VakApi
             return $result;
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
-            throw new \RuntimeException('Ошибка в получении данных провайдера');
+            throw new \RuntimeException('Ошибка в получении списка доступных стран.');
         }
     }
 
@@ -102,7 +102,7 @@ class VakApi
             return $result;
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
-            throw new \RuntimeException('Ошибка в получении данных провайдера');
+            throw new \RuntimeException('Ошибка в получении списка доступных номеров.');
         }
     }
 
@@ -126,7 +126,7 @@ class VakApi
             return $result;
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
-            throw new \RuntimeException('Ошибка в получении данных провайдера');
+            throw new \RuntimeException('Нет доступных номеров, попробуйте позже или воспользуйтесь другой страной.');
         }
     }
 
@@ -150,7 +150,7 @@ class VakApi
             return $result;
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
-            throw new \RuntimeException('Ошибка в получении данных провайдера');
+            throw new \RuntimeException('Ошибка в получении номера активации.');
         }
     }
 
@@ -214,7 +214,7 @@ class VakApi
             return $result;
         } catch (\RuntimeException $r) {
             BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
-            throw new \RuntimeException('Ошибка в получении данных провайдера');
+            throw new \RuntimeException('Ошибка в получении данных провайдера.');
         }
     }
 
