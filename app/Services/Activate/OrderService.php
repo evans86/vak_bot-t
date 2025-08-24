@@ -355,31 +355,53 @@ class OrderService extends MainService
         try {
             $statuses = [SmsOrder::STATUS_WAIT_CODE, SmsOrder::STATUS_WAIT_RETRY];
 
+            //используем более строгую блокировку
             $orders = SmsOrder::query()
                 ->whereIn('status', $statuses)
                 ->where('end_time', '<=', time())
-                ->where('status', '!=', SmsOrder::STATUS_CANCEL) // Исключаем уже отмененные заказы
-                ->lockForUpdate()
+                ->where('status', '!=', SmsOrder::STATUS_CANCEL)
+                ->lockForUpdate() // Блокировка для чтения
                 ->get();
 
             echo "START count:" . count($orders) . PHP_EOL;
 
-            $start_text = "Vak Start count: " . count($orders) . PHP_EOL;
+            $start_text = "VAK Start count: " . count($orders) . PHP_EOL;
             $this->notifyTelegram($start_text);
 
-            foreach ($orders as $key => $order) {
-                echo $order->id . PHP_EOL;
-                $bot = SmsBot::query()->where(['id' => $order->bot_id])->first();
+            $processedOrders = []; // Трекер обработанных заказов
 
+            foreach ($orders as $key => $order) {
+                // Проверяем, не обрабатывали ли уже этот заказ
+                if (in_array($order->id, $processedOrders)) {
+                    echo "SKIP already processed: " . $order->id . PHP_EOL;
+                    continue;
+                }
+
+                echo "Processing: " . $order->id . PHP_EOL;
+
+                $bot = SmsBot::query()->where(['id' => $order->bot_id])->first();
                 $botDto = BotFactory::fromEntity($bot);
+
                 $result = BottApi::get(
                     $order->user->telegram_id,
                     $botDto->public_key,
                     $botDto->private_key
                 );
+
                 echo $order->id . PHP_EOL;
 
-                DB::transaction(function () use ($order, $botDto, $result) {
+                DB::transaction(function () use ($order, $botDto, $result, &$processedOrders) {
+
+                    // Двойная проверка статуса внутри транзакции
+                    $freshOrder = SmsOrder::query()
+                        ->where('id', $order->id)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($freshOrder->status == SmsOrder::STATUS_CANCEL) {
+                        echo "Already canceled: " . $order->id . PHP_EOL;
+                        return;
+                    }
 
                     if (is_null($order->codes)) {
                         echo 'cancel_start' . PHP_EOL;
@@ -397,13 +419,15 @@ class OrderService extends MainService
                         );
                         echo 'confirm_finish' . PHP_EOL;
                     }
+
+                    $processedOrders[] = $freshOrder->id;
                 });
 
                 echo "FINISH" . $order->id . PHP_EOL;
 
             }
 
-            $finish_text = "Vak finish count: " . count($orders) . PHP_EOL;
+            $finish_text = "VAK finish count: " . count($orders) . PHP_EOL;
             $this->notifyTelegram($finish_text);
 
         } catch (Exception $e) {
@@ -423,14 +447,21 @@ class OrderService extends MainService
     public
     function cancelCron(array $userData, BotDto $botDto, SmsOrder $order)
     {
-//        $smsVak = new VakApi($botDto->api_key, $botDto->resource_link);
-        // Проверить уже отменёный
-        if ($order->status == SmsOrder::STATUS_CANCEL)
-            throw new RuntimeException('The order has already been canceled');
-        if ($order->status == SmsOrder::STATUS_FINISH)
+        // Дополнительная проверка с блокировкой
+        $freshOrder = SmsOrder::query()
+            ->where('id', $order->id)
+            ->lockForUpdate()
+            ->first();
+
+        if ($freshOrder->status == SmsOrder::STATUS_CANCEL) {
+            BotLogHelpers::notifyBotLog('(🟡SKIP ' . __FUNCTION__ . ' Vak): Order already canceled: ' . $order->id);
+            throw new RuntimeException('The order has not been canceled, status 9');
+        }
+
+        if ($freshOrder->status == SmsOrder::STATUS_FINISH)
             throw new RuntimeException('The order has not been canceled, the number has been activated, Status 10');
-        // Можно отменить только статус 4 и кодов нет
-        if (!is_null($order->codes))
+
+        if (!is_null($freshOrder->codes))
             throw new RuntimeException('The order has not been canceled, the number has been activated');
 
         // Обновить статус setStatus()
