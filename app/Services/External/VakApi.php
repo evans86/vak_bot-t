@@ -11,11 +11,44 @@ class VakApi
     private $url;
 
     private $apiKey;
+    private $proxy = 'http://VtZNR9Hb:nXC9nQ45@45.147.246.121:64614';
 
     public function __construct($apiKey)
     {
         $this->apiKey = $apiKey;
         $this->url = 'https://moresms.net/api/';
+    }
+
+    /**
+     * Универсальный метод для отправки запросов через прокси
+     */
+    private function sendProxyRequest($data, $method = 'GET', $endpoint = '', $count = 0)
+    {
+        if ($count == 5) {
+            throw new RuntimeException('Превышен лимит подключений!');
+        }
+
+        try {
+            $client = new Client(['base_uri' => $this->url]);
+
+            if ($method === 'GET') {
+                $response = $client->get($endpoint . '?' . $data, [
+                    'proxy' => $this->proxy,
+                ]);
+            } else {
+                $response = $client->post($endpoint . '?' . $data, [
+                    'proxy' => $this->proxy,
+                ]);
+            }
+
+            return $response->getBody()->getContents();
+
+        } catch (\Throwable $e) {
+            if (strpos($e->getMessage(), 'cURL') !== false) {
+                return $this->sendProxyRequest($data, $method, $endpoint, $count + 1);
+            }
+            throw new RuntimeException($e->getMessage());
+        }
     }
 
     //баланс пользователя
@@ -26,10 +59,8 @@ class VakApi
                 'apiKey' => $this->apiKey
             ];
 
-            $client = new Client(['base_uri' => $this->url]);
-            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $result = $this->sendProxyRequest(http_build_query($requestParam), 'GET', __FUNCTION__);
 
-            $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
             $this->checkError($result, $this->apiKey);
             return $result;
@@ -47,10 +78,8 @@ class VakApi
                 'apiKey' => $this->apiKey
             ];
 
-            $client = new Client(['base_uri' => $this->url]);
-            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $result = $this->sendProxyRequest(http_build_query($requestParam), 'GET', __FUNCTION__);
 
-            $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
             $this->checkError($result, $this->apiKey);
             return $result;
@@ -60,29 +89,29 @@ class VakApi
         }
     }
 
-    //метод на API v0!!!!
-    public function getPrices($country)
-    {
-//        try {
-            $requestParam = [
-                'api_key' => $this->apiKey,
-                'action' => __FUNCTION__,
-                'country' => $country,
-            ];
-
-            $client = new Client(['base_uri' => 'https://vak-sms.ru/stubs/handler_api.php']);
-            $response = $client->get('?' . http_build_query($requestParam));
-
-            $result = $response->getBody()->getContents();
-
-            $result = json_decode($result, true);
-        $this->checkError($result, $this->apiKey);
-            return $result;
-//        } catch (\RuntimeException $r) {
-//            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
-//            throw new \RuntimeException('Ошибка в получении данных провайдера');
-//        }
-    }
+//    //метод на API v0!!!!
+//    public function getPrices($country)
+//    {
+////        try {
+//            $requestParam = [
+//                'api_key' => $this->apiKey,
+//                'action' => __FUNCTION__,
+//                'country' => $country,
+//            ];
+//
+//            $client = new Client(['base_uri' => 'https://vak-sms.ru/stubs/handler_api.php']);
+//            $response = $client->get('?' . http_build_query($requestParam));
+//
+//            $result = $response->getBody()->getContents();
+//
+//            $result = json_decode($result, true);
+//        $this->checkError($result, $this->apiKey);
+//            return $result;
+////        } catch (\RuntimeException $r) {
+////            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
+////            throw new \RuntimeException('Ошибка в получении данных провайдера');
+////        }
+//    }
 
     //количество всех доступных номеров списком
     public function getCountNumbersList($country)
@@ -93,10 +122,8 @@ class VakApi
                 'country' => $country,
             ];
 
-            $client = new Client(['base_uri' => $this->url]);
-            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $result = $this->sendProxyRequest(http_build_query($requestParam), 'GET', __FUNCTION__);
 
-            $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
             $this->checkError($result, $this->apiKey);
             return $result;
@@ -117,10 +144,8 @@ class VakApi
                 'price' => $price,
             ];
 
-            $client = new Client(['base_uri' => $this->url]);
-            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $result = $this->sendProxyRequest(http_build_query($requestParam), 'GET', __FUNCTION__);
 
-            $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
             $this->checkError($result, $this->apiKey);
             return $result;
@@ -141,10 +166,8 @@ class VakApi
                 'softId' => $softId, //номер софта
             ];
 
-            $client = new Client(['base_uri' => $this->url]);
-            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $result = $this->sendProxyRequest(http_build_query($requestParam), 'GET', __FUNCTION__);
 
-            $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
             $this->checkError($result, $this->apiKey);
             return $result;
@@ -154,28 +177,28 @@ class VakApi
         }
     }
 
-    //продление номера, хз пока как юзать
-    public function prolongNumber($service, $tel)
-    {
-        try {
-            $requestParam = [
-                'apiKey' => $this->apiKey,
-                'service' => $service,
-                'tel' => $tel,//Номер телефона на который ранее был получен код из смс
-            ];
-
-            $client = new Client(['base_uri' => $this->url]);
-            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
-
-            $result = $response->getBody()->getContents();
-            $result = json_decode($result, true);
-            $this->checkError($result, $this->apiKey);
-            return $result;
-        } catch (\RuntimeException $r) {
-            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
-            throw new \RuntimeException('Ошибка в получении данных провайдера');
-        }
-    }
+//    //продление номера, хз пока как юзать
+//    public function prolongNumber($service, $tel)
+//    {
+//        try {
+//            $requestParam = [
+//                'apiKey' => $this->apiKey,
+//                'service' => $service,
+//                'tel' => $tel,//Номер телефона на который ранее был получен код из смс
+//            ];
+//
+//            $client = new Client(['base_uri' => $this->url]);
+//            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+//
+//            $result = $response->getBody()->getContents();
+//            $result = json_decode($result, true);
+//            $this->checkError($result, $this->apiKey);
+//            return $result;
+//        } catch (\RuntimeException $r) {
+//            BotLogHelpers::notifyBotLog('(🟢E ' . __FUNCTION__ . ' Vak): ' . $r->getMessage());
+//            throw new \RuntimeException('Ошибка в получении данных провайдера');
+//        }
+//    }
 
     /**
      * Изменение статуса
@@ -205,10 +228,8 @@ class VakApi
                 'idNum' => $idNum,//ID операции
             ];
 
-            $client = new Client(['base_uri' => $this->url]);
-            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $result = $this->sendProxyRequest(http_build_query($requestParam), 'GET', __FUNCTION__);
 
-            $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
             $this->checkError($result, $this->apiKey);
             return $result;
@@ -241,10 +262,8 @@ class VakApi
                 'all' => $all, //Параметр указывает необходимость получить весь список полученных кодов
             ];
 
-            $client = new Client(['base_uri' => $this->url]);
-            $response = $client->get(__FUNCTION__ . '?' . http_build_query($requestParam));
+            $result = $this->sendProxyRequest(http_build_query($requestParam), 'GET', __FUNCTION__);
 
-            $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
             $this->checkError($result, $this->apiKey);
             return $result;
